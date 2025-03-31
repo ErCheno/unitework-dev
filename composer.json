@@ -1,0 +1,18 @@
+{
+    "name": "emili/unitework-dev",
+    "description": "Desarrollo de Backend PHP UniteWork",
+    "autoload": {
+        "psr-4": {
+            "Emili\\UniteworkDev\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Emilio",
+            "email": "emiliojesus786@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}
