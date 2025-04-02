@@ -1,30 +1,36 @@
 // LoginPage.js
+import { guardarToken } from "../public/js/auth.js";
+import { isAuthenticated } from '../public/js/auth.js';
+
 import page from 'page';
 import { LoginForm } from '../components/form.js';
 import { Navbar } from '../components/Navbar.js';
+import { setToken } from '../public/js/auth.js';
+
 
 export function LoginPage() {
+
+    if (isAuthenticated()) {
+        return page('/dashboard');
+    }
+
     const contentDiv = document.getElementById('content');
     while (contentDiv.firstChild) {
         contentDiv.removeChild(contentDiv.firstChild);
     }
 
-    // Crear Navbar
     const navbar = Navbar();
     contentDiv.appendChild(navbar);
 
-    // Crear Formulario de Login
     const form = LoginForm();
     contentDiv.appendChild(form);
 
-    // Lógica del submit del formulario
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const email = form.querySelector('#email').value;
         const password = form.querySelector('#password').value;
 
-        // Realizar la petición fetch al backend
         try {
             const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/auth/login.php', {
                 method: 'POST',
@@ -39,12 +45,11 @@ export function LoginPage() {
 
             const result = await response.json();
 
-            // Manejar la respuesta del servidor
-            if (result.status === 'success') {
-                // Si la autenticación es exitosa, redirigir al dashboard
+            if (result.status === 'success' && result.token) {
+                setToken(result.token);
+                localStorage.setItem("username", result.user.nombre); 
                 page('/dashboard');
             } else {
-                // Si hay error, mostrar mensaje
                 alert(result.message);
             }
         } catch (error) {
@@ -52,4 +57,64 @@ export function LoginPage() {
             alert('Hubo un error al intentar iniciar sesión');
         }
     });
+}
+
+export async function loginUser(email, password) {
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/auth/login.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+            localStorage.setItem("token", result.token); 
+            alert("Inicio de sesión exitoso");
+            window.location.href = "/dashboard"; 
+        } else {
+            alert(result.message); 
+        }
+    } catch (error) {
+        console.error("Error al iniciar sesión:", error);
+        alert("Hubo un problema con la conexión.");
+    }
+}
+export async function checkToken() {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        console.log("No hay token, redirigiendo al login...");
+        window.location.href = "/login";
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/auth/checkToken.php', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.status !== "success") {
+            console.log("Token inválido, redirigiendo al login...");
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+    } catch (error) {
+        console.error("Error al verificar token:", error);
+        window.location.href = "/login";
+    }
+}
+
+// Función para cerrar sesión
+export function logoutUser() {
+    localStorage.removeItem("token"); 
+    window.location.href = "/login"; 
 }

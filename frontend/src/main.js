@@ -3,15 +3,31 @@ import page from 'page';
 import { LoginPage } from './pages/loginPage.js';
 import { DashboardPage } from './pages/dashboardPage.js';
 import { RegisterPage } from './pages/registerPage.js';
+import { isAuthenticated } from './public/js/auth.js';
 
+function checkToken() {
+    const token = localStorage.getItem('token');
+    return token !== null && token !== ''; 
+}
 // Definir las rutas con `page.js`
 page('/', () => {
-    page('/login');  // Redirigir a la página de login
-});
+    if (isAuthenticated()) {
+        page.redirect('/dashboard');
+    } else {
+        page.redirect('/login');
+    }});
 
 page('/login', LoginPage);
-page('/dashboard', DashboardPage);
-page('/register', RegisterPage);
+page('/registro', RegisterPage);
 
-// Inicializa el enrutador
+// Ruta protegida para el dashboard
+page('/dashboard', () => {
+    if (checkToken()) {
+        DashboardPage(); 
+    } else {
+        page.redirect('/login');
+    }
+});
+
 page();
+

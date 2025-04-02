@@ -2,6 +2,8 @@
 import page from 'page';
 import { RegisterForm } from '../components/form.js';
 import { Navbar } from '../components/navbar.js';
+import { isAuthenticated } from '../public/js/auth.js';
+
 
 
 // Manejo de envío de formulario
@@ -14,14 +16,12 @@ export function RegisterPage() {
     const navbar = Navbar();
     contentDiv.appendChild(navbar);
     
-    // Crear Formulario de Login
     const form = RegisterForm();
     contentDiv.appendChild(form);
     
     form.addEventListener('submit', async (event) => {
-        event.preventDefault();  // Prevenir el envío normal del formulario
+        event.preventDefault(); 
 
-        // Obtener los valores de los campos del formulario
         const username = document.getElementById('username').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -33,29 +33,27 @@ export function RegisterPage() {
             return;
         }
 
-        // Crear un objeto con los datos a enviar
         const userData = {
-            name: username,  // Corregido (antes era 'name')
+            name: username,  
             email: email,
             password: password,
             confirmPassword: confirmPassword
         };
 
-        // Enviar los datos al backend mediante fetch (AJAX)
         try {
             const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/auth/registro.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(userData)  // Convertimos el objeto a JSON
+                body: JSON.stringify(userData)  
             });
 
-            const result = await response.json();  // Leer la respuesta en formato JSON
+            const result = await response.json(); 
 
             if (result.status === "success") {
                 alert("Registro exitoso. Puedes iniciar sesión.");
-                page('/login');  // Solo una redirección
+                page('/login');  
             } else {
                 alert(result.message);  // Mostrar el mensaje de error del backend
             }

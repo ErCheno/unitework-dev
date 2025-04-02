@@ -11,6 +11,10 @@ class ComposerStaticInitd742765f2f043d15809f42cf201ab088
         array (
             'PHPMailer\\PHPMailer\\' => 20,
         ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
         'E' => 
         array (
             'Emili\\UniteworkDev\\' => 19,
@@ -21,6 +25,10 @@ class ComposerStaticInitd742765f2f043d15809f42cf201ab088
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
         'Emili\\UniteworkDev\\' => 
         array (

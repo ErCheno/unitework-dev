@@ -1,17 +1,22 @@
 // Componente Navbar
 
 import page from 'page';
+import { logout } from '../public/js/auth.js';
+
 
 export function Navbar() {
     const nav = document.createElement('nav');
-    
-    // Crear el enlace para el Dashboard
+    const username = localStorage.getItem("username") || "Usuario";
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'Logout';
+    console.log(logoutBtn);
+
     const dashboardLink = document.createElement('a');
     dashboardLink.textContent = 'Dashboard';
-    dashboardLink.href = '#/dashboard';  // El href sigue siendo útil para la navegación en la URL
+    dashboardLink.href = '#/dashboard'; 
     dashboardLink.onclick = (event) => {
-        event.preventDefault();  // Prevenir que el enlace recargue la página
-        page('/dashboard');  // Redirige sin recargar la página
+        event.preventDefault();
+        page('/dashboard'); 
     };
 
     // Crear el enlace para Login
@@ -19,7 +24,7 @@ export function Navbar() {
     loginLink.textContent = 'Login';
     loginLink.href = '#/login';
     loginLink.onclick = (event) => {
-        event.preventDefault();  // Prevenir que el enlace recargue la página
+        event.preventDefault(); 
         page('/login');
     };
 
@@ -28,7 +33,7 @@ export function Navbar() {
     registroLink.textContent = 'Register';
     registroLink.href = '#/registro';
     registroLink.onclick = (event) => {
-        event.preventDefault();  // Prevenir que el enlace recargue la página
+        event.preventDefault(); 
         page('/registro');
     };
 
@@ -36,6 +41,10 @@ export function Navbar() {
     nav.appendChild(dashboardLink);
     nav.appendChild(loginLink);
     nav.appendChild(registroLink);
+    nav.appendChild(logoutBtn);
 
+    nav.querySelector('#logoutBtn').addEventListener('click', () => {
+        logout();
+    });
     return nav;
 }

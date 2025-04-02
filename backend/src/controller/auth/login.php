@@ -12,15 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Leer los datos JSON del frontend
 $data = json_decode(file_get_contents("php://input"), true);
-error_log(print_r($data, true)); 
+error_log(print_r($data, true));
 
 if (isset($data["email"], $data["password"])) {
     $email = filter_var($data["email"], FILTER_SANITIZE_EMAIL);
     $password = $data["password"];
 
-    // Verificar que la conexión está funcionando
     if (!$conn) {
         die(json_encode(["status" => "error", "message" => "Error de conexión a la base de datos"]));
     }
@@ -38,10 +36,18 @@ if (isset($data["email"], $data["password"])) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Verificar la contraseña
         if (password_verify($password, $user['password'])) {
-            $_SESSION['usuario_id'] = $user['id'];
-            echo json_encode(["status" => "success", "message" => "Inicio de sesión exitoso"]);
+            //$token = generar_token($user['id']);
+            $token = bin2hex(random_bytes(32));
+            echo json_encode([
+                "status" => "success",
+                "token" => $token,
+                "user" => [
+                    "id" => $user["id"],
+                    "nombre" => $user["nombre"]
+                ]
+            ]);
+            echo json_encode(["status" => "success", "token" => $token]);
         } else {
             echo json_encode(["status" => "error", "message" => "Contraseña incorrecta"]);
         }
@@ -56,4 +62,5 @@ if (isset($data["email"], $data["password"])) {
 
 $conn->close();
 exit();
-?>
+
+
