@@ -1,5 +1,4 @@
 // LoginPage.js
-import { guardarToken } from "../public/js/auth.js";
 import { isAuthenticated } from '../public/js/auth.js';
 
 import page from 'page';
@@ -59,6 +58,14 @@ export function LoginPage() {
     });
 }
 
+/**
+ * Este loginUser permite la comprobación mediante una respuesta POST 
+ * que dentro del login.php dirige toda la lógica de la base de datos y luego
+ * el resultado en json lo devuelve para después crear un token de este
+ * 
+ * @param {*} email 
+ * @param {*} password 
+ */
 export async function loginUser(email, password) {
     try {
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/auth/login.php', {
@@ -74,7 +81,8 @@ export async function loginUser(email, password) {
         if (result.status === "success") {
             localStorage.setItem("token", result.token); 
             alert("Inicio de sesión exitoso");
-            window.location.href = "/dashboard"; 
+            window.location.replace("/dashboard");
+            //window.location.href = "/dashboard"; Es mejor opción la de arriba (al parecer evita que el usuario pueda ir con el botón atrás)
         } else {
             alert(result.message); 
         }

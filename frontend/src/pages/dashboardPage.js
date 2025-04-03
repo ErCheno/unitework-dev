@@ -1,14 +1,10 @@
-// Página del Dashboard
-
 import { Navbar } from '../components/Navbar.js';
 import page from 'page';
-import { checkToken } from "../public/js/auth.js";
 
 export function DashboardPage() {
     const token = localStorage.getItem('token');
 
     if (token) {
-        checkToken(); 
 
         const contentDiv = document.getElementById('content');
 

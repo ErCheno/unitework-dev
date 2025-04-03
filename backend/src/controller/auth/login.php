@@ -39,15 +39,23 @@ if (isset($data["email"], $data["password"])) {
         if (password_verify($password, $user['password'])) {
             //$token = generar_token($user['id']);
             $token = bin2hex(random_bytes(32));
-            echo json_encode([
-                "status" => "success",
-                "token" => $token,
-                "user" => [
-                    "id" => $user["id"],
-                    "nombre" => $user["nombre"]
-                ]
-            ]);
-            echo json_encode(["status" => "success", "token" => $token]);
+            $stmt = $conn->prepare("UPDATE usuarios SET token = ? WHERE email = ?");
+            $stmt->bind_param("ss", $token, $email);
+            $stmt->execute();
+            
+            // Verificar si la actualización fue exitosa
+            if ($stmt->affected_rows > 0) {
+                // Devuelve el token generado
+                echo json_encode([
+                    "status" => "success",
+                    "token" => $token,
+                    "user" => [
+                        "id" => $user["id"],
+                        "nombre" => $user["nombre"]
+                    ]
+                ]);
+            }
+            //echo json_encode(["status" => "success", "token" => $token]);
         } else {
             echo json_encode(["status" => "error", "message" => "Contraseña incorrecta"]);
         }

@@ -1,15 +1,13 @@
-// Componente Navbar
-
+// Navbar.js
 import page from 'page';
-import { logout } from '../public/js/auth.js';
-
+import { logoutUser } from '../public/js/auth.js';
 
 export function Navbar() {
     const nav = document.createElement('nav');
     const username = localStorage.getItem("username") || "Usuario";
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = 'Logout';
-    console.log(logoutBtn);
+    logoutBtn.setAttribute('id', 'logoutBtn');  // Asigna un id para seleccionarlo
 
     const dashboardLink = document.createElement('a');
     dashboardLink.textContent = 'Dashboard';
@@ -43,8 +41,9 @@ export function Navbar() {
     nav.appendChild(registroLink);
     nav.appendChild(logoutBtn);
 
-    nav.querySelector('#logoutBtn').addEventListener('click', () => {
-        logout();
+    logoutBtn.addEventListener('click', () => {
+        logoutUser();  // Llama a la función de logout
     });
+
     return nav;
 }

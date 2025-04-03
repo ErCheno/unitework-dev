@@ -12,9 +12,9 @@ function checkToken() {
 // Definir las rutas con `page.js`
 page('/', () => {
     if (isAuthenticated()) {
-        page.redirect('/dashboard');
+        page('/dashboard');
     } else {
-        page.redirect('/login');
+        page('/login');
     }});
 
 page('/login', LoginPage);
@@ -25,7 +25,7 @@ page('/dashboard', () => {
     if (checkToken()) {
         DashboardPage(); 
     } else {
-        page.redirect('/login');
+        page('/login');
     }
 });
 
