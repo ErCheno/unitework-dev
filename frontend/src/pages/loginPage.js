@@ -15,12 +15,14 @@ export function LoginPage() {
 
 
     const contentDiv = document.getElementById('content');
+    
+    
     while (contentDiv.firstChild) {
         contentDiv.removeChild(contentDiv.firstChild);
     }
 
     const navbar = Navbar();
-    contentDiv.appendChild(navbar);
+    //contentDiv.appendChild(navbar);
 
     const main = document.createElement('main');
     contentDiv.appendChild(main);
@@ -37,8 +39,8 @@ export function LoginPage() {
     const h5Main = document.createElement('h5'); 
     h5Main.textContent = "¿No tienes cuenta?";
     const aMain = document.createElement('a');
-    aMain.href = "/signup";
-    aMain.textContent = "Regístrate";
+    aMain.href = "/registro";
+    aMain.textContent = " Regístrate aquí";
     aMain.className = "aMain";
     h5Main.appendChild(aMain);
     main.appendChild(h5Main);

@@ -20,7 +20,7 @@ export function LoginForm() {
     // Botón de envío
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    submitButton.textContent = 'Iniciar sesión';
+    submitButton.textContent = 'INICIAR SESIÓN';
 
     // Añadir los elementos al formulario
     form.appendChild(emailInput);

@@ -1,0 +1,20 @@
+// _navbar.scss
+@use 'variables' as *;
+@use 'sass:color';
+
+
+nav {
+  background-color: $primary-color;
+  padding: 1rem;
+
+  a {
+    color: $secondary-color;
+    text-decoration: none;
+    margin-right: 15px;
+
+    &:hover {
+
+        color: color.scale($primary-color, $lightness: 10%);
+            }
+  }
+}

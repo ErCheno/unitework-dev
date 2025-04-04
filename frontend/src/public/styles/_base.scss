@@ -1,0 +1,15 @@
+// _base.scss
+@use 'variables' as *;
+
+* {
+  font-family: $font-stack;
+}
+
+body {
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  width: 1800px;
+  overflow-x: hidden;
+}
