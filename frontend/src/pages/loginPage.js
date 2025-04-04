@@ -13,6 +13,7 @@ export function LoginPage() {
         return page('/dashboard');
     }
 
+
     const contentDiv = document.getElementById('content');
     while (contentDiv.firstChild) {
         contentDiv.removeChild(contentDiv.firstChild);
@@ -21,8 +22,46 @@ export function LoginPage() {
     const navbar = Navbar();
     contentDiv.appendChild(navbar);
 
+    const main = document.createElement('main');
+    contentDiv.appendChild(main);
+    const h1Main = document.createElement('h1');
+    h1Main.textContent = "¡Hola!";
+    main.appendChild(h1Main);
+    const h3Main = document.createElement('h3');
+    h3Main.textContent = "Inicia sesión para acceder a tu cuenta.";
+    main.appendChild(h3Main);
+    
     const form = LoginForm();
-    contentDiv.appendChild(form);
+    main.appendChild(form);
+    
+    const h5Main = document.createElement('h5'); 
+    h5Main.textContent = "¿No tienes cuenta?";
+    const aMain = document.createElement('a');
+    aMain.href = "/signup";
+    aMain.textContent = "Regístrate";
+    aMain.className = "aMain";
+    h5Main.appendChild(aMain);
+    main.appendChild(h5Main);
+
+
+    // Crear el aside con el texto y la imagen
+    const divDerecho = document.createElement('aside');
+    divDerecho.className = "divDerecho";
+    const h2 = document.createElement('h2');
+    h2.textContent = "¡Nos alegramos de verte!";
+    const p = document.createElement('p');
+    p.textContent = "Estamos deseando ponerte al día con nuestras novedades.";
+    const imagenDivDerecho = document.createElement('img'); 
+    imagenDivDerecho.className = "background-img";
+    imagenDivDerecho.src = "http://localhost/UniteWork/unitework-dev/assets/img/buho.png";
+    divDerecho.appendChild(imagenDivDerecho);  // Se añade dentro del aside
+    divDerecho.appendChild(h2);
+    divDerecho.appendChild(p);
+
+    // Colocar el aside fuera de 'main' (fuera de contentDiv también)
+    document.body.appendChild(divDerecho);  // Se añade fuera del main pero dentro del body
+
+
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -46,7 +85,7 @@ export function LoginPage() {
 
             if (result.status === 'success' && result.token) {
                 setToken(result.token);
-                localStorage.setItem("username", result.user.nombre); 
+                localStorage.setItem("username", result.user.nombre);
                 page('/dashboard');
             } else {
                 alert(result.message);
@@ -79,12 +118,12 @@ export async function loginUser(email, password) {
         const result = await response.json();
 
         if (result.status === "success") {
-            localStorage.setItem("token", result.token); 
+            localStorage.setItem("token", result.token);
             alert("Inicio de sesión exitoso");
             window.location.replace("/dashboard");
             //window.location.href = "/dashboard"; Es mejor opción la de arriba (al parecer evita que el usuario pueda ir con el botón atrás)
         } else {
-            alert(result.message); 
+            alert(result.message);
         }
     } catch (error) {
         console.error("Error al iniciar sesión:", error);
@@ -123,6 +162,6 @@ export async function checkToken() {
 
 // Función para cerrar sesión
 export function logoutUser() {
-    localStorage.removeItem("token"); 
-    window.location.href = "/login"; 
+    localStorage.removeItem("token");
+    window.location.href = "/login";
 }

@@ -1,8 +1,8 @@
 // registerPage.js
 import page from 'page';
 import { RegisterForm } from '../components/form.js';
-import { Navbar } from '../components/navbar.js';
-import { isAuthenticated } from '../public/js/auth.js';
+import { Navbar } from '../components/Navbar.js';
+//import { isAuthenticated } from '../public/js/auth.js';
 
 
 
