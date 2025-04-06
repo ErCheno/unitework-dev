@@ -3,7 +3,7 @@ import { isAuthenticated } from '../public/js/auth.js';
 
 import page from 'page';
 import { LoginForm } from '../components/form.js';
-import { Navbar } from '../components/Navbar.js';
+import { Navbar } from '../components/navbar.js';
 import { setToken } from '../public/js/auth.js';
 
 
@@ -15,45 +15,34 @@ export function LoginPage() {
 
 
     const contentDiv = document.getElementById('content');
+    const oldDivDerecho = document.querySelector('.divDerecho');
+    if (oldDivDerecho) {
+        oldDivDerecho.remove();
+    }
     
-    
+    // Crear el aside con el texto y la imagen
+    const divDerecho = document.createElement('aside');
+    divDerecho.className = "divDerecho";
+
     while (contentDiv.firstChild) {
         contentDiv.removeChild(contentDiv.firstChild);
     }
 
-    const navbar = Navbar();
+    //const navbar = Navbar();
     //contentDiv.appendChild(navbar);
 
     const main = document.createElement('main');
     contentDiv.appendChild(main);
-    const h1Main = document.createElement('h1');
-    h1Main.textContent = "¡Hola!";
-    main.appendChild(h1Main);
-    const h3Main = document.createElement('h3');
-    h3Main.textContent = "Inicia sesión para acceder a tu cuenta.";
-    main.appendChild(h3Main);
-    
     const form = LoginForm();
     main.appendChild(form);
-    
-    const h5Main = document.createElement('h5'); 
-    h5Main.textContent = "¿No tienes cuenta?";
-    const aMain = document.createElement('a');
-    aMain.href = "/registro";
-    aMain.textContent = " Regístrate aquí";
-    aMain.className = "aMain";
-    h5Main.appendChild(aMain);
-    main.appendChild(h5Main);
-
 
     // Crear el aside con el texto y la imagen
-    const divDerecho = document.createElement('aside');
     divDerecho.className = "divDerecho";
     const h2 = document.createElement('h2');
     h2.textContent = "¡Nos alegramos de verte!";
     const p = document.createElement('p');
     p.textContent = "Estamos deseando ponerte al día con nuestras novedades.";
-    const imagenDivDerecho = document.createElement('img'); 
+    const imagenDivDerecho = document.createElement('img');
     imagenDivDerecho.className = "background-img";
     imagenDivDerecho.src = "http://localhost/UniteWork/unitework-dev/assets/img/buho.png";
     divDerecho.appendChild(imagenDivDerecho);  // Se añade dentro del aside
