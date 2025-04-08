@@ -33,17 +33,23 @@ main {
       font-size: 56px;
       font-weight: 600;
       color: $primary-color;
+      user-select: none;
+
     }
 
     h3 {
       font-size: 18px;
       font-weight: 600;
       color: $colorH3Main;
+      user-select: none;
+
     }
 
     h5 {
       font-size: 16px;
       color: gray;
+      user-select: none;
+
 
       .aMain {
         text-decoration: none;
@@ -54,6 +60,31 @@ main {
         }
       }
     }
+
+    .remember-container {
+
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      margin-left: 30px;
+      font-size: 14px;
+
+      align-self: flex-start;
+
+      input[type="checkbox"] {
+        cursor: pointer;
+        width: 30px;
+      }
+
+      label {
+        user-select: none;
+        cursor: pointer;
+        font-family: $font-stack;
+        font-weight: bold;
+        color: $secondary-color;
+      }
+    }
+
 
     form {
       display: flex;
@@ -81,33 +112,52 @@ main {
       }
     }
 
-    .confirmPassword-container{
+    .confirmPassword-container {
       margin: 0px !important;
     }
 
-    .password-container, .confirmPassword-container {
-        position: relative;
-        display: flex;
-        align-items: center;
-        width: 91%;
-        margin: 20px;
-    
-        input {
-            width: 90%;
-            height: 40px;
+    .password-container,
+    .confirmPassword-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 91%;
+      margin: 20px;
 
-            padding-right: 40px; 
-        }
-    
-        .toggle-password, .toggle-confirmPassword {
-            position: absolute;
-            right: 50px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 18px;
-            user-select: none;
-        }
+      input {
+        width: 90%;
+        height: 40px;
+
+        padding-right: 40px;
+      }
+
+      .toggle-password,
+      .toggle-confirmPassword {
+        position: absolute;
+        right: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 18px;
+        user-select: none;
+      }
+
+
+    }
+
+    .confirmPassword-container{
+      margin-bottom: 20px !important; 
+    }
+
+    .error-message {
+      position: absolute;
+      top: 100px;
+      margin: 5px 0 0;
+      padding: 0;
+      font-size: 0.85em;
+      color: rgb(255, 0, 0);
+      align-self: flex-start;
+      user-select: none;
     }
 
     button {
@@ -159,17 +209,20 @@ main {
     font-size: 1em;
     color: $colorDivDerecho;
     margin-bottom: 20px;
-    overflow-wrap: break-word;
     max-width: 400px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
     text-align: center;
     line-height: 1.5;
     user-select: none;
+    font-weight: bold;
 
-    
+
+
+
   }
 }
+
+
+
 
 .background-img {
   position: absolute;
@@ -182,6 +235,50 @@ main {
   opacity: 25%;
   border-radius: 5%;
 
-  -webkit-user-drag: none; /* Para compatibilidad con Safari */
+  -webkit-user-drag: none;
+  /* Para compatibilidad con Safari */
 
+}
+
+//TOAST
+
+//TOAST
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 250px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-family: sans-serif;
+  font-size: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+  color: #fff;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tipos */
+.toast.success {
+  background-color: #4caf50;
+}
+
+.toast.error {
+  background-color: #f44336;
+}
+
+.toast.warning {
+  background-color: #ff9800;
+}
+
+.toast.info {
+  background-color: #2196f3;
 }

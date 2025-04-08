@@ -15,19 +15,18 @@ page('/', () => {
         page('/dashboard');
     } else {
         page('/login');
-    }});
+    }
+});
 
 page('/login', LoginPage);
 page('/registro', RegisterPage);
 
-// Ruta protegida para el dashboard
 page('/dashboard', () => {
-    if (checkToken()) {
-        DashboardPage(); 
+    if (isAuthenticated()) {
+        DashboardPage();
     } else {
         page('/login');
     }
 });
 
 page();
-

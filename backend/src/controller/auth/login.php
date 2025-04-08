@@ -19,11 +19,12 @@ if (isset($data["email"], $data["password"])) {
     $email = filter_var($data["email"], FILTER_SANITIZE_EMAIL);
     $password = $data["password"];
 
+    // Verificar conexión a la base de datos
     if (!$conn) {
         die(json_encode(["status" => "error", "message" => "Error de conexión a la base de datos"]));
     }
 
-    // Preparar la consulta SQL
+    // Preparar la consulta para obtener el usuario por su email
     $stmt = $conn->prepare("SELECT id, nombre, password FROM usuarios WHERE email = ?");
     if (!$stmt) {
         die(json_encode(["status" => "error", "message" => "Error en la consulta SQL: " . $conn->error]));
@@ -36,16 +37,18 @@ if (isset($data["email"], $data["password"])) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
+        // Verificar la contraseña
         if (password_verify($password, $user['password'])) {
-            //$token = generar_token($user['id']);
+            // Generar un token único
             $token = bin2hex(random_bytes(32));
+
+            // Preparar la consulta para actualizar el token en la base de datos
             $stmt = $conn->prepare("UPDATE usuarios SET token = ? WHERE email = ?");
             $stmt->bind_param("ss", $token, $email);
             $stmt->execute();
-            
+
             // Verificar si la actualización fue exitosa
             if ($stmt->affected_rows > 0) {
-                // Devuelve el token generado
                 echo json_encode([
                     "status" => "success",
                     "token" => $token,
@@ -54,8 +57,10 @@ if (isset($data["email"], $data["password"])) {
                         "nombre" => $user["nombre"]
                     ]
                 ]);
+            } else {
+                // Si no se pudo actualizar el token, se genera un error
+                echo json_encode(["status" => "error", "message" => "No se pudo actualizar el token"]);
             }
-            //echo json_encode(["status" => "success", "token" => $token]);
         } else {
             echo json_encode(["status" => "error", "message" => "Contraseña incorrecta"]);
         }
@@ -70,5 +75,3 @@ if (isset($data["email"], $data["password"])) {
 
 $conn->close();
 exit();
-
-

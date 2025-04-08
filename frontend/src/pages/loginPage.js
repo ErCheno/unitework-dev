@@ -1,64 +1,66 @@
 // LoginPage.js
-import { isAuthenticated } from '../public/js/auth.js';
-
 import page from 'page';
 import { LoginForm } from '../components/form.js';
-import { Navbar } from '../components/navbar.js';
-import { setToken } from '../public/js/auth.js';
+import { getToken } from '../public/js/auth.js';
+import { isValidEmail, isValidPassword } from '../public/js/validator/regex.js';
+import { showToast } from '../public/js/validator/regex.js'; // nueva función toast
 
-
-export function LoginPage() {
-
-    if (isAuthenticated()) {
-        return page('/dashboard');
+export async function LoginPage() {
+    // Si ya está autenticado, redirigir al dashboard
+    if (getToken()) {
+        page('/dashboard');
+        return;
     }
-
 
     const contentDiv = document.getElementById('content');
     const oldDivDerecho = document.querySelector('.divDerecho');
-    if (oldDivDerecho) {
-        oldDivDerecho.remove();
-    }
-    
-    // Crear el aside con el texto y la imagen
-    const divDerecho = document.createElement('aside');
-    divDerecho.className = "divDerecho";
+    if (oldDivDerecho) oldDivDerecho.remove();
 
     while (contentDiv.firstChild) {
         contentDiv.removeChild(contentDiv.firstChild);
     }
-
-    //const navbar = Navbar();
-    //contentDiv.appendChild(navbar);
 
     const main = document.createElement('main');
     contentDiv.appendChild(main);
     const form = LoginForm();
     main.appendChild(form);
 
-    // Crear el aside con el texto y la imagen
+    // Aside derecho
+    const divDerecho = document.createElement('aside');
     divDerecho.className = "divDerecho";
+
     const h2 = document.createElement('h2');
     h2.textContent = "¡Nos alegramos de verte!";
     const p = document.createElement('p');
     p.textContent = "Estamos deseando ponerte al día con nuestras novedades.";
-    const imagenDivDerecho = document.createElement('img');
-    imagenDivDerecho.className = "background-img";
-    imagenDivDerecho.src = "http://localhost/UniteWork/unitework-dev/assets/img/buho.png";
-    divDerecho.appendChild(imagenDivDerecho);  // Se añade dentro del aside
-    divDerecho.appendChild(h2);
-    divDerecho.appendChild(p);
+    const imagen = document.createElement('img');
+    imagen.className = "background-img";
+    imagen.src = "http://localhost/UniteWork/unitework-dev/assets/img/buho.png";
 
-    // Colocar el aside fuera de 'main' (fuera de contentDiv también)
-    document.body.appendChild(divDerecho);  // Se añade fuera del main pero dentro del body
+    divDerecho.append(imagen, h2, p);
+    document.body.appendChild(divDerecho);
 
-
-
+    // Evento de login
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const email = form.querySelector('#email').value;
+        const remember = form.querySelector('#rememberMe').checked;
+        const email = form.querySelector('#email').value.trim();
         const password = form.querySelector('#password').value;
+
+        let valido = true;
+
+        if (!isValidEmail(email)) {
+            showToast("Introduce un email válido.", 'error');
+            valido = false;
+        }
+
+        /*if (!isValidPassword(password)) {
+            showToast("La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.", 'error');
+            valido = false;
+        }*/
+
+        if (!valido) return;
 
         try {
             const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/auth/login.php', {
@@ -66,27 +68,28 @@ export function LoginPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                }),
+                body: JSON.stringify({ email, password }),
             });
 
             const result = await response.json();
 
-            if (result.status === 'success' && result.token) {
-                setToken(result.token);
-                localStorage.setItem("username", result.user.nombre);
-                page('/dashboard');
+            if (result.status === "success" && result.token) {
+                if (remember) {
+                    localStorage.setItem("token", result.token);
+                } else {
+                    sessionStorage.setItem("token", result.token);
+                }
+                page("/dashboard");
             } else {
-                alert(result.message);
+                showToast(result.message || "Error al iniciar sesión");
             }
         } catch (error) {
             console.error('Error de conexión:', error);
-            alert('Hubo un error al intentar iniciar sesión');
+            showToast('Hubo un error al intentar iniciar sesión');
         }
     });
 }
+
 
 /**
  * Este loginUser permite la comprobación mediante una respuesta POST 

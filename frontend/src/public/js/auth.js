@@ -3,12 +3,21 @@
 // Función para guardar el token en localStorage
 
 // Función para obtener el token almacenado
+// Función para obtener el token desde localStorage o sessionStorage
 export function getToken() {
-    return localStorage.getItem("token");
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
 }
-export function setToken(token) {
-    localStorage.setItem("token", token);
+
+// Función para establecer el token en localStorage o sessionStorage
+export function setToken(token, remember) {
+    if (remember) {
+        localStorage.setItem("token", token);  // Si "Recordarme" está activado, usamos localStorage
+    } else {
+        sessionStorage.setItem("token", token);  // Si no, usamos sessionStorage
+    }
 }
+
+
 
 // Función para verificar el token en el backend
 export async function checkToken() {
@@ -54,19 +63,16 @@ export async function checkToken() {
 // Función para cerrar sesión
 export function logoutUser() {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    sessionStorage.removeItem("token");
+    window.location.href = "/login";  // Redirige al login
 }
 
 export function eliminarToken() {
     localStorage.removeItem('token');
 }
-
-export function logout() {
-    eliminarToken();
-    window.location.href = "/login";
-}
-
-
+// Función para verificar si hay un token almacenado
 export function isAuthenticated() {
-    return !!getToken();
+    return !!getToken();  // Retorna true si el token está presente
 }
+
+
