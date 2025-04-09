@@ -1,0 +1,70 @@
+@use 'variables' as *;
+
+* {
+  user-select: none;
+}
+
+.top-navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #EFEFEF; // El color de fondo de tu navbar
+  z-index: 1;
+  margin-left: 40px;
+  width: 100%;
+  height: 8%;
+
+  border: 1px solid #BBBBBB;
+  transition: margin-left 0.3s ease;  // Animación del desplazamiento
+}
+
+.top-navbar-container.top-navbar-moved {
+  margin-left: 300px;  // Mueve el top navbar cuando el sidebar está abierto
+}
+.top-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+
+  .logo {
+    display: flex;
+    align-items: center;  
+    justify-content: flex-start;
+    width: auto; 
+
+    img {
+      width: 50px; 
+      margin-right: 10px;  
+    }
+
+    h1 {
+      font-size: 36px;
+      color: black;
+      margin: 0;
+    }
+  }
+
+  .menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+
+    li {
+      margin-right: 70px;
+
+      a {
+        text-decoration: none;
+        color: black;
+        font-size: 18px;
+        transition: color 0.3s;
+
+        &:hover {
+          color: lighten($colorTextoNav, 10%);
+        }
+      }
+    }
+  }
+}

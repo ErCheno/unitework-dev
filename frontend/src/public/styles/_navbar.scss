@@ -3,7 +3,6 @@
 
 * {
   user-select: none;
-
 }
 
 // Estilos generales del nav dentro del sidebar
@@ -22,7 +21,7 @@ nav.sidebar {
     user-select: none;
 
 
-   
+
   }
 
   button {
@@ -59,9 +58,22 @@ nav.sidebar {
 
 .sidebar ul {
   list-style: none;
-  /*display: flex;
-  flex-direction: column;*/
+  padding-left: 0;
+  margin-left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
+.sidebar ul li {
+  transform-origin: top;
+  transform: scaleY(1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 
 .sidebar.open {
   left: 0;
@@ -70,7 +82,7 @@ nav.sidebar {
 #toggleBtn {
   position: fixed;
   top: 1rem;
-  left: 0.4rem;
+  left: 0.1rem;
   font-size: 30px;
   background: none;
   border: none;
@@ -81,6 +93,7 @@ nav.sidebar {
 
   i {
     font-size: 24px;
+    margin: 5px;
   }
 }
 
@@ -91,17 +104,63 @@ hr {
   opacity: 0%;
 }
 
+#buscarLi {
+  list-style: none;
+  align-self: center;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+
+  #buscarDiv {
+    padding: 5px;
+    background-color: $colorFondoBuscarInput;
+    border-radius: 10px;
+    width: 80%; /* Controlamos el ancho inicial */
+    transition: all 0.3s ease;  // Aseguramos que el div tenga transición suave en todos sus aspectos
+
+    i {
+      width: 20px;
+      color: #ccc;
+      margin: 5px;
+    }
+
+    .buscar-input {
+      width: 70%; /* Aseguramos que el input tome el 100% del div */
+      padding: 10px;
+      border: none;
+      background-color: $colorFondoBuscarInput;
+      color: $colorTextoNav;
+      font-size: 15px;
+
+      &::placeholder {
+        color: darken($colorTextoNav, 10%);
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  // Cuando el input recibe foco, expandimos el div suavemente
+  .active #buscarDiv {
+    padding: 15px;  // Aumentamos el padding
+    width: 80%;     // Aumentamos el ancho
+    background-color: lighten($colorSidebar, 8%);
+  }
+}
+
+
+
+
+
+
 /* Mover botón a la derecha cuando sidebar esté abierto */
 .sidebar.open+#toggleBtn {
   left: 260px; // Un poco más del ancho del sidebar
 }
 
-.sidebar ul li {
-  transform-origin: top;
-  transform: scaleY(1);
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  opacity: 1;
-}
+
 
 /* Cuando el sidebar está cerrado */
 .sidebar:not(.open) ul li {
@@ -113,6 +172,10 @@ hr {
 
 //HOVER
 
+.sidebar ul li a:hover{
+  color: lighten($colorFondoBuscarInput, 30%);
+}
+
 button:hover {
   background-color: color.scale($secondary-color, $lightness: -20%);
 }
@@ -121,7 +184,13 @@ a:hover {
   color: color.scale($secondary-color, $lightness: 10%);
 }
 
-hr:hover{
+hr:hover {
   color: color.scale($secondary-color, $lightness: 10%);
-  
+
+}
+
+#buscarLi:has(input:focus) {
+  #buscarDiv {
+    padding: 20px; 
+  }
 }

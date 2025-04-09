@@ -1,4 +1,5 @@
 import { Navbar } from '../components/navbar.js';
+import { TopNavbar } from '../components/topbar.js';
 import { getToken } from '../public/js/auth.js';
 import page from 'page';
 
@@ -24,6 +25,9 @@ export function DashboardPage() {
 
     const navbar = Navbar();
     contentDiv.appendChild(navbar);
+
+    const topbar = TopNavbar();
+    contentDiv.appendChild(topbar);
 
     const h1 = document.createElement('h1');
     h1.textContent = 'Bienvenido al Dashboard';

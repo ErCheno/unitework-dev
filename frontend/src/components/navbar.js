@@ -22,6 +22,10 @@ export function Navbar() {
 
   toggleBtn.addEventListener('click', () => {
     nav.classList.toggle('open');
+    const topNavbar = document.querySelector('.top-navbar-container'); // Seleccionamos el top navbar
+
+    // Cambiar la clase al top navbar cuando el sidebar se abre
+    topNavbar.classList.toggle('top-navbar-moved', nav.classList.contains('open'));
 
     toggleBtn.style.left = nav.classList.contains('open') ? '230px' : '0px';
     icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
@@ -32,34 +36,25 @@ export function Navbar() {
   const ul = document.createElement('ul');
 
   // Novedades / Dashboard
+  // Crear el li contenedor para la barra de búsqueda
   const buscarLi = document.createElement('li');
+  buscarLi.id = 'buscarLi';
 
-  // Crear el botón "Buscar"
-  const buscarBtn = document.createElement('button');
-  buscarBtn.textContent = 'Buscar';
-  buscarLi.appendChild(buscarBtn);
+  const buscarDiv = document.createElement('div');
+  buscarDiv.id = 'buscarDiv';
 
-  // Crear el input (pero no lo añadimos aún)
+  const buscarIcon = document.createElement('i');
+  buscarIcon.className = 'fa-solid fa-magnifying-glass';
+
   const buscarInput = document.createElement('input');
   buscarInput.type = 'text';
   buscarInput.placeholder = 'Escribe para buscar...';
-  buscarInput.style.display = 'none'; // Ocultarlo al principio
+  buscarInput.className = 'buscar-input';
+  
 
-  // Añadir el input al li, pero inicialmente no es visible
-  buscarLi.appendChild(buscarInput);
-
-  // Funcionalidad del botón de "Buscar"
-  buscarBtn.addEventListener('click', () => {
-    // Alternamos la visibilidad del input
-    if (buscarInput.style.display === 'none') {
-      buscarInput.style.display = 'block'; // Muestra el input
-      buscarInput.focus(); // Opcional: darle foco al input cuando aparece
-    } else {
-      buscarInput.style.display = 'none'; // Ocultar el input si ya está visible
-    }
-  });
-
-  // Suponiendo que tienes un contenedor de lista donde añadirlo
+  buscarDiv.appendChild(buscarIcon);
+  buscarDiv.appendChild(buscarInput);
+  buscarLi.appendChild(buscarDiv); // <li><div><input></div></li>
 
   const dashboardLi = document.createElement('li');
   const dashboardLink = document.createElement('a');
@@ -79,9 +74,10 @@ export function Navbar() {
   logoutLi.appendChild(logoutBtn);
 
   // Añadir todos los <li> al <ul>
+  ul.appendChild(buscarLi);
+
   ul.appendChild(dashboardLi);
   ul.appendChild(logoutLi);
-  ul.appendChild(buscarLi);
 
   // Montamos el nav
   nav.appendChild(hr);
