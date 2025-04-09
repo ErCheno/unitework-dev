@@ -16,12 +16,16 @@
   height: 8%;
 
   border: 1px solid #BBBBBB;
-  transition: margin-left 0.3s ease;  // Animación del desplazamiento
+  transition: all 0.3s ease; // Transición suave para altura y padding
 }
 
+.top-navbar-container.top-navbar-compact,
 .top-navbar-container.top-navbar-moved {
-  margin-left: 300px;  // Mueve el top navbar cuando el sidebar está abierto
+  width: 85%;  // Reduce el ancho cuando el sidebar está abierto
+  margin-left: 300px;  // Deja espacio para el sidebar
+  transition: width 0.3s ease, margin-left 0.3s ease;  // Animación suave para el ancho y margen izquierdo
 }
+
 .top-navbar {
   display: flex;
   justify-content: space-between;

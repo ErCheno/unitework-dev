@@ -25,6 +25,7 @@ export function Navbar() {
     const topNavbar = document.querySelector('.top-navbar-container'); // Seleccionamos el top navbar
 
     // Cambiar la clase al top navbar cuando el sidebar se abre
+    topNavbar.classList.toggle('top-navbar-compact', nav.classList.contains('open'));
     topNavbar.classList.toggle('top-navbar-moved', nav.classList.contains('open'));
 
     toggleBtn.style.left = nav.classList.contains('open') ? '230px' : '0px';
