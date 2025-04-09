@@ -1,49 +1,95 @@
-// Navbar.js
 import page from 'page';
 import { logoutUser } from '../public/js/auth.js';
 
 export function Navbar() {
-    const nav = document.createElement('nav');
-    const username = localStorage.getItem("username") || "Usuario";
-    const logoutBtn = document.createElement('button');
-    logoutBtn.textContent = 'Logout';
-    logoutBtn.setAttribute('id', 'logoutBtn');  // Asigna un id para seleccionarlo
+  const container = document.createElement('div');
+  container.className = 'sidebar-container';
 
-    const dashboardLink = document.createElement('a');
-    dashboardLink.textContent = 'Dashboard';
-    dashboardLink.href = '#/dashboard'; 
-    dashboardLink.onclick = (event) => {
-        event.preventDefault();
-        page('/dashboard'); 
-    };
+  const nav = document.createElement('nav');
+  nav.className = 'sidebar';
+  nav.id = 'sidebar';
 
-    // Crear el enlace para Login
-    const loginLink = document.createElement('a');
-    loginLink.textContent = 'Login';
-    loginLink.href = '#/login';
-    loginLink.onclick = (event) => {
-        event.preventDefault(); 
-        page('/login');
-    };
+  const toggleBtn = document.createElement('button');
+  toggleBtn.id = 'toggleBtn';
+  toggleBtn.className = 'toggle-button';
 
-    // Crear el enlace para Register
-    const registroLink = document.createElement('a');
-    registroLink.textContent = 'Register';
-    registroLink.href = '#/registro';
-    registroLink.onclick = (event) => {
-        event.preventDefault(); 
-        page('/registro');
-    };
+  // Icono del toggle (hamburguesa o cruz)
+  const icon = document.createElement('i');
+  icon.className = 'fas fa-bars';
+  toggleBtn.appendChild(icon);
 
-    // Añadir los enlaces al nav
-    nav.appendChild(dashboardLink);
-    nav.appendChild(loginLink);
-    nav.appendChild(registroLink);
-    nav.appendChild(logoutBtn);
+  const hr = document.createElement('hr');
 
-    logoutBtn.addEventListener('click', () => {
-        logoutUser();  // Llama a la función de logout
-    });
+  toggleBtn.addEventListener('click', () => {
+    nav.classList.toggle('open');
 
-    return nav;
+    toggleBtn.style.left = nav.classList.contains('open') ? '230px' : '0px';
+    icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+    hr.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
+  });
+
+  // UL para contener los elementos del menú
+  const ul = document.createElement('ul');
+
+  // Novedades / Dashboard
+  const buscarLi = document.createElement('li');
+
+  // Crear el botón "Buscar"
+  const buscarBtn = document.createElement('button');
+  buscarBtn.textContent = 'Buscar';
+  buscarLi.appendChild(buscarBtn);
+
+  // Crear el input (pero no lo añadimos aún)
+  const buscarInput = document.createElement('input');
+  buscarInput.type = 'text';
+  buscarInput.placeholder = 'Escribe para buscar...';
+  buscarInput.style.display = 'none'; // Ocultarlo al principio
+
+  // Añadir el input al li, pero inicialmente no es visible
+  buscarLi.appendChild(buscarInput);
+
+  // Funcionalidad del botón de "Buscar"
+  buscarBtn.addEventListener('click', () => {
+    // Alternamos la visibilidad del input
+    if (buscarInput.style.display === 'none') {
+      buscarInput.style.display = 'block'; // Muestra el input
+      buscarInput.focus(); // Opcional: darle foco al input cuando aparece
+    } else {
+      buscarInput.style.display = 'none'; // Ocultar el input si ya está visible
+    }
+  });
+
+  // Suponiendo que tienes un contenedor de lista donde añadirlo
+
+  const dashboardLi = document.createElement('li');
+  const dashboardLink = document.createElement('a');
+  const iDashboard = document.createElement('i');
+  iDashboard.className = 'fa-solid fa-house';
+  dashboardLink.href = '#/dashboard';
+  dashboardLink.textContent = ' Novedades';
+  dashboardLink.prepend(iDashboard);
+  dashboardLi.appendChild(dashboardLink);
+
+  // Logout
+  const logoutLi = document.createElement('li');
+  const logoutBtn = document.createElement('button');
+  logoutBtn.textContent = 'Logout';
+  logoutBtn.id = 'logoutBtn';
+  logoutBtn.addEventListener('click', () => logoutUser());
+  logoutLi.appendChild(logoutBtn);
+
+  // Añadir todos los <li> al <ul>
+  ul.appendChild(dashboardLi);
+  ul.appendChild(logoutLi);
+  ul.appendChild(buscarLi);
+
+  // Montamos el nav
+  nav.appendChild(hr);
+  nav.appendChild(ul);
+
+  // Añadir al contenedor
+  container.appendChild(toggleBtn);
+  container.appendChild(nav);
+
+  return container;
 }

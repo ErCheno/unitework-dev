@@ -1,20 +1,127 @@
-// _navbar.scss
 @use 'variables' as *;
 @use 'sass:color';
 
+* {
+  user-select: none;
 
-nav {
-  background-color: $primary-color;
-  padding: 1rem;
+}
+
+// Estilos generales del nav dentro del sidebar
+nav.sidebar {
+  background-color: $colorNav;
+  padding: 25px;
 
   a {
-    color: $secondary-color;
+    color: $colorTextoNav;
     text-decoration: none;
-    margin-right: 15px;
+    margin-bottom: 15px;
+    display: block;
+    width: 80%;
+    font-size: 24px;
+    transition: 0.15s;
+    user-select: none;
 
-    &:hover {
 
-        color: color.scale($primary-color, $lightness: 10%);
-            }
+   
   }
+
+  button {
+    margin-top: 1rem;
+    background-color: transparent;
+    border: 1px solid $secondary-color;
+    color: $secondary-color;
+    padding: 0.5rem;
+    cursor: pointer;
+
+
+  }
+}
+
+/* Contenedor para sidebar y toggle */
+.sidebar-container {
+  position: relative;
+  z-index: 200;
+}
+
+/* Sidebar (barra lateral izquierda) */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; // Oculta por defecto
+  width: 250px;
+  height: 100%;
+  background-color: $colorSidebar;
+  transition: left 0.3s ease;
+  box-shadow: 2px 0 5px $secondary-color;
+  z-index: 100;
+  padding-top: 3rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  /*display: flex;
+  flex-direction: column;*/
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+#toggleBtn {
+  position: fixed;
+  top: 1rem;
+  left: 0.4rem;
+  font-size: 30px;
+  background: none;
+  border: none;
+  color: $colorToggleBtn;
+  cursor: pointer;
+  z-index: 999;
+  transition: left 0.3s ease;
+
+  i {
+    font-size: 24px;
+  }
+}
+
+hr {
+  margin-left: 0;
+  border-top: 1px solid #ccc;
+  margin-top: 50px;
+  opacity: 0%;
+}
+
+/* Mover botón a la derecha cuando sidebar esté abierto */
+.sidebar.open+#toggleBtn {
+  left: 260px; // Un poco más del ancho del sidebar
+}
+
+.sidebar ul li {
+  transform-origin: top;
+  transform: scaleY(1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 1;
+}
+
+/* Cuando el sidebar está cerrado */
+.sidebar:not(.open) ul li {
+  transform: scaleY(0);
+  opacity: 0;
+  pointer-events: none; // Evita que se pueda hacer clic en ellos mientras están ocultos
+}
+
+
+//HOVER
+
+button:hover {
+  background-color: color.scale($secondary-color, $lightness: -20%);
+}
+
+a:hover {
+  color: color.scale($secondary-color, $lightness: 10%);
+}
+
+hr:hover{
+  color: color.scale($secondary-color, $lightness: 10%);
+  
 }
