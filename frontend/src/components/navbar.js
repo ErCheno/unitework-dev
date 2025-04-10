@@ -19,19 +19,32 @@ export function Navbar() {
   toggleBtn.appendChild(icon);
 
   const hr = document.createElement('hr');
+  const hr2 = document.createElement('hr');
+  hr2.id = 'hr2';
 
   toggleBtn.addEventListener('click', () => {
     nav.classList.toggle('open');
-    const topNavbar = document.querySelector('.top-navbar-container'); // Seleccionamos el top navbar
-
-    // Cambiar la clase al top navbar cuando el sidebar se abre
+  
+    const topNavbar = document.querySelector('.top-navbar-container');
+    const mainContent = document.querySelector('.main-content');
+  
+    if (mainContent) {
+      mainContent.classList.toggle('shifted', nav.classList.contains('open'));
+    }
+  
     topNavbar.classList.toggle('top-navbar-compact', nav.classList.contains('open'));
     topNavbar.classList.toggle('top-navbar-moved', nav.classList.contains('open'));
-
+  
     toggleBtn.style.left = nav.classList.contains('open') ? '230px' : '0px';
     icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+  
     hr.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
+    hr2.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
+  
+    // 🔥 Aquí añadimos o quitamos la clase en el body
+    document.body.classList.toggle('sidebar-open', nav.classList.contains('open'));
   });
+  
 
   // UL para contener los elementos del menú
   const ul = document.createElement('ul');
@@ -67,22 +80,32 @@ export function Navbar() {
   dashboardLi.appendChild(dashboardLink);
 
   // Logout
-  const logoutLi = document.createElement('li');
-  const logoutBtn = document.createElement('button');
-  logoutBtn.textContent = 'Logout';
-  logoutBtn.id = 'logoutBtn';
-  logoutBtn.addEventListener('click', () => logoutUser());
-  logoutLi.appendChild(logoutBtn);
+  const divDebajo = document.createElement('div');
+  divDebajo.id = 'divDebajo';
+  
+  const logoutIco = document.createElement('i');
+  logoutIco.id = 'logoutIco'
+  logoutIco.className = 'fa-solid fa-right-from-bracket';
+  logoutIco.addEventListener('click', () => logoutUser());
+
+  const configIco = document.createElement('i');
+  configIco.id = 'configIco'
+  configIco.className = 'fa-solid fa-gear';
+
+  divDebajo.appendChild(logoutIco);
+  divDebajo.appendChild(configIco);
 
   // Añadir todos los <li> al <ul>
   ul.appendChild(buscarLi);
 
   ul.appendChild(dashboardLi);
-  ul.appendChild(logoutLi);
 
   // Montamos el nav
   nav.appendChild(hr);
   nav.appendChild(ul);
+  nav.appendChild(hr2);
+
+  nav.appendChild(divDebajo);
 
   // Añadir al contenedor
   container.appendChild(toggleBtn);

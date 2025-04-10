@@ -1,5 +1,9 @@
 @use 'variables' as *;
 
+body{
+  overflow-y: hidden;
+}
+
 #content {
   display: flex;
   align-items: center;

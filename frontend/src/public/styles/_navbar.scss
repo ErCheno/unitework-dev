@@ -54,6 +54,7 @@ nav.sidebar {
   box-shadow: 2px 0 5px $secondary-color;
   z-index: 100;
   padding-top: 3rem;
+  
 }
 
 .sidebar ul {
@@ -81,7 +82,7 @@ nav.sidebar {
 
 #toggleBtn {
   position: fixed;
-  top: 1rem;
+  top: 5px;
   left: 0.1rem;
   font-size: 30px;
   background: none;
@@ -97,12 +98,16 @@ nav.sidebar {
   }
 }
 
-hr {
+hr, #hr2{
   margin-left: 0;
   border-top: 1px solid #ccc;
   margin-top: 50px;
   opacity: 0%;
 }
+#hr2{
+  margin-top: 210%;
+}
+
 
 #buscarLi {
   list-style: none;
@@ -143,31 +148,75 @@ hr {
   }
 
   // Cuando el input recibe foco, expandimos el div suavemente
+  //También se pone un fondo con un ligero toque a brillo
   .active #buscarDiv {
-    padding: 15px;  // Aumentamos el padding
-    width: 80%;     // Aumentamos el ancho
+    padding: 15px;
+    width: 80%;
     background-color: lighten($colorSidebar, 8%);
   }
 }
 
 
 
+#divDebajo{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  
+  position: fixed;
+  bottom: 1px;
+  width: 240px;
+
+  transform-origin: bottom;
+  transform: scaleY(1);
+  opacity: 1;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  #logoutIco,
+  #configIco{
+    font-size: 26px;
+    color: $colorTextoNav;
+    margin: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      color: lighten($colorTextoNav, 15%);
+    }
+  }
+  
+}
 
 
 
 /* Mover botón a la derecha cuando sidebar esté abierto */
 .sidebar.open+#toggleBtn {
-  left: 260px; // Un poco más del ancho del sidebar
+  left: 240px;
 }
 
+// Cuando el sidebar está abierto, mostramos los íconos
+.sidebar.open #divDebajo {
+  transform: scaleY(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+// Cuando está cerrado, los ocultamos
+.sidebar:not(.open) #divDebajo {
+  transform: scaleY(0);
+  opacity: 0;
+  pointer-events: none;
+}
 
 
 /* Cuando el sidebar está cerrado */
 .sidebar:not(.open) ul li {
   transform: scaleY(0);
   opacity: 0;
-  pointer-events: none; // Evita que se pueda hacer clic en ellos mientras están ocultos
+  pointer-events: none;
 }
+
 
 
 //HOVER
@@ -184,7 +233,7 @@ a:hover {
   color: color.scale($secondary-color, $lightness: 10%);
 }
 
-hr:hover {
+hr, #hr2:hover {
   color: color.scale($secondary-color, $lightness: 10%);
 
 }
@@ -192,5 +241,16 @@ hr:hover {
 #buscarLi:has(input:focus) {
   #buscarDiv {
     padding: 20px; 
+  }
+}
+
+
+@media (max-width: 600px) {
+  nav.sidebar {
+    display: none;
+  }
+
+  #toggleBtn{
+    display: none;
   }
 }
