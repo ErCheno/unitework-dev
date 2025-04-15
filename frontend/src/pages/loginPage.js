@@ -4,28 +4,47 @@ import { LoginForm } from '../components/form.js';
 import { getToken } from '../public/js/auth.js';
 import { isValidEmail, isValidPassword } from '../public/js/validator/regex.js';
 import { showToast } from '../public/js/validator/regex.js'; // nueva función toast
+import { cleanupView } from '../public/js/cleanup.js';
 
 export async function LoginPage() {
-    // Si ya está autenticado, redirigir al dashboard
+    cleanupView();
+
     if (getToken()) {
         page('/dashboard');
         return;
     }
 
-    const contentDiv = document.getElementById('content');
-    const oldDivDerecho = document.querySelector('.divDerecho');
-    if (oldDivDerecho) oldDivDerecho.remove();
-
-    while (contentDiv.firstChild) {
-        contentDiv.removeChild(contentDiv.firstChild);
+        // Eliminar el contenedor anterior si existe
+    const oldAuthContent = document.getElementById('auth-content');
+    if (oldAuthContent) {
+        oldAuthContent.remove();
     }
 
+    // Eliminar aside derecho si existe
+    const oldDivDerecho = document.querySelector('.divDerecho');
+    if (oldDivDerecho) {
+        oldDivDerecho.remove();
+    }
+
+
+
+
+
+
+
+
+    // Crear nuevo contenedor de login
+    const authContent = document.createElement('div');
+    authContent.id = 'auth-content';
+    authContent.className = 'login-page';
+    document.body.appendChild(authContent);
+
     const main = document.createElement('main');
-    contentDiv.appendChild(main);
+    authContent.appendChild(main);
     const form = LoginForm();
     main.appendChild(form);
 
-    // Aside derecho
+    // Crear aside derecho
     const divDerecho = document.createElement('aside');
     divDerecho.className = "divDerecho";
 
@@ -55,11 +74,6 @@ export async function LoginPage() {
             valido = false;
         }
 
-        /*if (!isValidPassword(password)) {
-            showToast("La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.", 'error');
-            valido = false;
-        }*/
-
         if (!valido) return;
 
         try {
@@ -79,6 +93,11 @@ export async function LoginPage() {
                 } else {
                     sessionStorage.setItem("token", result.token);
                 }
+
+                // Limpiar el contenido antes de redirigir
+                authContent.remove();
+                divDerecho.remove();
+
                 page("/dashboard");
             } else {
                 showToast(result.message || "Error al iniciar sesión");

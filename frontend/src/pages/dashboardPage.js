@@ -6,18 +6,22 @@ import page from 'page';
 
 export function DashboardPage() {
     const token = getToken();
-
-    // Si no hay token, redirigimos al login
     if (!token) {
         page('/login');
         return;
     }
 
-    const contentDiv = document.getElementById('content');
-    const divDerecho = document.getElementsByClassName('divDerecho');
-    if (divDerecho.length > 0) {
-        divDerecho[0].remove();
+    // Buscar o crear el div#content
+    let contentDiv = document.getElementById('content');
+    if (!contentDiv) {
+        contentDiv = document.createElement('div');
+        contentDiv.id = 'content';
+        document.body.appendChild(contentDiv);
     }
+
+    // Eliminar divDerecho si existe
+    const divDerecho = document.querySelector('.divDerecho');
+    if (divDerecho) divDerecho.remove();
 
     // Limpiar contenido anterior
     while (contentDiv.firstChild) {
@@ -33,7 +37,7 @@ export function DashboardPage() {
 
     // Establecer el contenido principal a la derecha del sidebar
     const mainContent = document.createElement('div');
-    mainContent.className = 'main-content'; // Agregamos una clase para el estilo
+    mainContent.className = 'main-content';
 
     // Título del Dashboard
 
@@ -95,81 +99,99 @@ export function DashboardPage() {
 
 
 
-    // NUEVO Carrusel con animación de deslizamiento
-    const carouselContainer = document.createElement('div');
-    carouselContainer.className = 'carousel-container';
+    // Carrusel Bootstrap// Carrusel Bootstrap
+    const carouselWrapper = document.createElement('div');
+    carouselWrapper.id = 'dashboardCarousel';
+    carouselWrapper.className = 'carousel slide';
+    carouselWrapper.setAttribute('data-bs-ride', 'carousel');
 
-    const carouselTrack = document.createElement('div');
-    carouselTrack.className = 'carousel-track';
+    // Contenedor interno de las imágenes
+    const carouselInner = document.createElement('div');
+    carouselInner.className = 'carousel-inner';
 
-    const images = [
+    const carouselImages = [
         'http://localhost/UniteWork/unitework-dev/assets/img/tableroKanban.png',
         'http://localhost/UniteWork/unitework-dev/assets/img/montanya.png',
         'http://localhost/UniteWork/unitework-dev/assets/img/teamwork.png'
     ];
 
-    images.forEach((imgSrc) => {
+    let imagesLoaded = 0;
+    carouselImages.forEach((src, index) => {
+        const item = document.createElement('div');
+        item.className = index === 0 ? 'carousel-item active' : 'carousel-item';
+    
         const img = document.createElement('img');
-        img.src = imgSrc;
-        img.className = 'carousel-img';
-        carouselTrack.appendChild(img);
+        img.src = src;
+        img.alt = `Slide ${index + 1}`;
+        img.className = 'd-block w-100'; 
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+    
+        img.onload = () => {
+            imagesLoaded++;
+            if (imagesLoaded === carouselImages.length) {
+                document.getElementById('dashboardCarousel').classList.add('show-carousel');
+            }
+        };
+    
+        item.appendChild(img);
+        carouselInner.appendChild(item);
     });
+    
 
-    carouselContainer.appendChild(carouselTrack);
+    carouselWrapper.appendChild(carouselInner);
 
-    // Botones
-    const antesBtn = document.createElement('button');
-    antesBtn.className = 'carousel-btn antes';
+    // Botón anterior
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'carousel-control-prev';
+    prevBtn.type = 'button';
+    prevBtn.setAttribute('data-bs-target', '#dashboardCarousel');
+    prevBtn.setAttribute('data-bs-slide', 'prev');
 
-    const prevIcon = document.createElement('i');
-    prevIcon.className = 'fas fa-chevron-left';
-    antesBtn.appendChild(prevIcon);
+    const prevIcon = document.createElement('span');
+    prevIcon.className = 'carousel-control-prev-icon';
+    prevIcon.setAttribute('aria-hidden', 'true');
 
+    const prevText = document.createElement('span');
+    prevText.className = 'visually-hidden';
+    prevText.textContent = 'Anterior';
+
+    prevBtn.appendChild(prevIcon);
+    prevBtn.appendChild(prevText);
+
+    // Botón siguiente
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'carousel-btn next';
+    nextBtn.className = 'carousel-control-next';
+    nextBtn.type = 'button';
+    nextBtn.setAttribute('data-bs-target', '#dashboardCarousel');
+    nextBtn.setAttribute('data-bs-slide', 'next');
 
-    const nextIcon = document.createElement('i');
-    nextIcon.className = 'fas fa-chevron-right';
+    const nextIcon = document.createElement('span');
+    nextIcon.className = 'carousel-control-next-icon';
+    nextIcon.setAttribute('aria-hidden', 'true');
+
+    const nextText = document.createElement('span');
+    nextText.className = 'visually-hidden';
+    nextText.textContent = 'Siguiente';
+
     nextBtn.appendChild(nextIcon);
+    nextBtn.appendChild(nextText);
 
-    carouselContainer.appendChild(antesBtn);
-    carouselContainer.appendChild(nextBtn);
+    // Insertar los botones en el carrusel
+    carouselWrapper.appendChild(prevBtn);
+    carouselWrapper.appendChild(nextBtn);
 
-
-    // Lógica para deslizar
-    let currentIndex = 0;
-
-    function actualizarCarousel() {
-        const offset = -currentIndex * 100;
-        carouselTrack.style.transform = `translateX(${offset}%)`;
-    }
-
-    antesBtn.addEventListener('click', () => {
-        currentIndex = (currentIndex - 1 + images.length) % images.length;
-        actualizarCarousel();
-    });
-    
-    nextBtn.addEventListener('click', () => {
-        currentIndex = (currentIndex + 1) % images.length;
-        actualizarCarousel();
-    });
-    
-    // Deslizar automáticamente cada 5 segundos
-    setInterval(() => {
-        currentIndex = (currentIndex + 1) % images.length;
-        actualizarCarousel();
-    }, 5000);
-    
-
+    // Título arriba del carrusel
     const h3 = document.createElement('h3');
     h3.textContent = 'Implementaciones de esta semana';
-
     rightColumn.appendChild(h3);
-    rightColumn.appendChild(carouselContainer);
+    rightColumn.appendChild(carouselWrapper);
+
+
 
     const rightText = document.createElement('p');
     const rightText2 = document.createElement('p');
-    rightText.textContent = '¡Nos alegra tenerte de vuelta! Prepárate para organizarlo todo.'; 
+    rightText.textContent = '¡Nos alegra tenerte de vuelta! Prepárate para organizarlo todo.';
     rightText.id = 'rightText';
     rightText2.textContent = 'Con nuestra nueva interfaz, podrás visualizar tus tareas, compartir ideas y trabajar junto a tu equipo de forma más fluida y eficiente. ¡La organización nunca fue tan intuitiva!';
     rightColumn.appendChild(rightText);

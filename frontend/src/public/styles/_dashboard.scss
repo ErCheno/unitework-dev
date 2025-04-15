@@ -5,7 +5,6 @@
 
 body {
     overflow-x: hidden !important;
-    width: 1900px;
 }
 
 .dashboard-container {
@@ -27,8 +26,7 @@ body {
         color: $colorParrafo;
         font-weight: bold;
         margin-top: 50px;
-        margin-right: 20px;
-        font-size: 26px;
+        font-size: 20px;
         position: absolute;
         transition: transform 0.3s ease; // animación suave
     }
@@ -39,18 +37,18 @@ body {
 }
 
 // Cuando el sidebar está abierto, movemos el h3
-.sidebar-open .dashboard-right h3 {
-    transform: translateX(-70px); // ajusta la distancia si quieres
-}
+/*.sidebar-open .dashboard-right h3 {
+    transform: translateX(-70px);
+}*/
 
 
 .dashboard-left {
-    width: 30%;
+    width: 40%;
     align-items: center;
 }
 
 .dashboard-right {
-    width: 65%;
+    width: 50%;
 
 }
 
@@ -68,11 +66,11 @@ body {
 }
 
 .dashboard-right {
-    margin-right: 20px;
     align-items: center;
     text-align: center;
 
     #rightText {
+        margin-top: 20px;
         text-align: center;
         color: $colorParrafoDashboardDerecho;
         font-style: italic;
@@ -92,17 +90,10 @@ body {
     align-self: flex-end;
     width: 120px;
     height: 120px;
-    margin-right: 200px;
     border-radius: 50%;
     margin-bottom: 20px;
 }
 
-.dashboard-illustration {
-    width: 600px;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 2px 15px 22px rgba(0, 0, 0, 0.1);
-}
 
 
 /* Asegurarnos de que el contenedor del contenido ocupe el 100% del ancho */
@@ -111,7 +102,7 @@ body {
     flex-direction: column;
     height: 100%;
     /* Ocupa toda la altura de la ventana */
-    width: 100%;
+    width: 90%;
     padding-top: 60px;
     /* Espacio debajo del topbar */
 }
@@ -178,14 +169,14 @@ body {
         border-radius: 8px;
         margin-top: 10px;
         cursor: pointer;
-        transition: background-image 0.3s ease, transform 0.3s ease, color 0.3s ease;  
-    
+        transition: background-image 0.3s ease, transform 0.3s ease, color 0.3s ease;
+
         &:hover {
             background-image: linear-gradient(#2C3E50, #22577A);
-            transform: scale(1.05); 
+            transform: scale(1.05);
         }
     }
-    
+
 }
 
 
@@ -202,7 +193,6 @@ body {
 }
 
 .main-content {
-    margin-left: 200px;
     padding: 20px;
     transition: margin-left 0.3s ease, width 0.3s ease;
 
@@ -211,10 +201,11 @@ body {
     }
 }
 
-.main-content.shifted {
-    width: calc(100% - 400px);
+#content.shifted {
+    width: calc(100% - 300px);
 
 }
+
 
 #sabermas {
     margin-bottom: 30px;
@@ -243,50 +234,28 @@ h1 {
     color: #333;
 }
 
-.carousel-container {
-    border: 1px, solid #333;
-    position: relative;
-    width: 600px;
-    height: auto;
+#dashboardCarousel {
+    visibility: hidden;
+
+    border: 4px solid $primary-color;
+    border-radius: 20px;    
+    box-shadow: 0 2px 5px 2px $primary-color;
+    max-width: 600px; /* o lo que quieras */
+    margin: auto;
     overflow: hidden;
-    border-radius: 12px;
-    box-shadow: 2px 15px 22px rgba(0, 0, 0, 0.1);
-}
-
-.carousel-track {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
+  }
+  #dashboardCarousel.show-carousel {
+    visibility: visible;
+  }
+  .carousel-inner {
     width: 100%;
-
-    .carousel-img {
-        min-width: 100%;
-        height: auto;
-        object-fit: cover;
-        border-radius: 12px;
-    }
-}
-
-.carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.7);
-    border: none;
-    padding: 10px 15px;
-    font-size: 24px;
-    cursor: pointer;
-    border-radius: 50%;
-    z-index: 2;
-
-    &:hover {
-        background-color: rgba(255, 255, 255, 0.9);
-    }
-
-    &.antes {
-        left: 10px;
-    }
-
-    &.next {
-        right: 10px;
-    }
-}
+    height: 300px; /* fija altura para evitar saltos */
+  }
+  
+  .carousel-inner .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+ 

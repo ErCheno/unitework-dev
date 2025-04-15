@@ -7,16 +7,18 @@
 
 // Estilos generales del nav dentro del sidebar
 nav.sidebar {
+  overflow: hidden;
+
   background-color: $colorNav;
-  padding: 25px;
+  padding: 20px;
 
   a {
     color: $colorTextoNav;
     text-decoration: none;
     margin-bottom: 15px;
     display: block;
-    width: 80%;
-    font-size: 24px;
+    width: 100%;
+    font-size: 18px;
     transition: 0.15s;
     user-select: none;
 
@@ -46,8 +48,7 @@ nav.sidebar {
 .sidebar {
   position: fixed;
   top: 0;
-  left: -250px; // Oculta por defecto
-  width: 250px;
+  left: -240px; // Oculta por defecto
   height: 100%;
   background-color: $colorSidebar;
   transition: left 0.3s ease;

@@ -1,47 +1,56 @@
 import page from 'page';
 import { RegisterForm } from '../components/form.js';
 import { isValidUsername, isValidEmail, isValidPassword } from '../public/js/validator/regex.js';
-import { showToast } from '../public/js/validator/regex.js'; // <-- Asegúrate de tener este archivo
+import { showToast } from '../public/js/validator/regex.js';
+import { cleanupView } from '../public/js/cleanup.js';
 
 export function RegisterPage() {
-    const contentDiv = document.getElementById('content');
+    cleanupView();
+
+    
+    // Eliminar contenedores previos si existen
+    const oldAuthContent = document.getElementById('auth-content');
+    if (oldAuthContent) oldAuthContent.remove();
 
     const oldDivDerecho = document.querySelector('.divDerecho');
-    if (oldDivDerecho) {
-        oldDivDerecho.remove();
-    }
+    if (oldDivDerecho) oldDivDerecho.remove();
 
-    const divDerecho = document.createElement('aside');
-    divDerecho.className = "divDerecho";
+    // Crear contenedor principal
+    let authContent = document.createElement('div');
+    authContent.id = 'auth-content';
+    authContent.className = 'login-page';
+    document.body.appendChild(authContent);
 
-    while (contentDiv.firstChild) {
-        contentDiv.removeChild(contentDiv.firstChild);
-    }
 
+    
     const main = document.createElement('main');
-    contentDiv.appendChild(main);
+    authContent.appendChild(main);
+
     const form = RegisterForm();
     main.appendChild(form);
+
+    // Crear aside derecho
+    const divDerecho = document.createElement('aside');
+    divDerecho.className = "divDerecho";
 
     const h2 = document.createElement('h2');
     h2.textContent = "¡Nos encanta ver caras nuevas!";
     const p = document.createElement('p');
-    p.textContent = "En nuestra corporación nos esmeramos en satisfacer las necesidades de nuestros usuarios. Estamos entuasmados por tu nueva llegada 🚀🔥";
+    p.textContent = "En nuestra corporación nos esmeramos en satisfacer las necesidades de nuestros usuarios. Estamos entusiasmados por tu nueva llegada 🚀🔥";
 
     const imagenDivDerecho = document.createElement('img');
     imagenDivDerecho.className = "background-img";
     imagenDivDerecho.src = "http://localhost/UniteWork/unitework-dev/assets/img/perro.png";
-    divDerecho.appendChild(imagenDivDerecho);
-    divDerecho.appendChild(h2);
-    divDerecho.appendChild(p);
 
+    divDerecho.append(imagenDivDerecho, h2, p);
     document.body.appendChild(divDerecho);
 
+    // Manejador del formulario
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const username = document.getElementById('username').value;
-        const email = document.getElementById('email').value;
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -62,10 +71,10 @@ export function RegisterPage() {
             valido = false;
         }
 
-        if (!isValidPassword(password)) {
-            showToast('La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.', 'error');
-            valido = false;
-        }
+        // if (!isValidPassword(password)) {
+        //     showToast('La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo.', 'error');
+        //     valido = false;
+        // }
 
         if (!valido) return;
 

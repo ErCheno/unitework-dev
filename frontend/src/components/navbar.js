@@ -41,7 +41,6 @@ export function Navbar() {
     hr.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
     hr2.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
   
-    // 🔥 Aquí añadimos o quitamos la clase en el body
     document.body.classList.toggle('sidebar-open', nav.classList.contains('open'));
   });
   
@@ -70,14 +69,23 @@ export function Navbar() {
   buscarDiv.appendChild(buscarInput);
   buscarLi.appendChild(buscarDiv); // <li><div><input></div></li>
 
-  const dashboardLi = document.createElement('li');
-  const dashboardLink = document.createElement('a');
+  const dashboardLiNovedades = document.createElement('li');
+  const dashboardLinkNovedades = document.createElement('a');
   const iDashboard = document.createElement('i');
   iDashboard.className = 'fa-solid fa-house';
-  dashboardLink.href = '#/dashboard';
-  dashboardLink.textContent = ' Novedades';
-  dashboardLink.prepend(iDashboard);
-  dashboardLi.appendChild(dashboardLink);
+  dashboardLinkNovedades.href = '/dashboard';
+  dashboardLinkNovedades.textContent = ' Novedades';
+  dashboardLinkNovedades.prepend(iDashboard);
+  dashboardLiNovedades.appendChild(dashboardLinkNovedades);
+
+  const dashboardLiEspaciosTrabajo = document.createElement('li');
+  const dashboardLinkEspaciosTrabajos = document.createElement('a');
+  const iDashboardEspaciosTrabajo = document.createElement('i');
+  iDashboardEspaciosTrabajo.className = 'fa-solid fa-toolbox';
+  dashboardLinkEspaciosTrabajos.href = '/myworkspaces';
+  dashboardLinkEspaciosTrabajos.textContent = ' Mis espacios de Trabajo';
+  dashboardLinkEspaciosTrabajos.prepend(iDashboardEspaciosTrabajo);
+  dashboardLiEspaciosTrabajo.appendChild(dashboardLinkEspaciosTrabajos);
 
   // Logout
   const divDebajo = document.createElement('div');
@@ -98,7 +106,8 @@ export function Navbar() {
   // Añadir todos los <li> al <ul>
   ul.appendChild(buscarLi);
 
-  ul.appendChild(dashboardLi);
+  ul.appendChild(dashboardLiNovedades);
+  ul.appendChild(dashboardLiEspaciosTrabajo);
 
   // Montamos el nav
   nav.appendChild(hr);

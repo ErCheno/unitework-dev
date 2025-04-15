@@ -23,8 +23,8 @@
 
   &.top-navbar-compact,
   &.top-navbar-moved {
-    width: calc(100% - 300px);
-    margin-left: 300px;
+    width: calc(100% - 200px);
+    margin-left: 280px;
     transition: width 0.3s ease, margin-left 0.3s ease;
   }
 }
@@ -43,9 +43,10 @@
     align-items: center;
     flex-shrink: 1;
     min-width: 0;
+    width: 15%;
 
     img {
-      width: 30px;
+      width: 20%;
       margin-right: 5px;
       margin-left: 5px;
       -webkit-user-drag: none;
@@ -53,7 +54,7 @@
     }
 
     h1 {
-      width: 100%;
+      width: 50%;
       font-size: clamp(14px, 5vw, 20px);
       color: black;
       margin: 0;
@@ -71,6 +72,7 @@
     flex-wrap: wrap;
     justify-content: flex-end;
 
+
     /*NO le afecta a los li que tienen iconos*/
     li:not(#user):not(#notif) {
       margin-top: 5px;
@@ -79,7 +81,7 @@
 
     #user{
       border: 1px, solid , $colorUserIcon;
-      width: 20px;
+      width: 40px;
       text-align: center;
       border-radius: 80%;
       padding: 5px;
@@ -104,7 +106,7 @@
 
     #notif{
       border: 1px, solid , $colorUserIcon;
-      width: 20px;
+      width: 40px;
       text-align: center;
       margin-right: -40px;
 

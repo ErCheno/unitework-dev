@@ -4,6 +4,7 @@ import { LoginPage } from './pages/loginPage.js';
 import { DashboardPage } from './pages/dashboardPage.js';
 import { RegisterPage } from './pages/registerPage.js';
 import { isAuthenticated } from './public/js/auth.js';
+import { myWorkspacesPage } from './pages/myworkspacesPage.js';
 
 function checkToken() {
     const token = localStorage.getItem('token');
@@ -17,7 +18,7 @@ page('/', () => {
         page('/login');
     }
 });
-
+page('/myworkspaces', myWorkspacesPage);
 page('/login', LoginPage);
 page('/registro', RegisterPage);
 

@@ -1,25 +1,31 @@
 @use 'variables' as *;
 
-body{
-  overflow-y: hidden;
+*{
 }
 
-#content {
+#auth-content {
   display: flex;
-  align-items: center;
-  flex-direction: column;
+  width: 100%;
+  height: 900px;
+  margin:40px 0px 40px 40px;
   box-shadow: 1px 1px 10px $button-bg;
 
+
   position: relative;
-  width: 70%;
+  /*width: 70%;*/
+  padding: 40px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   border-radius: 10px 0% 0% 10px;
   overflow: hidden;
 }
 
 main {
-  width: 50%;
-  height: 80%;
+
+  width: 80%;
   padding: 40px;
+  height: 700px;
 
   display: flex;
   flex-direction: column;
@@ -34,6 +40,7 @@ main {
     width: 100%;
 
     h1 {
+      text-align: center;
       font-size: 56px;
       font-weight: 600;
       color: $primary-color;
@@ -42,10 +49,12 @@ main {
     }
 
     h3 {
+      width: 100%;
       font-size: 18px;
       font-weight: 600;
       color: $colorH3Main;
       user-select: none;
+      text-align: center;
 
     }
 
@@ -117,7 +126,7 @@ main {
     }
 
     .confirmPassword-container {
-      margin: 0px !important;
+      margin: 0px;
     }
 
     .password-container,
@@ -125,11 +134,11 @@ main {
       position: relative;
       display: flex;
       align-items: center;
-      width: 91%;
+      width: 88%;
       margin: 20px;
 
       input {
-        width: 90%;
+        width: 100%;
         height: 40px;
 
         padding-right: 40px;
@@ -149,8 +158,8 @@ main {
 
     }
 
-    .confirmPassword-container{
-      margin-bottom: 20px !important; 
+    .confirmPassword-container {
+      margin-bottom: 20px !important;
     }
 
     .error-message {
@@ -187,14 +196,15 @@ main {
 }
 
 .divDerecho {
+  margin:40px 40px 40px 0px;
+  width: 100%;
+
   position: relative;
   background-image: linear-gradient(#7BE6BE, #38A3A5, #22577A);
   z-index: 1;
   padding: 20px;
   border-radius: 0% 5% 5% 0%;
   box-shadow: 1px 1px 10px $button-bg;
-  width: 30%;
-  text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -202,6 +212,7 @@ main {
   font-size: 20px;
 
   h2 {
+    font-weight: bold;
     font-size: 1.5em;
     color: $colorDivDerecho;
     margin-bottom: 10px;
@@ -213,7 +224,7 @@ main {
     font-size: 1em;
     color: $colorDivDerecho;
     margin-bottom: 20px;
-    max-width: 400px;
+    max-width: 500px;
     text-align: center;
     line-height: 1.5;
     user-select: none;
@@ -237,7 +248,7 @@ main {
   object-fit: cover;
   z-index: -1;
   opacity: 25%;
-  border-radius: 5%;
+  border-radius: 0% 5% 5% 0%;
 
   -webkit-user-drag: none;
   /* Para compatibilidad con Safari */
