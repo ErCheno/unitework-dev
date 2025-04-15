@@ -18,9 +18,10 @@ export function Navbar() {
   icon.className = 'fas fa-bars';
   toggleBtn.appendChild(icon);
 
-  const hr = document.createElement('hr');
+  const hr1 = document.createElement('hr');
   const hr2 = document.createElement('hr');
   hr2.id = 'hr2';
+  hr1.id = 'hr1';
 
   toggleBtn.addEventListener('click', () => {
     nav.classList.toggle('open');
@@ -38,7 +39,7 @@ export function Navbar() {
     toggleBtn.style.left = nav.classList.contains('open') ? '230px' : '0px';
     icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
   
-    hr.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
+    hr1.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
     hr2.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
   
     document.body.classList.toggle('sidebar-open', nav.classList.contains('open'));
@@ -110,7 +111,7 @@ export function Navbar() {
   ul.appendChild(dashboardLiEspaciosTrabajo);
 
   // Montamos el nav
-  nav.appendChild(hr);
+  nav.appendChild(hr1);
   nav.appendChild(ul);
   nav.appendChild(hr2);
 

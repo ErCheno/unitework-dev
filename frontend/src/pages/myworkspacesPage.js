@@ -3,6 +3,7 @@ import page from 'page';
 import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
 import { cleanupView } from '../public/js/cleanup.js';
+import { WorkspaceCard } from '../components/workspaceCard.js';
 
 export function myWorkspacesPage() {
     cleanupView();
@@ -51,8 +52,12 @@ export function myWorkspacesPage() {
             rol: 'member'
         }
     ];
-
     workspaces.forEach(ws => {
+        const card = WorkspaceCard(ws);
+        grid.appendChild(card);
+    });
+    
+    /*workspaces.forEach(ws => {
         const card = document.createElement('div');
         card.className = 'workspace-card';
 
@@ -104,7 +109,7 @@ export function myWorkspacesPage() {
         card.appendChild(footer);
 
         grid.appendChild(card);
-    });
+    });*/
 
     container.appendChild(title);
     container.appendChild(grid);

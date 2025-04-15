@@ -14,7 +14,7 @@ export function TopNavbar() {
 
   // Logo de la app
   const logoImg = document.createElement('img');
-  logoImg.src = 'http://localhost/UniteWork/unitework-dev/assets/img/poff.png';
+  logoImg.src = './src/public/img/poff.png';
   logoImg.alt = 'Logo de UWrk';  // Se ha añadido texto alternativo para la accesibilidad
 
   // Este es el título de la app

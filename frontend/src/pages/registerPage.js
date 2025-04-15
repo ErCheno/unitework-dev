@@ -40,7 +40,7 @@ export function RegisterPage() {
 
     const imagenDivDerecho = document.createElement('img');
     imagenDivDerecho.className = "background-img";
-    imagenDivDerecho.src = "http://localhost/UniteWork/unitework-dev/assets/img/perro.png";
+    imagenDivDerecho.src = "./src/public/img/perro.png";
 
     divDerecho.append(imagenDivDerecho, h2, p);
     document.body.appendChild(divDerecho);

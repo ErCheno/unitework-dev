@@ -110,9 +110,9 @@ export function DashboardPage() {
     carouselInner.className = 'carousel-inner';
 
     const carouselImages = [
-        'http://localhost/UniteWork/unitework-dev/assets/img/tableroKanban.png',
-        'http://localhost/UniteWork/unitework-dev/assets/img/montanya.png',
-        'http://localhost/UniteWork/unitework-dev/assets/img/teamwork.png'
+        './src/public/img/tableroKanban.png',
+        './src/public/img/montanya.png',
+        './src/public/img/teamwork.png'
     ];
 
     let imagesLoaded = 0;
