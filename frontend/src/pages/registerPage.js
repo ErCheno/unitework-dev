@@ -91,10 +91,15 @@ export function RegisterPage() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(userData)
+                body: JSON.stringify(userData),
             });
-
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const result = await response.json();
+            
 
             if (result.status === "success") {
                 showToast("Registro exitoso. Puedes iniciar sesión.", "success");

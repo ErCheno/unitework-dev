@@ -6,10 +6,29 @@
 }
 
 body {
-  background-color: #f8f9fa;
   display: flex;
   justify-content: center;
   height: 100vh;
   width: auto;
   overflow-x: hidden;
+}
+
+
+body.dashboard-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+
+body.workspaces-bg::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url('../img/fondo_myworkspaces.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+  z-index: -1;
+
 }

@@ -8,17 +8,22 @@ import { myWorkspacesPage } from './pages/myworkspacesPage.js';
 
 function checkToken() {
     const token = localStorage.getItem('token');
-    return token !== null && token !== ''; 
+    return token !== null && token !== '';
 }
 // Definir las rutas con `page.js`
 page('/', () => {
     if (isAuthenticated()) {
         page('/dashboard');
+        document.body.className = 'dashboard-bg';
+
     } else {
         page('/login');
     }
 });
-page('/myworkspaces', myWorkspacesPage);
+page('/myworkspaces', () => {
+    document.body.className = 'workspaces-bg';
+    myWorkspacesPage();
+});
 page('/login', LoginPage);
 page('/registro', RegisterPage);
 

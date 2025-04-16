@@ -1,13 +1,14 @@
-// myWorkspacesPage.js
 import page from 'page';
 import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
 import { cleanupView } from '../public/js/cleanup.js';
 import { WorkspaceCard } from '../components/workspaceCard.js';
+import { workspaceDrag } from '../components/dragAnimation.js';
+import { setupHorizontalScroll } from '../components/dragAnimation.js';
 
 export function myWorkspacesPage() {
     cleanupView();
-    // Buscar o crear el div#content
+
     let contentDiv = document.getElementById('content');
     if (!contentDiv) {
         contentDiv = document.createElement('div');
@@ -29,89 +30,47 @@ export function myWorkspacesPage() {
     container.appendChild(topbar);
 
     const title = document.createElement('h1');
+    title.id = 'tituloMyWorkspaces';
     title.textContent = 'Mis espacios de trabajo';
-    title.style.textAlign = 'center';
+
+    const hrWorkspaces = document.createElement('hr');
+    hrWorkspaces.id = 'hrMyWorkspaces';
 
     const grid = document.createElement('div');
     grid.id = 'workspace-list';
 
-    // Datos simulados por ahora
     const workspaces = [
-        {
-            id: 1,
-            nombre: 'Proyecto Alpha',
-            ultimaActividad: 'Hace 2 días',
-            miembros: 5,
-            rol: 'admin'
-        },
-        {
-            id: 2,
-            nombre: 'Equipo Beta',
-            ultimaActividad: 'Hoy',
-            miembros: 12,
-            rol: 'member'
-        }
+        { id: 1, nombre: '1', ultimaActividad: 'Hace 2 días', miembros: 5, rol: 'admin' },
+        { id: 2, nombre: '2', ultimaActividad: 'Hoy', miembros: 12, rol: 'member' },
+        { id: 3, nombre: '3', ultimaActividad: 'Hace 1 semana', miembros: 3, rol: 'admin' },
+        { id: 4, nombre: '4', ultimaActividad: 'Ayer', miembros: 8, rol: 'member' },
+        { id: 5, nombre: '5', ultimaActividad: 'Hace 2 días', miembros: 5, rol: 'admin' },
+        { id: 6, nombre: '6', ultimaActividad: 'Hoy', miembros: 12, rol: 'member' },
+        { id: 7, nombre: '7', ultimaActividad: 'Hace 1 semana', miembros: 3, rol: 'admin' },
+        { id: 8, nombre: '8', ultimaActividad: 'Ayer', miembros: 8, rol: 'member' },
+        { id: 9, nombre: '9', ultimaActividad: 'Hace 2 días', miembros: 5, rol: 'admin' },
+        { id: 10, nombre: '10', ultimaActividad: 'Hoy', miembros: 12, rol: 'member' },
+        { id: 11, nombre: '11', ultimaActividad: 'Hace 1 semana', miembros: 3, rol: 'admin' },
+        { id: 12, nombre: '12', ultimaActividad: 'Ayer', miembros: 8, rol: 'member' }
     ];
+
     workspaces.forEach(ws => {
         const card = WorkspaceCard(ws);
+        card.setAttribute('draggable', true); // Aseguramos que cada card es arrastrable
+        card.id = `workspace-${ws.id}`;
+        card.classList.add('workspace-draggable');
         grid.appendChild(card);
     });
     
-    /*workspaces.forEach(ws => {
-        const card = document.createElement('div');
-        card.className = 'workspace-card';
-
-        const header = document.createElement('div');
-        header.className = 'workspace-header';
-
-        const name = document.createElement('h3');
-        name.textContent = ws.nombre;
-
-        const dots = document.createElement('span');
-        dots.className = 'dots';
-        dots.textContent = '⋮';
-
-        header.appendChild(name);
-        header.appendChild(dots);
-
-        const actividad = document.createElement('p');
-        actividad.className = 'actividad';
-        actividad.textContent = `Última actividad: ${ws.ultimaActividad}`;
-
-        const info = document.createElement('p');
-        info.className = 'info';
-        info.textContent = `${ws.miembros} miembros`;
-
-        const footer = document.createElement('div');
-        footer.className = 'workspace-footer';
-
-        const rol = document.createElement('span');
-        rol.className = `rol ${ws.rol}`;
-        rol.textContent = ws.rol === 'admin' ? 'Administrador' : 'Miembro';
-
-        const enterBtn = document.createElement('button');
-        enterBtn.className = 'enter-btn';
-        enterBtn.textContent = '→';
-        enterBtn.title = 'Entrar';
-
-        enterBtn.addEventListener('click', () => {
-            console.log(`Entrando a workspace ${ws.id}`);
-            // Redirigir a la vista del workspace
-            // page(`/workspace/${ws.id}`);
-        });
-
-        footer.appendChild(rol);
-        footer.appendChild(enterBtn);
-
-        card.appendChild(header);
-        card.appendChild(actividad);
-        card.appendChild(info);
-        card.appendChild(footer);
-
-        grid.appendChild(card);
-    });*/
+    
 
     container.appendChild(title);
+    container.appendChild(hrWorkspaces);
     container.appendChild(grid);
     contentDiv.appendChild(container);
+
+    setupHorizontalScroll();
+    workspaceDrag(); // ← módulo importado
 }
+
+

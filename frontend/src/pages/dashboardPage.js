@@ -86,13 +86,13 @@ export function DashboardPage() {
     rightColumn.className = 'dashboard-right';
 
     const logo = document.createElement('img');
-    logo.src = 'http://localhost/UniteWork/unitework-dev/assets/img/logoOriginal.png';
+    logo.src = './src/public/img/logoOriginal.png';
     logo.alt = 'Logo';
     logo.className = 'dashboard-logo';
     rightColumn.appendChild(logo);
 
     const illustration = document.createElement('img');
-    illustration.src = 'http://localhost/UniteWork/unitework-dev/assets/img/tableroKanban.png';
+    illustration.src = './src/public/img/tableroKanban.png';
     illustration.alt = 'Ilustración';
     illustration.id = 'illustration';
     illustration.className = 'dashboard-illustration';

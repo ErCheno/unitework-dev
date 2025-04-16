@@ -1,28 +1,27 @@
 <?php
-
 require_once "../../config/db.php"; 
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-header("Access-Control-Allow-Origin: *");
+use Ramsey\Uuid\Uuid;
+
+header("Access-Control-Allow-Origin: http://localhost:5173"); // Asegúrate de que coincida con el origen de tu frontend
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
-// Manejo de preflight (CORS)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Manejo de la solicitud OPTIONS (preflight)
     http_response_code(200);
     exit();
 }
 
-// Verificar conexión con la base de datos
 if (!$conn) {
     echo json_encode(["status" => "error", "message" => "Error de conexión con la base de datos"]);
     exit();
 }
 
-// Obtener datos del JSON enviado
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Verificar que se recibieron los datos
 if (!isset($data["name"], $data["email"], $data["password"], $data["confirmPassword"])) {
     echo json_encode(["status" => "error", "message" => "Datos incompletos"]);
     exit();
@@ -33,13 +32,16 @@ $email = filter_var($data["email"], FILTER_SANITIZE_EMAIL);
 $password = $data["password"];
 $confirmPassword = $data["confirmPassword"];
 
-// Verificar que las contraseñas coincidan
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(["status" => "error", "message" => "El correo electrónico no es válido"]);
+    exit();
+}
+
 if ($password !== $confirmPassword) {
     echo json_encode(["status" => "error", "message" => "Las contraseñas no coinciden"]);
     exit();
 }
 
-// Verificar si el email ya está registrado
 $stmt = $conn->prepare("SELECT id FROM usuarios WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
@@ -51,20 +53,18 @@ if ($result->num_rows > 0) {
     exit();
 }
 
-// Si el email no está registrado, hash de la contraseña
 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+$uuid = Uuid::uuid4()->toString();
 
-// Insertar el usuario en la base de datos
-$stmt = $conn->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)");
-$stmt->bind_param("sss", $name, $email, $hashedPassword);
+$stmt = $conn->prepare("INSERT INTO usuarios (id, nombre, email, password) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("ssss", $uuid, $name, $email, $hashedPassword);
 
 if ($stmt->execute()) {
-    echo json_encode(["status" => "success", "message" => "Registro exitoso"]);
+    echo json_encode(["status" => "success", "message" => "Registro exitoso", "id" => $uuid]);
 } else {
     echo json_encode(["status" => "error", "message" => "Error al registrar el usuario"]);
 }
 
 $stmt->close();
 $conn->close();
-
 ?>
