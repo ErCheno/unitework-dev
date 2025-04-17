@@ -3,7 +3,7 @@
         'name' => 'emili/unitework-dev',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'c9469c60daaa6945f07f368e759bdba9f9646206',
+        'reference' => '58490e9ce5ff3ef55d23417b7ce03b43ec99053a',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'emili/unitework-dev' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'c9469c60daaa6945f07f368e759bdba9f9646206',
+            'reference' => '58490e9ce5ff3ef55d23417b7ce03b43ec99053a',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -2,7 +2,7 @@
 require_once "../../config/db.php";
 session_start();
 
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
@@ -52,11 +52,10 @@ if (isset($data["email"], $data["password"])) {
                 echo json_encode([
                     "status" => "success",
                     "token" => $token,
-                    "user" => [
-                        "id" => $user["id"],
-                        "nombre" => $user["nombre"]
-                    ]
+                    "usuario_id" => $user["id"],
+                    "nombre" => $user["nombre"]
                 ]);
+                
             } else {
                 // Si no se pudo actualizar el token, se genera un error
                 echo json_encode(["status" => "error", "message" => "No se pudo actualizar el token"]);

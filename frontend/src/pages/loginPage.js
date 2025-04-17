@@ -88,6 +88,9 @@ export async function LoginPage() {
             const result = await response.json();
 
             if (result.status === "success" && result.token) {
+                if (result.usuario_id) {
+                    localStorage.setItem('usuario_id', result.usuario_id);
+                }
                 if (remember) {
                     localStorage.setItem("token", result.token);
                 } else {
