@@ -1,3 +1,5 @@
+import { deleteWorkspaces } from "../public/js/workspaces";
+
 export function WorkspaceCard(ws) {
 
 
@@ -38,6 +40,7 @@ export function WorkspaceCard(ws) {
     if (ws.rol !== 'admin') {
         menu.appendChild(salir);
     } else {
+        menu.appendChild(renombrar);
         menu.appendChild(eliminar);
     }
 
@@ -67,7 +70,7 @@ export function WorkspaceCard(ws) {
     actividadIco.id = 'actividadIco';
     const actividad = document.createElement('p');
     actividad.className = 'actividad';
-    actividad.textContent = `Última actividad: ${ws.ultimaActividad}`;
+    actividad.textContent = `Última actividad: ${ws.ultima_actividad_relativa}`;
 
     divActividad.appendChild(actividadIco);
     divActividad.appendChild(actividad);
@@ -83,7 +86,7 @@ export function WorkspaceCard(ws) {
     const icoTablero = document.createElement('i');
     icoTablero.id = 'icoTablero';
     const pTablero = document.createElement('p');
-    pTablero.textContent = '(tableros activos)'
+    pTablero.textContent = ws.numero_tableros + " tableros activos";
     divTableroInfo.id = 'divTableroInfo';
     icoTablero.className = 'fa-solid fa-table';
 
@@ -94,14 +97,14 @@ export function WorkspaceCard(ws) {
     const icoMentalMap = document.createElement('i');
     icoMentalMap.id = 'icoMentalMap';
     const pMentalMap = document.createElement('p');
-    pMentalMap.textContent = '(mapas mentales activos)'
+    pMentalMap.textContent = ws.numero_mapas_mentales + " mapas mentales activos";
     divMentalMapInfo.id = 'divMentalMapInfo';
     icoMentalMap.className = 'fa-regular fa-sticky-note';
 
     divMentalMapInfo.appendChild(icoMentalMap);
     divMentalMapInfo.appendChild(pMentalMap);
 
-
+/*
     const divMemberInfo = document.createElement('div');
     const icoMemberInfo = document.createElement('i');
     icoMemberInfo.id = 'icoMentalMap';
@@ -109,7 +112,7 @@ export function WorkspaceCard(ws) {
     pMemberInfo.textContent = '(mapas mentales activos)'
     divMemberInfo.id = 'divMentalMapInfo';
     icoMemberInfo.className = 'fa-regular fa-sticky-note';
-
+*/
     const divInfo = document.createElement('div');
     divInfo.id = 'divInfo';
     const icoInfo = document.createElement('i');
@@ -117,7 +120,7 @@ export function WorkspaceCard(ws) {
     icoInfo.className = 'fa-solid fa-user-group';
     const info = document.createElement('p');
     info.id = 'pInfo';
-    info.textContent = `${ws.miembros}`;
+    info.textContent = `${ws.numero_miembros}`;
 
     divInfo.appendChild(icoInfo);
     divInfo.appendChild(info);
@@ -159,9 +162,64 @@ export function WorkspaceCard(ws) {
     card.appendChild(divTableroInfo);
     card.appendChild(divMentalMapInfo);
     card.appendChild(footer);
+    eliminar.addEventListener('click', async () => {
+        const confirmado = await mostrarPopupConfirmacion();
+        if (!confirmado) return;
+
+        const usuarioId = localStorage.getItem('usuario_id');
+        deleteWorkspaces(usuarioId, ws.id).then(() => {
+            card.remove(); // Eliminar la tarjeta del DOM directamente
+        });
+    });
+    
+    
 
     return card;
 }
+
+async function mostrarPopupConfirmacion() {
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'popup-overlay';
+
+        const popup = document.createElement('div');
+        popup.className = 'popup';
+
+        const mensajeEl = document.createElement('p');
+        mensajeEl.textContent = "¿Estás seguro de que quieres eliminarlo?";
+
+        const botones = document.createElement('div');
+        botones.className = 'popup-buttons';
+
+        const btnCancelar = document.createElement('button');
+        btnCancelar.textContent = 'Cancelar';
+        btnCancelar.className = 'btn-cancelar';
+
+        const btnConfirmar = document.createElement('button');
+        btnConfirmar.textContent = 'Eliminar';
+        btnConfirmar.className = 'btn-confirmar';
+
+        botones.appendChild(btnCancelar);
+        botones.appendChild(btnConfirmar);
+
+        popup.appendChild(mensajeEl);
+        popup.appendChild(botones);
+        overlay.appendChild(popup);
+        document.body.appendChild(overlay);
+
+        btnCancelar.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(false);
+        });
+
+        btnConfirmar.addEventListener('click', () => {
+            document.body.removeChild(overlay);
+            resolve(true);
+        });
+    });
+}
+
+
 /*
 export function enviarNuevoEspacio() {
     const tituloInput = document.querySelector('#crear-titulo');

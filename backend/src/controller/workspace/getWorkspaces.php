@@ -1,13 +1,12 @@
 <?php
-require_once "../../config/db.php"; 
+require_once "../../config/db.php";
 
-header("Access-Control-Allow-Origin: http://localhost:5173"); 
+header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    // Manejo de la solicitud OPTIONS (preflight)
     http_response_code(200);
     exit();
 }
@@ -17,10 +16,8 @@ if (!$conn) {
     exit();
 }
 
-// Obtener los datos enviados en JSON
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Validar que venga el campo creado_por (usuarioId)
 if (!$input || empty($input['creado_por'])) {
     echo json_encode(['success' => false, 'message' => 'El campo creado_por (usuarioId) es obligatorio']);
     exit;
@@ -40,15 +37,67 @@ if ($result->num_rows === 0) {
 }
 $stmt->close();
 
-// Ahora sí, seleccionamos los espacios de trabajo creados por ese usuario
-$stmt = $conn->prepare("SELECT id, nombre, descripcion, creado_por FROM espacios_trabajo WHERE creado_por = ?");
+// Obtener workspaces donde el usuario es miembro (ya sea creador o invitado)
+$stmt = $conn->prepare("
+    SELECT et.*, met.rol
+    FROM espacios_trabajo et
+    INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
+    WHERE met.usuario_id = ?
+");
 $stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $workspaces = [];
 while ($row = $result->fetch_assoc()) {
+    // Agregar cada espacio de trabajo a la lista
     $workspaces[] = $row;
+
+    // Actualizar la ultima_actividad para este espacio de trabajo
+    $workspaceId = $row['id'];  // Obtener el ID del espacio de trabajo
+    $stmt5 = $conn->prepare("UPDATE espacios_trabajo SET ultima_actividad = NOW() WHERE id = ?");
+    $stmt5->bind_param("i", $workspaceId);
+    $stmt5->execute();
+    $stmt5->close();
+
+    // Obtener la ultima actividad y convertirla al formato relativo
+    $ultimaActividad = $row['ultima_actividad'];
+    $ultimaActividadRelativa = tiempoPasado($ultimaActividad);
+    
+    // Añadir la última actividad en formato relativo al espacio de trabajo
+    $workspaces[count($workspaces) - 1]['ultima_actividad_relativa'] = $ultimaActividadRelativa;
+}
+
+// Función para calcular el tiempo pasado
+function tiempoPasado($tiempo)
+{
+    $tiempoPasado = strtotime($tiempo);
+    $current_time = time();
+    $time_difference = $current_time - $tiempoPasado;
+
+    $segundos = $time_difference;
+    $minutos      = round($segundos / 60);
+    $horas        = round($segundos / 3600);
+    $dias         = round($segundos / 86400);
+    $semanas        = round($segundos / 604800);
+    $meses       = round($segundos / 2629440);
+    $anyos        = round($segundos / 31553280);
+
+    if ($segundos <= 60) {
+        return "Hace $segundos segundos";
+    } else if ($minutos <= 60) {
+        return ($minutos == 1) ? "Hace un minuto" : "Hace $minutos minutos";
+    } else if ($horas <= 24) {
+        return ($horas == 1) ? "Hace una hora" : "Hace $horas horas";
+    } else if ($dias <= 7) {
+        return ($dias == 1) ? "Ayer" : "Hace $dias días";
+    } else if ($semanas <= 4.3) { // 4.3 == 30/7
+        return ($semanas == 1) ? "Hace una semana" : "Hace $semanas semanas";
+    } else if ($meses <= 12) {
+        return ($meses == 1) ? "Hace un mes" : "Hace $meses meses";
+    } else {
+        return ($anyos == 1) ? "Hace un año" : "Hace $anyos años";
+    }
 }
 
 echo json_encode([

@@ -39,18 +39,17 @@ try {
 
     $numeroTableros = 0;
     $numeroMapasMentales = 0;
-    $numeroMiembros = 1;
+    $numeroMiembros = 0;
     $fechaCreacion = date("Y-m-d H:i:s");
-
-    $stmt = $conn->prepare("INSERT INTO espacios_trabajo (nombre, descripcion, creado_por, numero_tableros, numero_mapas_mentales, numero_miembros, fecha_creacion) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssiiiss", $nombre, $descripcion, $userId, $numeroTableros, $numeroMapasMentales, $numeroMiembros, $fechaCreacion);
+    $stmt = $conn->prepare("INSERT INTO espacios_trabajo (nombre, descripcion, creado_por, numero_tableros, numero_mapas_mentales, numero_miembros, fecha_creacion, ultima_actividad) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("sssiiss", $nombre, $descripcion, $userId, $numeroTableros, $numeroMapasMentales, $numeroMiembros, $fechaCreacion);
     $stmt->execute();
-
+    
     $workspaceId = $stmt->insert_id;
 
     $rol = 'admin';
-    $stmt2 = $conn->prepare("INSERT INTO miembros (espacio_trabajo_id, usuario_id, rol) VALUES (?, ?, ?)");
+    $stmt2 = $conn->prepare("INSERT INTO miembros_espacios_trabajo (espacio_trabajo_id, usuario_id, rol) VALUES (?, ?, ?)");
     $stmt2->bind_param("iss", $workspaceId, $userId, $rol);
     $stmt2->execute();
 

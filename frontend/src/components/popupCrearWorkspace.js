@@ -1,5 +1,6 @@
 import { showToast } from '../public/js/validator/regex.js';
-import { WorkspaceCard } from './workspaceCard.js';
+import { WorkspaceCard } from '../components/workspaceCard.js';
+import { myWorkspacesPage } from '../pages/myworkspacesPage.js';
 
 export function CreateWorkspaceModal() {
     // Crear elementos base
@@ -37,7 +38,7 @@ export function CreateWorkspaceModal() {
 
     const labelMiembro = document.createElement('label');
     labelMiembro.setAttribute('for', 'miembro');
-    labelMiembro.textContent = 'Añadir miembro (email)';
+    labelMiembro.textContent = 'Añadir miembro por email (opcional)';
 
     const inputMiembro = document.createElement('input');
     inputMiembro.id = 'miembro';
@@ -89,7 +90,7 @@ export function CreateWorkspaceModal() {
     btnCrear.addEventListener('click', async () => {
         const nombre = inputTitulo.value.trim();
         const descripcion = inputDescripcion.value.trim();
-        const usuarioId = localStorage.getItem('usuario_id');  // Asegúrate de tener el ID del usuario
+        const usuarioId = localStorage.getItem('usuario_id');
 
         console.log(nombre);
         console.log(descripcion);
@@ -100,62 +101,35 @@ export function CreateWorkspaceModal() {
             return;
         }
 
-        try {
-            console.log("Enviando datos:", {
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/espaciosTrabajo.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                creado_por: usuarioId,
                 nombre,
                 descripcion,
-                creado_por: usuarioId // o como se llame tu variable
-              });
+            }),
+        });
 
-            const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/espaciosTrabajo.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    creado_por: usuarioId,
-                    nombre,
-                    descripcion,
-                }),
-            });
+        const result = await response.json();
 
+        if (result.success || result.status === true || result.status === "success") {
+            showToast("Espacio creado con éxito", "success");
+            modal.style.display = 'none';
+            modal.remove();
 
-              
-
-            const result = await response.json();
-
-            if (result.success || result.status === "success") {
-                showToast("Espacio creado con éxito", "success");
-                modal.style.display = 'none';
-    
-                const newCard = WorkspaceCard({
-                    nombre: 'Nuevo Espacio de Trabajo',
-                    descripcion: 'Descripción del workspace',
-                    numero_tableros: 0,
-                    numero_mapas_mentales: 0,
-                    numero_miembros: 1,
-                    fecha_creacion: 'recién creado',
-                    creado_por: usuarioId
-                });
-
-                
-
-                
-                
-    
-                const container = document.getElementById("workspace-container");
-                if (container) {
-                    container.appendChild(newCard);
-                }
-            } else {
-                showToast(result.message || "Error al crear espacio", "error");
-                console.log(result.message);
-            }
-
-        } catch (err) {
-            console.error(err);
-            alert('Error en la petición');
+            // Recargar la página de workspaces después de crear el nuevo espacio
+            myWorkspacesPage();  // Asegúrate de llamar a la función correcta para cargar los datos de nuevo
+        } else {
+            showToast(result.message || "Error al crear espacio", "error");
         }
+    } catch (err) {
+        console.error(err);
+        alert('Error en la petición');
+    }
 
 
      
