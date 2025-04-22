@@ -6,24 +6,36 @@ header("Access-Control-Allow-Methods: PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
+if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
+    http_response_code(405); // Method Not Allowed
+    echo json_encode(["success" => false, "message" => "Método no permitido"]);
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
+
+
+
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (
     !$input ||
-    empty($input['espacio_trabajo_id']) ||
-    empty($input['usuario_id']) ||
+    !isset($input['id']) ||
+    !isset($input['usuario_id']) ||
     (!isset($input['nombre']) && !isset($input['descripcion']))
 ) {
-    echo json_encode(["success" => false, "message" => "Datos incompletos"]);
+    echo json_encode(["success" => false, "message" => "Datos incompletos", "debug" => $input]);
     exit();
 }
 
-$espacioTrabajoId = $input['espacio_trabajo_id'];
+file_put_contents("debug.json", json_encode($input, JSON_PRETTY_PRINT));
+
+
+$espacioTrabajoId = $input['id'];
 $usuarioId = $input['usuario_id'];
 $nombre = $input['nombre'] ?? null;
 $descripcion = $input['descripcion'] ?? null;
@@ -77,4 +89,3 @@ if ($success) {
 
 $stmt->close();
 $conn->close();
-?>

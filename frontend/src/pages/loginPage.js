@@ -1,10 +1,10 @@
 // LoginPage.js
 import page from 'page';
 import { LoginForm } from '../components/form.js';
-import { getToken } from '../public/js/auth.js';
-import { isValidEmail, isValidPassword } from '../public/js/validator/regex.js';
-import { showToast } from '../public/js/validator/regex.js'; // nueva función toast
-import { cleanupView } from '../public/js/cleanup.js';
+import { getToken } from '../../public/js/auth.js';
+import { isValidEmail, isValidPassword } from '../../public/js/validator/regex.js';
+import { showToast } from '../../public/js/validator/regex.js'; // nueva función toast
+import { cleanupView } from '../../public/js/cleanup.js';
 
 export async function LoginPage() {
     cleanupView();

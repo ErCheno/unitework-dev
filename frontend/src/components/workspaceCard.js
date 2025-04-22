@@ -1,4 +1,7 @@
-import { deleteWorkspaces } from "../public/js/workspaces";
+import { showToast } from "../../public/js/validator/regex.js";
+import { deleteWorkspaces } from "../../public/js/workspaces.js";
+import {mostrarDetallesWorkspace} from "../components/popupUpdateWorkspace.js";
+import page from 'page'; 
 
 export function WorkspaceCard(ws) {
 
@@ -25,9 +28,6 @@ export function WorkspaceCard(ws) {
     const detalle = document.createElement('li');
     detalle.textContent = 'Ver detalles';
 
-    const renombrar = document.createElement('li');
-    renombrar.textContent = 'Cambiar nombre';
-
     const salir = document.createElement('li');
     salir.textContent = 'Salir del espacio';
 
@@ -36,11 +36,9 @@ export function WorkspaceCard(ws) {
     eliminar.id = 'eliminarLi';
 
     menu.appendChild(detalle);
-    menu.appendChild(renombrar);
     if (ws.rol !== 'admin') {
         menu.appendChild(salir);
     } else {
-        menu.appendChild(renombrar);
         menu.appendChild(eliminar);
     }
 
@@ -104,15 +102,15 @@ export function WorkspaceCard(ws) {
     divMentalMapInfo.appendChild(icoMentalMap);
     divMentalMapInfo.appendChild(pMentalMap);
 
-/*
-    const divMemberInfo = document.createElement('div');
-    const icoMemberInfo = document.createElement('i');
-    icoMemberInfo.id = 'icoMentalMap';
-    const pMemberInfo = document.createElement('p');
-    pMemberInfo.textContent = '(mapas mentales activos)'
-    divMemberInfo.id = 'divMentalMapInfo';
-    icoMemberInfo.className = 'fa-regular fa-sticky-note';
-*/
+    /*
+        const divMemberInfo = document.createElement('div');
+        const icoMemberInfo = document.createElement('i');
+        icoMemberInfo.id = 'icoMentalMap';
+        const pMemberInfo = document.createElement('p');
+        pMemberInfo.textContent = '(mapas mentales activos)'
+        divMemberInfo.id = 'divMentalMapInfo';
+        icoMemberInfo.className = 'fa-regular fa-sticky-note';
+    */
     const divInfo = document.createElement('div');
     divInfo.id = 'divInfo';
     const icoInfo = document.createElement('i');
@@ -147,10 +145,11 @@ export function WorkspaceCard(ws) {
 
     enterBtn.appendChild(enterIco);
 
+    // Aquí es donde se conecta la acción de "Entrar"
     enterBtn.addEventListener('click', () => {
-        console.log(`Entrando a workspace ${ws.id}`);
-        // page(`/workspace/${ws.id}`);
+        page(`/workspace/${ws.id}`); // Redirige a la página del workspace con el ID del workspace
     });
+    
 
     footer.appendChild(divInfo);
     footer.appendChild(divRol);
@@ -162,6 +161,13 @@ export function WorkspaceCard(ws) {
     card.appendChild(divTableroInfo);
     card.appendChild(divMentalMapInfo);
     card.appendChild(footer);
+
+
+    detalle.addEventListener('click', () => {
+        mostrarDetallesWorkspace(ws);
+    });
+
+
     eliminar.addEventListener('click', async () => {
         const confirmado = await mostrarPopupConfirmacion();
         if (!confirmado) return;
@@ -171,8 +177,8 @@ export function WorkspaceCard(ws) {
             card.remove(); // Eliminar la tarjeta del DOM directamente
         });
     });
-    
-    
+
+
 
     return card;
 }
@@ -218,48 +224,3 @@ async function mostrarPopupConfirmacion() {
         });
     });
 }
-
-
-/*
-export function enviarNuevoEspacio() {
-    const tituloInput = document.querySelector('#crear-titulo');
-    const descripcionInput = document.querySelector('#crear-descripcion');
-    const correoInput = document.querySelector('#crear-miembro'); // aunque no se use ahora
-
-    const nombre = tituloInput.value.trim();
-    const descripcion = descripcionInput.value.trim();
-
-    if (!nombre) {
-        alert('El título es obligatorio');
-        return;
-    }
-
-    const usuarioId = localStorage.getItem('usuario_id'); // o de donde lo tengas
-
-    fetch('/backend/crear_workspace.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            nombre,
-            descripcion,
-            creado_por: usuarioId, // 👈 ¡AQUÍ!
-        }),
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert('Espacio creado correctamente');
-                // Cierra el popup y recarga la lista (o redirige)
-                location.reload();
-            } else {
-                alert('Error al crear: ' + data.message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Error en la petición');
-        });
-}
-*/

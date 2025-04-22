@@ -1,5 +1,5 @@
 import page from 'page';
-import { logoutUser } from '../public/js/auth.js';
+import { logoutUser } from '../../public/js/auth.js';
 
 export function Navbar() {
   const container = document.createElement('div');

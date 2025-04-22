@@ -1,13 +1,13 @@
 import page from 'page';
 import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
-import { cleanupView } from '../public/js/cleanup.js';
+import { cleanupView } from '../../public/js/cleanup.js';
 import { WorkspaceCard } from '../components/workspaceCard.js';
 import { workspaceDrag } from '../components/dragAnimation.js';
 import { setupHorizontalScroll } from '../components/dragAnimation.js';
-import { showToast } from '../public/js/validator/regex.js';
+import { showToast } from '../../public/js/validator/regex.js';
 import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
-import { fetchWorkspaces } from '../public/js/workspaces.js';
+import { fetchWorkspaces } from '../../public/js/workspaces.js';
 
 export async function myWorkspacesPage() {
     cleanupView();
@@ -69,19 +69,22 @@ export async function myWorkspacesPage() {
     try {
         const usuarioId = localStorage.getItem('usuario_id');
         const workspaces = await fetchWorkspaces(usuarioId);
-
-        workspaces.forEach(ws => {
-            const card = WorkspaceCard(ws);
-            card.setAttribute('draggable', true);
-            card.id = `workspace-${ws.id}`;
-            card.classList.add('workspace-draggable');
-            grid.appendChild(card);
-        });
+        if (workspaces.length === 0) {
+            const noWorkspacesMsg = document.createElement('p');
+            noWorkspacesMsg.textContent = '¡Empieza creando un proyecto!';
+            noWorkspacesMsg.classList.add('no-workspaces-msg');
+            grid.appendChild(noWorkspacesMsg);
+        } else {
+            workspaces.forEach(ws => {
+                const card = WorkspaceCard(ws);
+                card.setAttribute('draggable', true);
+                card.id = `workspace-${ws.id}`;
+                card.classList.add('workspace-draggable');
+                grid.appendChild(card);
+            });
+        }
     } catch (error) {
-        console.error('Error al cargar los espacios de trabajo:', error);
-        const errorMsg = document.createElement('p');
-        errorMsg.textContent = 'Hubo un error al cargar tus espacios de trabajo.';
-        grid.appendChild(errorMsg);
+        showToast('Error al cargar los espacios de trabajo: '+error, 'error');
     }
 
     container.appendChild(divConjuntoArriba);

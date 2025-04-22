@@ -1,6 +1,7 @@
-import { showToast } from '../public/js/validator/regex.js';
+import { showToast } from '../../public/js/validator/regex.js';
 import { WorkspaceCard } from '../components/workspaceCard.js';
 import { myWorkspacesPage } from '../pages/myworkspacesPage.js';
+import { createWorkspaces } from '../../public/js/workspaces.js';
 
 export function CreateWorkspaceModal() {
     // Crear elementos base
@@ -101,39 +102,7 @@ export function CreateWorkspaceModal() {
             return;
         }
 
-    try {
-        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/espaciosTrabajo.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                creado_por: usuarioId,
-                nombre,
-                descripcion,
-            }),
-        });
-
-        const result = await response.json();
-
-        if (result.success || result.status === true || result.status === "success") {
-            showToast("Espacio creado con éxito", "success");
-            modal.style.display = 'none';
-            modal.remove();
-
-            // Recargar la página de workspaces después de crear el nuevo espacio
-            myWorkspacesPage();  // Asegúrate de llamar a la función correcta para cargar los datos de nuevo
-        } else {
-            showToast(result.message || "Error al crear espacio", "error");
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Error en la petición');
-    }
-
-
-     
-        
+        createWorkspaces(usuarioId,nombre,descripcion, modal);
 
     });
 

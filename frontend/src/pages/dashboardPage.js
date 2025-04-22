@@ -1,6 +1,6 @@
 import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
-import { getToken } from '../public/js/auth.js';
+import { getToken } from '../../public/js/auth.js';
 import page from 'page';
 
 
@@ -51,7 +51,8 @@ export function DashboardPage() {
 
     // h1 y párrafo
     const h1 = document.createElement('h1');
-    h1.textContent = '¿Qué hay nuevo?';
+    const usuarioId = localStorage.getItem('username');
+    h1.textContent = '¡Bienvenido '+usuarioId+'!';
     leftColumn.appendChild(h1);
 
     const p = document.createElement('p');
@@ -86,13 +87,13 @@ export function DashboardPage() {
     rightColumn.className = 'dashboard-right';
 
     const logo = document.createElement('img');
-    logo.src = './src/public/img/logoOriginal.png';
+    logo.src = './public/img/logoOriginal.png';
     logo.alt = 'Logo';
     logo.className = 'dashboard-logo';
     rightColumn.appendChild(logo);
 
     const illustration = document.createElement('img');
-    illustration.src = './src/public/img/tableroKanban.png';
+    illustration.src = './public/img/tableroKanban.png';
     illustration.alt = 'Ilustración';
     illustration.id = 'illustration';
     illustration.className = 'dashboard-illustration';
@@ -110,9 +111,9 @@ export function DashboardPage() {
     carouselInner.className = 'carousel-inner';
 
     const carouselImages = [
-        './src/public/img/tableroKanban.png',
-        './src/public/img/montanya.png',
-        './src/public/img/teamwork.png'
+        './public/img/tableroKanban.png',
+        './public/img/montanya.png',
+        './public/img/teamwork.png'
     ];
 
     let imagesLoaded = 0;
@@ -183,7 +184,7 @@ export function DashboardPage() {
 
     // Título arriba del carrusel
     const h3 = document.createElement('h3');
-    h3.textContent = 'Implementaciones de esta semana';
+    h3.textContent = '¿Qué hay nuevo?';
     rightColumn.appendChild(h3);
     rightColumn.appendChild(carouselWrapper);
 
