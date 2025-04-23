@@ -1,25 +1,23 @@
-import { showToast } from "../js/validator/regex";
+import page from 'page';
+import { showToast } from "./validator/regex.js";
 import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
 
-export async function fetchBoards(usuarioId) {
+export async function fetchBoards(workspaceId, usuarioId) {
     try {
-        const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/getBoard.php?espacio_trabajo_id=${usuarioId}` ,{
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            creado_por: usuarioId
-        }),        
-    });
+        const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/getBoard.php?espacio_trabajo_id=${workspaceId}&creado_por=${usuarioId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-    const data = await response.json();
-    console.log('Respuesta del backend:', data);
+        const data = await res.json();
+        console.log('Respuesta del backend:', data);
 
-    if (!data.success) {
-        throw new Error(data.message || 'Error desconocido al obtener los tableros');
-    }
-    return data.tableros || [];
+        if (!data.success) {
+            throw new Error(data.message || 'Error desconocido al obtener los tableros');
+        }
+        return data.tableros || [];
 
     } catch (err) {
         console.error(err);
@@ -28,28 +26,31 @@ export async function fetchBoards(usuarioId) {
 }
 
 
-export async function fetchWorkspaces(usuarioId) {
+export async function createBoards(nombre, descripcion, creado_por, espacio_trabajo_id) {
     try {
-        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/getWorkspaces.php', {
+        const res = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/createBoard.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                creado_por: usuarioId
-            }),        
+                nombre,
+                descripcion,
+                creado_por,
+                espacio_trabajo_id
+            }),
         });
 
-        const data = await response.json();
-        console.log('Respuesta del backend:', data);
+        const data = await res.json();
 
-        if (!data.success) {
-            throw new Error(data.message || 'Error desconocido al obtener los workspaces');
+        if (data.success) {
+            showToast("Tablero creado correctamente", "success");
+            // Refresca la página o recarga los tableros
+            //page.redirect(`/workspace/${espacio_trabajo_id}`);
+        } else {
+            showToast("Error: " + data.message, "error");
         }
-
-        return data.workspaces || [];
-    } catch (error) {
-        console.error('Error al obtener los workspaces:', error);
-        throw error;
+    } catch (err) {
+        showToast("Error de red: " + err.message, "error");
     }
 }

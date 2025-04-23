@@ -11,7 +11,8 @@ import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../../public/js/workspaces.js';
 import { mostrarDetallesWorkspace } from '../components/popupUpdateWorkspace.js';
 import { fetchBoards } from '../../public/js/board.js';
-
+import { createBoards } from '../../public/js/board.js';
+import { BoardCard } from '../components/boardCard.js';
 
 export async function workspacePage(workspaceId) {
     cleanupView();
@@ -65,20 +66,67 @@ export async function workspacePage(workspaceId) {
     hrWorkspace.id = 'hrMyWorkspaces';
 
     const grid = document.createElement('div');
-    grid.id = 'workspace-list';
+    grid.id = 'board-list';
 
     try {
         const usuarioId = localStorage.getItem('usuario_id');
         const workspaces = await fetchWorkspaces(usuarioId);
 
         const workspace = workspaces.find(ws => ws.id === parseInt(workspaceId));
-        console.log('Buscando workspace con ID:', workspaceId);
         console.log('Todos los IDs disponibles:', workspaces.map(ws => ws.id));
 
         if (workspace) {
 
             title.textContent = workspace.nombre;
 
+            const usuarioId = localStorage.getItem('usuario_id');
+            try {
+                const boards = await fetchBoards(workspace.id, usuarioId);
+
+                // Primero, añade el botón de "Crear tablero Kanban" al principio del grid
+                const cardCrear = document.createElement('div');
+                cardCrear.classList.add('board-card', 'create-board-card');
+                const text = document.createElement('span');
+                text.textContent = '+ Crear un tablero Kanban';
+                cardCrear.appendChild(text);
+                cardCrear.setAttribute('aria-label', 'Crear un nuevo tablero');
+                grid.appendChild(cardCrear);  // Aquí es donde aseguramos que esté al principio
+
+                cardCrear.addEventListener('click', () => {
+                    const existing = document.querySelector('.board-popup');
+                    if (existing) existing.remove();
+
+                    // Pasa el workspaceId correctamente como argumento
+                    CreateBoardPopup(workspaceId).then(popup => {
+                        document.body.appendChild(popup);
+
+                        setTimeout(() => {
+                            const rect = cardCrear.getBoundingClientRect();
+                            popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
+                            popup.style.left = `${rect.left + 240 + window.scrollX}px`;
+                        }, 50);  // Retardo pequeño para asegurarse de que el popup esté en el DOM
+                    }).catch(error => {
+                        console.error('Error al crear el popup:', error);
+                    });
+                });
+
+                if (boards.length === 0) {
+                    const noBoardsMsg = document.createElement('p');
+                    noBoardsMsg.textContent = '¡Empieza creando un proyecto!';
+                    noBoardsMsg.classList.add('no-workspaces-msg');
+                    grid.appendChild(noBoardsMsg);
+                } else {
+                    boards.forEach(board => {
+                        const card = BoardCard(board);
+                        card.setAttribute('draggable', true);
+                        card.id = `board-${board.id}`;
+                        card.classList.add('board-draggable');
+                        grid.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                showToast('Error al cargar los tableros: ' + error, 'error');
+            }
 
             /*mostrarDetallesWorkspace(workspace); // Puedes lanzar el modal si quieres, o quitarlo
  
@@ -113,60 +161,6 @@ export async function workspacePage(workspaceId) {
         showToast('Error al cargar el espacio de trabajo: ' + error, 'error');
     }
 
-
-    const cardCrear = document.createElement('div');
-    cardCrear.classList.add('board-card', 'create-board-card');
-
-    const text = document.createElement('span');
-    text.textContent = '+ Crear un tablero Kanban';
-
-    cardCrear.appendChild(text);
-
-    cardCrear.addEventListener('click', () => {
-        const existing = document.querySelector('.board-popup');
-        if (existing) existing.remove();
-
-        const popup = CreateBoardPopup(({ nombre, descripcion }) => {
-            console.log('Nuevo tablero:', nombre, descripcion);
-            // Aquí va tu lógica real para guardar el tablero
-        });
-
-        const rect = cardCrear.getBoundingClientRect(); // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
-        popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
-        popup.style.left = `${rect.left + 240 + window.scrollX}px`;
-
-        document.body.appendChild(popup);
-    });
-    /*cardCrear.addEventListener('click', async () => {
-        const modal = CreateBoardModal();
-        document.body.appendChild(modal);
-        modal.show();
-    });*/
-
-
-    /* try {
-         const usuarioId = localStorage.getItem('usuario_id');
-         const boards = await fetchWorkspaces(usuarioId);
-         if (boards.length === 0) {
-             const noWorkspacesMsg = document.createElement('p');
-             noWorkspacesMsg.textContent = '¡Empieza creando un proyecto!';
-             noWorkspacesMsg.classList.add('no-workspaces-msg');
-             grid.appendChild(noWorkspacesMsg);
-         } else {
-             boards.forEach(board => {
-                 const card = WorkspaceCard(board);
-                 card.setAttribute('draggable', true);
-                 card.id = `board-${board.id}`;
-                 card.classList.add('board-draggable');
-                 grid.appendChild(card);
-             });
-         }
-     } catch (error) {
-         showToast('Error al cargar los espacios de trabajo: '+error, 'error');
-     }*/
-
-
-
     container.appendChild(divConjuntoArriba);
     container.appendChild(hrWorkspace);
     container.appendChild(grid);
@@ -175,14 +169,14 @@ export async function workspacePage(workspaceId) {
 
 
 
-    grid.appendChild(cardCrear);
 
     contentDiv.appendChild(container);
+    console.log(window.location.pathname);  // Esto te mostrará la URL completa
 
     setupWorkspaceSortable();
 }
 
-export function CreateBoardPopup(onSubmit) {
+export async function CreateBoardPopup(workspaceId) {
     const popup = document.createElement('div');
     popup.classList.add('board-popup', 'animate-popup');
 
@@ -192,45 +186,57 @@ export function CreateBoardPopup(onSubmit) {
 
     const form = document.createElement('form');
 
+    const imgKanban = document.createElement('img');
+    imgKanban.id = 'kanbanImgExample';
+    imgKanban.src = '../public/img/kanbanboardexample.png'
+
     const title = document.createElement('h3');
-    title.textContent = 'Nuevo Tablero';
+    title.textContent = 'Crear Tablero';
+    title.id = 'tittle-new-board';
 
     const tituloGroup = document.createElement('div');
-    
+    tituloGroup.classList.add('input-group');
+
     const labelTitulo = document.createElement('label');
-    labelTitulo.textContent = 'Título';
-    
+    labelTitulo.textContent = 'Título del tablero';
+
     const inputTitulo = document.createElement('input');
     inputTitulo.type = 'text';
-    inputTitulo.placeholder = 'Título del tablero';
-    
+    inputTitulo.placeholder = 'Ej: Tablero de Pepito 1';
+    inputTitulo.setAttribute('aria-label', 'Pon un título para el tablero');
+
     tituloGroup.appendChild(labelTitulo);
     tituloGroup.appendChild(inputTitulo);
 
     ////
 
     const descripGroup = document.createElement('div');
-    
+    descripGroup.classList.add('input-group');
+
     const labelDescrip = document.createElement('label');
-    labelDescrip.textContent = 'Descripción';
-    
+    labelDescrip.textContent = 'Descripción (opcional)';
+
     const inputDescrip = document.createElement('textarea');
-    inputDescrip.placeholder = 'Descripción del tablero';
-    
+    inputDescrip.placeholder = 'Ej: Desarrollo de Marketing...';
+    inputDescrip.setAttribute('aria-label', 'Pon una descripción clara para el tablero');
+
     descripGroup.appendChild(labelDescrip);
     descripGroup.appendChild(inputDescrip);
-    
+
     // Añades el tituloGroup al formulario o contenedor principal
-    
+
 
     const textareaDescripcion = document.createElement('textarea');
     textareaDescripcion.placeholder = 'Descripción...';
 
     const botonCrear = document.createElement('button');
     botonCrear.type = 'submit';
+    botonCrear.id = 'botonCrear';
     botonCrear.textContent = 'Crear';
+    botonCrear.title = 'Haz clic para crear el tablero kanban';
 
     form.appendChild(title);
+    form.appendChild(imgKanban);
     form.appendChild(tituloGroup);
     form.appendChild(descripGroup);
     form.appendChild(botonCrear);
@@ -255,15 +261,95 @@ export function CreateBoardPopup(onSubmit) {
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nombre = inputNombre.value.trim();
-        const descripcion = textareaDescripcion.value.trim();
-        if (nombre) {
-            onSubmit({ nombre, descripcion });
+        const nombre = inputTitulo.value.trim();
+        const descripcion = inputDescrip.value.trim();
+        const creado_por = localStorage.getItem('usuario_id');
+
+
+        if (!nombre) {
+            showToast("El nombre del tablero es obligatorio", "error");
+            return;
+        }
+
+        try {
+            await createBoards(nombre, descripcion, creado_por, workspaceId);
+            await fetchAndRenderBoards(workspaceId); // 🔄 refrescar tarjetas
             closePopup();
+
+        } catch (error) {
+            showToast("Error al crear el tablero", "error");
         }
     });
 
+
+
     return popup;
 }
+
+
+async function fetchAndRenderBoards(workspaceId) {
+    try {
+        const usuarioId = localStorage.getItem('usuario_id');
+        const boards = await fetchBoards(workspaceId, usuarioId);
+
+        const grid = document.createElement('div');
+        grid.id = 'board-list';
+        if (!grid) return;
+
+        grid.textContent = ''; // Limpiar tarjetas anteriores
+
+        // Agrega la tarjeta de "Crear un tablero" otra vez
+        const cardCrear = document.createElement('div');
+        cardCrear.classList.add('board-card', 'create-board-card');
+
+        const text = document.createElement('span');
+        text.textContent = '+ Crear un tablero Kanban';
+        cardCrear.appendChild(text);
+        cardCrear.setAttribute('aria-label', 'Crear un nuevo tablero');
+
+        // Asegurarse de que el cardCrear se añada antes de las tarjetas existentes
+        grid.insertBefore(cardCrear, grid.firstChild);
+
+        // Cuando el usuario hace clic para crear un tablero
+        cardCrear.addEventListener('click', () => {
+            const existing = document.querySelector('.board-popup');
+            if (existing) existing.remove();
+
+            // Pasa el workspaceId correctamente como argumento
+            CreateBoardPopup(workspaceId).then(popup => {
+                document.body.appendChild(popup);
+
+                setTimeout(() => {
+                    const rect = cardCrear.getBoundingClientRect();
+                    popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
+                    popup.style.left = `${rect.left + 240 + window.scrollX}px`;
+                }, 50);  // Retardo pequeño para asegurarse de que el popup esté en el DOM
+            }).catch(error => {
+                console.error('Error al crear el popup:', error);
+            });
+        });
+
+
+        if (boards.length === 0) {
+            const noBoardsMsg = document.createElement('p');
+            noBoardsMsg.textContent = '¡Empieza creando un proyecto!';
+            noBoardsMsg.classList.add('no-workspaces-msg');
+            grid.appendChild(noBoardsMsg);
+        } else {
+            // Luego, agrega las tarjetas de los tableros existentes
+            boards.forEach(board => {
+                const card = BoardCard(board);
+                card.setAttribute('draggable', true);
+                card.id = `board-${board.id}`;
+                card.classList.add('board-draggable');
+                grid.appendChild(card);
+            });
+        }
+
+    } catch (err) {
+        console.error('Error al recargar los tableros:', err);
+    }
+}
+

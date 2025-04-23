@@ -1,4 +1,9 @@
+@use 'variables' as *;
+
 // kanbanBoard.scss
+*{
+}
+
 
 .board-container {
   display: flex;
@@ -12,9 +17,9 @@
 .board-card {
   width: 260px;
   max-height: 180px;
-  background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  color: $primary-color;
   padding: 1rem;
   margin: 10px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -22,7 +27,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  padding: 20px;
   text-align: center;
 
   &:hover {
@@ -33,7 +38,6 @@
   .board-title {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #2f3542;
     margin: 0;
   }
 
@@ -166,15 +170,19 @@
 
 // Tarjeta para crear un nuevo tablero
 .create-board-card {
-  @extend .board-card;
+  /*@extend .board-card;*/
   background-color: #e2e4e6;
-  color: #4a4a4a;
+  color: $primary-color;
+  font-weight: bold;
   justify-content: center;
+  animation: fadeIn 0.3s ease;
+
 
   &:hover {
-    background-color: #d0d3d4;
+    background-color: $sixth-color;
   }
 }
+
 
 //BOTÓN CREAR TABLERO
 
@@ -222,23 +230,28 @@
 
 .board-popup input,
 .board-popup textarea {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
 
 .board-popup input:focus,
 .board-popup textarea:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
-    background-color: #fff;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  background-color: #fff;
+}
+
+#tittle-new-board{
+  text-align: center;
+  font-size: 20px;
 }
 
 .input-group {
@@ -247,6 +260,7 @@
   margin-bottom: 1.5rem;
 
   label {
+    
     font-size: 0.85rem;
     color: #333;
     font-weight: 500;
@@ -254,7 +268,7 @@
     transition: all 0.2s ease;
   }
 
-  input {
+  input, textarea {
     width: 100%;
     padding: 0.6rem 0.8rem;
     border: 1px solid #ccc;
@@ -265,12 +279,53 @@
     transition: border-color 0.2s, box-shadow 0.2s;
 
     &:focus {
-      border-color: #6366f1; /* Color de borde cuando está en foco */
-      box-shadow: 0 0 5px rgba(99, 102, 241, 0.3); /* Sombra cuando está en foco */
+      border-color: #6366f1;
+      /* Color de borde cuando está en foco */
+      box-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
+      /* Sombra cuando está en foco */
     }
 
     &::placeholder {
       color: #aaa;
     }
+  }
+}
+
+
+
+#kanbanImgExample {
+  max-width: 80%;
+  border: 1px solid $secondary-color;
+  border-radius: 5px;
+
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+#botonCrear {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: $third-color; 
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: 2px solid #c7d2fe; 
+    outline-offset: 2px;
   }
 }

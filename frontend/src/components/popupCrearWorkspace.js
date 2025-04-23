@@ -1,5 +1,5 @@
 import { showToast } from '../../public/js/validator/regex.js';
-import { WorkspaceCard } from '../components/workspaceCard.js';
+import { WorkspaceCard } from './workspaceCard.js';
 import { myWorkspacesPage } from '../pages/myworkspacesPage.js';
 import { createWorkspaces } from '../../public/js/workspaces.js';
 

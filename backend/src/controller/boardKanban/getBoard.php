@@ -16,18 +16,18 @@ if (!$conn) {
     exit();
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
+// Obtener parámetros de la URL
+$espacioTrabajoId = isset($_GET['espacio_trabajo_id']) ? $_GET['espacio_trabajo_id'] : null;
+$usuarioId = isset($_GET['creado_por']) ? $_GET['creado_por'] : null;
 
-if (!$input || empty($input['creado_por'])) {
+if (empty($usuarioId)) {
     echo json_encode(['success' => false, 'message' => 'El campo creado_por (usuarioId) es obligatorio']);
     exit;
 }
 
-$userId = $input['creado_por'];
-
 // Verificar que el usuario exista
 $stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");
-$stmt->bind_param("s", $userId);
+$stmt->bind_param("s", $usuarioId);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -39,24 +39,13 @@ $stmt->close();
 
 // Obtener los tableros creados por el usuario
 $stmt = $conn->prepare("SELECT * FROM tableros WHERE creado_por = ?");
-$stmt->bind_param("s", $userId);
+$stmt->bind_param("s", $usuarioId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $tableros = [];
 while ($row = $result->fetch_assoc()) {
-    // Agregar cada tablero a la lista
     $tableros[] = $row;
-
-    // Actualizar la ultima_actividad para este tablero (opcional, si tienes esa columna)
-    $tableroId = $row['id'];  // Obtener el ID del tablero
-    // Si tienes una columna `ultima_actividad`, puedes actualizarla aquí:
-    /*
-    $stmt5 = $conn->prepare("UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?");
-    $stmt5->bind_param("i", $tableroId);
-    $stmt5->execute();
-    $stmt5->close();
-    */
 }
 
 // Función para calcular el tiempo pasado (si quieres mostrar el tiempo de creación)
@@ -82,7 +71,7 @@ function tiempoPasado($tiempo)
         return ($horas == 1) ? "Hace una hora" : "Hace $horas horas";
     } else if ($dias <= 7) {
         return ($dias == 1) ? "Ayer" : "Hace $dias días";
-    } else if ($semanas <= 4.3) { // 4.3 == 30/7
+    } else if ($semanas <= 4.3) {
         return ($semanas == 1) ? "Hace una semana" : "Hace $semanas semanas";
     } else if ($meses <= 12) {
         return ($meses == 1) ? "Hace un mes" : "Hace $meses meses";

@@ -1,6 +1,6 @@
 import { showToast } from "../../public/js/validator/regex.js";
 import { deleteWorkspaces } from "../../public/js/workspaces.js";
-import { mostrarDetallesWorkspace } from "../components/popupUpdateWorkspace.js";
+import { mostrarDetallesWorkspace } from "./popupUpdateWorkspace.js";
 import page from 'page';
 
 export function WorkspaceCard(ws) {

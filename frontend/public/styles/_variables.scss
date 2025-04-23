@@ -3,6 +3,11 @@ $primary-color: #1a2a3a;
 $secondary-color: #4a6178;
 $third-color: #22577A;
 $fourth-color: #38A3A5;
+$fifth-color: #83d9bf;
+$sixth-color: #ffffff;
+$seventh-color: #555;
+
+$hrWorkspace-bc: #bcc8c9;
 
 $white-button: #fff;
 
@@ -42,3 +47,32 @@ $colorToggleBtn: #ffff;
 
 
 $colorFondoMyWorkspaces: #EFEFEF;
+
+
+//COLORS KANBANBOARD
+
+$kanban-text-color: #34495E;
+
+$kanban-color-1: #ABE2A5;
+$kanban-color-2: #E2C5A5;
+$kanban-color-3: #C5A5E2;
+$kanban-color-4: #95a9df;
+$kanban-color-5: #8fc7e0;
+$kanban-color-6: #8dd5dd;
+$kanban-color-7: #F0E795;
+$kanban-color-8: #F0B795;
+$kanban-color-9: #E2A5A5;
+$kanban-color-10: #E2A5B2;
+$kanban-color-11: #E2A5DF;
+
+.kanban-color-1 { background-color: $kanban-color-1; }
+.kanban-color-2 { background-color: $kanban-color-2; }
+.kanban-color-3 { background-color: $kanban-color-3; }
+.kanban-color-4 { background-color: $kanban-color-4; }
+.kanban-color-5 { background-color: $kanban-color-5; }
+.kanban-color-6 { background-color: $kanban-color-6; }
+.kanban-color-7 { background-color: $kanban-color-7; }
+.kanban-color-8 { background-color: $kanban-color-8; }
+.kanban-color-9 { background-color: $kanban-color-9; }
+.kanban-color-10 { background-color: $kanban-color-10; }
+.kanban-color-11 { background-color: $kanban-color-11; }

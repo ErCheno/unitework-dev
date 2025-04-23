@@ -14,13 +14,7 @@ body {
 }
 
 
-body.dashboard-bg {
-  background-size: cover;
-  background-position: center;
-}
-
-
-body.workspaces-bg::before {
+body::before {
   content: '';
   position: fixed;
   top: 0; left: 0;
