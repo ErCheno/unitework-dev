@@ -3,8 +3,9 @@ import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
 import { cleanupView } from '../../public/js/cleanup.js';
 import { WorkspaceCard } from '../components/workspaceCard.js';
-import { workspaceDrag } from '../components/dragAnimation.js';
-import { setupHorizontalScroll } from '../components/dragAnimation.js';
+//import { workspaceDrag } from '../components/dragAnimation.js';
+//import { setupHorizontalScroll } from '../components/dragAnimation.js';
+import { setupWorkspaceSortable } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../../public/js/workspaces.js';
@@ -43,11 +44,11 @@ export async function workspacePage(workspaceId) {
     const botonVolver = document.createElement('button');
     botonVolver.id = 'botonVolver';
     const icoVolver = document.createElement('i');
-    icoVolver.className = 'fa-solid fa-arrow-left';
+    icoVolver.className = 'fa-solid fa-chevron-left';
     icoVolver.id = 'icoVolver';
     const parrafoVolver = document.createElement('p');
     parrafoVolver.id = 'parrafoVolver';
-    parrafoVolver.textContent = 'Volver a Mis Espacios';
+    parrafoVolver.textContent = 'Volver';
 
     botonVolver.appendChild(icoVolver);
     botonVolver.appendChild(parrafoVolver);
@@ -117,6 +118,5 @@ export async function workspacePage(workspaceId) {
     container.appendChild(grid);
     contentDiv.appendChild(container);
 
-    setupHorizontalScroll();
-    workspaceDrag();
+    setupWorkspaceSortable();
 }

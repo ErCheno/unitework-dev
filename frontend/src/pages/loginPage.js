@@ -54,7 +54,7 @@ export async function LoginPage() {
     p.textContent = "Estamos deseando ponerte al día con nuestras novedades.";
     const imagen = document.createElement('img');
     imagen.className = "background-img";
-    imagen.src = "./src/public/img/buho.png";
+    imagen.src = "../public/img/buho.png";
 
     divDerecho.append(imagen, h2, p);
     document.body.appendChild(divDerecho);

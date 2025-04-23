@@ -1,3 +1,8 @@
+import Sortable from 'sortablejs';
+
+
+
+/*
 let isDraggingWorkspace = false;
 
 
@@ -149,5 +154,20 @@ export function setupHorizontalScroll() {
         const x = e.pageX - workspaceList.offsetLeft;
         const walk = (x - startX) * 1.5;
         workspaceList.scrollLeft = scrollLeft - walk;
+    });
+}
+*/
+
+export function setupWorkspaceSortable() {
+    const workspaceList = document.getElementById('workspace-list');
+    if (!workspaceList) return;
+
+    Sortable.create(workspaceList, {
+        animation: 200,
+        handle: '.workspace-draggable', // Arrastrar solo desde un área
+        ghostClass: 'sortable-ghost',
+        onEnd: (evt) => {
+            console.log('Elemento movido de', evt.oldIndex, 'a', evt.newIndex);
+        },
     });
 }

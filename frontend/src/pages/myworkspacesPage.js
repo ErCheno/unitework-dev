@@ -3,11 +3,12 @@ import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
 import { cleanupView } from '../../public/js/cleanup.js';
 import { WorkspaceCard } from '../components/workspaceCard.js';
-import { workspaceDrag } from '../components/dragAnimation.js';
-import { setupHorizontalScroll } from '../components/dragAnimation.js';
+//import { workspaceDrag } from '../components/dragAnimation.js';
+//import { setupHorizontalScroll } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../../public/js/workspaces.js';
+import { setupWorkspaceSortable } from '../components/dragAnimation.js';
 
 export async function myWorkspacesPage() {
     cleanupView();
@@ -92,8 +93,8 @@ export async function myWorkspacesPage() {
     container.appendChild(grid);
     contentDiv.appendChild(container);
 
-    setupHorizontalScroll();
-    workspaceDrag();
+    setupWorkspaceSortable();
+
 
 
     

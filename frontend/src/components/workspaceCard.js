@@ -28,6 +28,9 @@ export function WorkspaceCard(ws) {
     const detalle = document.createElement('li');
     detalle.textContent = 'Ver detalles';
 
+    const invitar = document.createElement('li');
+    invitar.textContent = 'Invitar usuarios';
+
     const salir = document.createElement('li');
     salir.textContent = 'Salir del espacio';
 
@@ -39,6 +42,7 @@ export function WorkspaceCard(ws) {
     if (ws.rol !== 'admin') {
         menu.appendChild(salir);
     } else {
+        menu.appendChild(invitar);
         menu.appendChild(eliminar);
     }
 
