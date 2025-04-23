@@ -1,7 +1,7 @@
 import { showToast } from "../../public/js/validator/regex.js";
 import { deleteWorkspaces } from "../../public/js/workspaces.js";
-import {mostrarDetallesWorkspace} from "../components/popupUpdateWorkspace.js";
-import page from 'page'; 
+import { mostrarDetallesWorkspace } from "../components/popupUpdateWorkspace.js";
+import page from 'page';
 
 export function WorkspaceCard(ws) {
 
@@ -153,7 +153,7 @@ export function WorkspaceCard(ws) {
     enterBtn.addEventListener('click', () => {
         page(`/workspace/${ws.id}`); // Redirige a la página del workspace con el ID del workspace
     });
-    
+
 
     footer.appendChild(divInfo);
     footer.appendChild(divRol);

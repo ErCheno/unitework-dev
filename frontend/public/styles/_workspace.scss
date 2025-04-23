@@ -1,22 +1,23 @@
 @use 'variables' as *;
 
-* {}
+* {
+}
 
 //MYWORKSPACE
 
 #content {
+  margin: 50px;
 
   #divConjuntoArriba {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-left: 80px;
+    margin-right: 50px;
 
     #tituloMyWorkspaces {
       width: 50%;
       text-align: left;
-      margin-bottom: 20px;
-
       font-weight: bolder;
     }
 
@@ -56,9 +57,9 @@
 
   #hrMyWorkspaces {
     background-color: $primary-color;
-    width: 30%;
-    margin-left: 0;
-    margin-top: -5px;
+    width: 50%;
+    margin-left: 70px;
+    margin-top: -2.5px;
   }
 }
 
@@ -69,6 +70,8 @@
 //WORKSPACE CARDS
 
 #workspace-list {
+  margin: 50px;
+
   position: relative; // Necesario para posicionar el ::before
   border-radius: 20px;
   background-color: lightgray;
@@ -85,7 +88,6 @@
   grid-template-rows: repeat(2, 1fr); // Dos filas
   gap: 1rem; // Espacio entre las tarjetas
   height: 100%; // Asegúrate de que tenga altura para que las filas quepan
-  min-height: 700px; // Ajusta según el contenido de tus tarjetas
   padding: 2rem;
 
   &::-webkit-scrollbar {
@@ -266,12 +268,6 @@
 
 }
 
-#hrWorkSpace {
-  background-color: $primary-color;
-  margin-top: -5px;
-  width: 75%;
-  margin-left: 0;
-}
 
 
 
@@ -459,7 +455,7 @@
 
 }
 
-////WORKSPACE DELETE
+////WORKSPACE DELETE Y UPDATE
 /// 
 /// 
 
@@ -499,6 +495,8 @@
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
+  margin: 10px;
+
 }
 
 .btn-cancelar {
@@ -508,6 +506,8 @@
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
+  margin: 10px;
+
 }
 
 .btn-confirmar:hover {
@@ -565,6 +565,7 @@
   border: none;
   border-radius: 5px;
   cursor: pointer;
+
 }
 
 .btn-editar {
@@ -578,6 +579,29 @@
   gap: 0.5rem;
   margin-top: 1rem;
 }
+
+.detalles-popup input,
+.detalles-popup textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.detalles-popup input:focus,
+.detalles-popup textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+    background-color: #fff;
+}
+
+
 
 //NO PROJECT
 
