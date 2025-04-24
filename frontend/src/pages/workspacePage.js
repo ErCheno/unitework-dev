@@ -1,3 +1,5 @@
+import Sortable from 'sortablejs';
+
 import page from 'page';
 import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
@@ -5,7 +7,6 @@ import { cleanupView } from '../../public/js/cleanup.js';
 import { WorkspaceCard } from '../components/workspaceCard.js';
 //import { workspaceDrag } from '../components/dragAnimation.js';
 //import { setupHorizontalScroll } from '../components/dragAnimation.js';
-import { setupWorkspaceSortable } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../../public/js/workspaces.js';
@@ -13,6 +14,8 @@ import { mostrarDetallesWorkspace } from '../components/popupUpdateWorkspace.js'
 import { fetchBoards } from '../../public/js/board.js';
 import { createBoards } from '../../public/js/board.js';
 import { BoardCard } from '../components/boardCard.js';
+
+import { scrollHorizontal, setupSortable } from '../components/dragAnimation.js';
 
 export async function workspacePage(workspaceId) {
     cleanupView();
@@ -125,7 +128,7 @@ export async function workspacePage(workspaceId) {
                     });
                 }
             } catch (error) {
-                showToast('Error al cargar los tableros: ' + error, 'error');
+                console.error('Error al cargar los tableros: ' + error, 'error');
             }
 
             /*mostrarDetallesWorkspace(workspace); // Puedes lanzar el modal si quieres, o quitarlo
@@ -163,18 +166,16 @@ export async function workspacePage(workspaceId) {
 
     container.appendChild(divConjuntoArriba);
     container.appendChild(hrWorkspace);
+    scrollHorizontal(grid);
     container.appendChild(grid);
-
-    // Agrega al final o donde quieras
-
-
-
 
     contentDiv.appendChild(container);
     console.log(window.location.pathname);  // Esto te mostrará la URL completa
 
-    setupWorkspaceSortable();
-}
+    setupSortable('board-list', '.board-draggable', (evt) => {
+        console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
+    });}
+
 
 export async function CreateBoardPopup(workspaceId) {
     const popup = document.createElement('div');
@@ -284,9 +285,11 @@ export async function CreateBoardPopup(workspaceId) {
     });
 
 
-
     return popup;
+    
 }
+
+
 
 
 async function fetchAndRenderBoards(workspaceId) {
@@ -294,8 +297,7 @@ async function fetchAndRenderBoards(workspaceId) {
         const usuarioId = localStorage.getItem('usuario_id');
         const boards = await fetchBoards(workspaceId, usuarioId);
 
-        const grid = document.createElement('div');
-        grid.id = 'board-list';
+        const grid = document.getElementById('board-list');
         if (!grid) return;
 
         grid.textContent = ''; // Limpiar tarjetas anteriores
@@ -310,7 +312,7 @@ async function fetchAndRenderBoards(workspaceId) {
         cardCrear.setAttribute('aria-label', 'Crear un nuevo tablero');
 
         // Asegurarse de que el cardCrear se añada antes de las tarjetas existentes
-        grid.insertBefore(cardCrear, grid.firstChild);
+        grid.appendChild(cardCrear);
 
         // Cuando el usuario hace clic para crear un tablero
         cardCrear.addEventListener('click', () => {
@@ -347,6 +349,9 @@ async function fetchAndRenderBoards(workspaceId) {
                 grid.appendChild(card);
             });
         }
+
+
+        
 
     } catch (err) {
         console.error('Error al recargar los tableros:', err);

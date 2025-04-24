@@ -158,16 +158,47 @@ export function setupHorizontalScroll() {
 }
 */
 
-export function setupWorkspaceSortable() {
-    const workspaceList = document.getElementById('workspace-list');
-    if (!workspaceList) return;
 
-    Sortable.create(workspaceList, {
+export function setupSortable(containerId, handleClass, onEndCallback) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    Sortable.create(container, {
         animation: 200,
-        handle: '.workspace-draggable', // Arrastrar solo desde un área
+        handle: handleClass, // Arrastrar solo desde un área
         ghostClass: 'sortable-ghost',
-        onEnd: (evt) => {
-            console.log('Elemento movido de', evt.oldIndex, 'a', evt.newIndex);
-        },
+        onEnd: onEndCallback,
     });
 }
+
+export function scrollHorizontal(container) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener('mousedown', (e) => {
+        isDown = true;
+        container.classList.add('active');
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('active');
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 1.5; // la multiplicación ajusta la velocidad
+        container.scrollLeft = scrollLeft - walk;
+    });
+}
+

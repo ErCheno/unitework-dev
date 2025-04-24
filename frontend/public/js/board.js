@@ -1,14 +1,18 @@
 import page from 'page';
 import { showToast } from "./validator/regex.js";
-import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
+import { workspacePage } from '../../src/pages/workspacePage.js';
 
 export async function fetchBoards(workspaceId, usuarioId) {
     try {
-        const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/getBoard.php?espacio_trabajo_id=${workspaceId}&creado_por=${usuarioId}`, {
-            method: 'GET',
+        const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/getBoard.php`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                espacio_trabajo_id: workspaceId,
+                usuario_id: usuarioId,
+            })
         });
 
         const data = await res.json();
@@ -17,6 +21,7 @@ export async function fetchBoards(workspaceId, usuarioId) {
         if (!data.success) {
             throw new Error(data.message || 'Error desconocido al obtener los tableros');
         }
+
         return data.tableros || [];
 
     } catch (err) {
@@ -24,6 +29,7 @@ export async function fetchBoards(workspaceId, usuarioId) {
         throw new Error('Error al cargar tableros: ' + err.message);
     }
 }
+
 
 
 export async function createBoards(nombre, descripcion, creado_por, espacio_trabajo_id) {
@@ -52,5 +58,37 @@ export async function createBoards(nombre, descripcion, creado_por, espacio_trab
         }
     } catch (err) {
         showToast("Error de red: " + err.message, "error");
+    }
+}
+
+export async function deleteBoards(usuarioId, tableroId) {
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/deleteBoard.php', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tablero_id: tableroId,
+                usuario_id: usuarioId
+            })
+        });
+
+        const data = await response.json();
+        console.log('DELETE Respuesta del backend:', data);
+
+        if (data.success) {
+            showToast('Espacio eliminado correctamente', "info");
+
+            const boardElement = document.getElementById(`board-${tableroId}`);
+            if (boardElement) {
+                boardElement.remove();  // Eliminar la tarjeta del tablero del DOM directamente
+            }
+
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar el espacio:', error);
+        alert('Error en la petición');
     }
 }

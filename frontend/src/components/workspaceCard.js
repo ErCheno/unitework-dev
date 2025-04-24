@@ -50,7 +50,7 @@ export function WorkspaceCard(ws) {
     menuContainer.appendChild(menu);
 
     // Toggle del menú
-    dots.addEventListener('click', (e) => {
+    menuContainer.addEventListener('click', (e) => {
         e.stopPropagation();
         menu.classList.toggle('hidden');
     });
@@ -175,19 +175,24 @@ export function WorkspaceCard(ws) {
     eliminar.addEventListener('click', async () => {
         const confirmado = await mostrarPopupConfirmacion();
         if (!confirmado) return;
-
+      
         const usuarioId = localStorage.getItem('usuario_id');
-        deleteWorkspaces(usuarioId, ws.id).then(() => {
-            card.remove(); // Eliminar la tarjeta del DOM directamente
-        });
-    });
+        
+        try {
+          await deleteWorkspaces(usuarioId, ws.id);
+          card.remove(); // Eliminar la tarjeta del DOM directamente
+        } catch (error) {
+          console.error("Error al eliminar el tablero:", error);
+        }
+      });
+      
 
 
 
     return card;
 }
 
-async function mostrarPopupConfirmacion() {
+export async function mostrarPopupConfirmacion() {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'popup-overlay';

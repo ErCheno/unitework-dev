@@ -8,7 +8,8 @@ import { WorkspaceCard } from '../components/workspaceCard.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../../public/js/workspaces.js';
-import { setupWorkspaceSortable } from '../components/dragAnimation.js';
+import { setupSortable } from '../components/dragAnimation.js';
+import { scrollHorizontal } from '../components/dragAnimation.js';
 
 export async function myWorkspacesPage() {
     cleanupView();
@@ -90,11 +91,16 @@ export async function myWorkspacesPage() {
 
     container.appendChild(divConjuntoArriba);
     container.appendChild(hrWorkspaces);
+
+    scrollHorizontal(grid);
+
     container.appendChild(grid);
     contentDiv.appendChild(container);
 
-    setupWorkspaceSortable();
-
+    setupSortable('workspace-list', '.workspace-draggable', (evt) => {
+        console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
+    });
+    
 
 
     
