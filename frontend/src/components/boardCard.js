@@ -112,6 +112,11 @@ export function BoardCard(board) {
     menu.classList.add('hidden');
   });
 
+  invitar.addEventListener('click', (e) => {
+    mostrarPopupInvitacion();
+  });
+
+
   return card;
 }
 
@@ -137,3 +142,113 @@ function obtenerClaseColorPersistente(boardId) {
 
 
 
+export function mostrarPopupInvitacion() {
+  const existingPopup = document.querySelector('.invite-popup');
+  if (existingPopup) existingPopup.remove();
+
+  const popup = document.createElement('div');
+  popup.className = 'invite-popup';
+
+  const container = document.createElement('div');
+  container.className = 'invite-popup-container';
+
+  const title = document.createElement('h2');
+  title.textContent = 'Invitar usuario';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Introduce el correo electrónico';
+  input.className = 'invite-input';
+
+  const suggestionBox = document.createElement('div');
+  suggestionBox.className = 'invite-suggestions';
+
+  const buttons = document.createElement('div');
+  buttons.className = 'invite-buttons';
+
+  const enviarBtn = document.createElement('button');
+  enviarBtn.textContent = 'Enviar invitación';
+  enviarBtn.className = 'invite-send';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.className = 'invite-cancel';
+
+  // Simulamos usuarios disponibles
+  const users = [
+    { email: 'emilia@example.com', avatar: 'https://i.pravatar.cc/40?u=emilia' },
+    { email: 'emilio123@example.com', avatar: 'https://i.pravatar.cc/40?u=emilio' },
+    { email: 'pablo@example.com', avatar: 'https://i.pravatar.cc/40?u=pablo' },
+    { email: 'emma@example.com', avatar: 'https://i.pravatar.cc/40?u=emma' },
+  ];
+
+  input.addEventListener('input', () => {
+    const value = input.value.trim().toLowerCase();
+    suggestionBox.textContent = '';
+
+    if (value.length > 0) {
+      const filtered = users.filter(user => user.email.toLowerCase().includes(value));
+      filtered.forEach(user => {
+        const suggestion = document.createElement('div');
+        suggestion.className = 'suggestion-item';
+
+        const avatar = document.createElement('img');
+        avatar.src = user.avatar;
+        avatar.alt = 'Avatar';
+        avatar.className = 'suggestion-avatar';
+
+        const emailText = document.createElement('span');
+        emailText.textContent = user.email;
+
+        suggestion.append(avatar, emailText);
+        suggestion.addEventListener('click', () => {
+          input.value = user.email;
+          suggestionBox.textContent = '';
+        });
+
+        suggestionBox.appendChild(suggestion);
+      });
+    }
+  });
+
+  enviarBtn.addEventListener('click', () => {
+    const email = input.value.trim();
+    if (email) {
+      console.log('Invitación enviada a:', email);
+      popup.remove();
+    } else {
+      input.classList.add('error');
+      input.placeholder = 'Por favor introduce un correo válido';
+    }
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    popup.remove();
+  });
+
+  buttons.append(enviarBtn, cancelBtn);
+  container.append(title, input, suggestionBox, buttons);
+  popup.appendChild(container);
+  document.body.appendChild(popup);
+}
+
+function crearAvatarDefecto(usuario) {
+  const container = document.createElement('div');
+  container.classList.add('avatar-container');
+
+  if (usuario.avatar) {
+    const img = document.createElement('img');
+    img.src = `/uploads/usuarios/${usuario.avatar}`;
+    img.alt = 'Avatar';
+    img.className = 'avatar-img';
+    container.appendChild(img);
+  } else {
+    const inicial = usuario.nombre.charAt(0).toUpperCase();
+    const fallback = document.createElement('div');
+    fallback.className = 'avatar-placeholder';
+    fallback.textContent = inicial;
+    container.appendChild(fallback);
+  }
+
+  return container;
+}

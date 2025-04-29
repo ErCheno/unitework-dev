@@ -92,3 +92,26 @@ export async function deleteBoards(usuarioId, tableroId) {
         alert('Error en la petición');
     }
 }
+
+
+export async function uploadAvatar(usuarioId) {
+    const formData = new FormData();
+    formData.append("usuario_id", usuarioId);
+    formData.append("avatar", archivo);
+  
+    try {
+      const response = await fetch("http://localhost/backend/usuarios/subir_avatar.php", {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await response.json();
+      if (data.success) {
+        console.log("Avatar subido con éxito:", data.avatar);
+      } else {
+        console.error("Error:", data.message);
+      }
+    } catch (error) {
+      console.error("Error en la petición:", error);
+    }
+}

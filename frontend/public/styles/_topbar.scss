@@ -10,12 +10,10 @@
   left: 0;
   right: 0;
   background-color: #EFEFEF;
-  z-index: 1;
   width: 100%;
   height: auto;
   margin-left: 40px;
-  z-index: 101;
-
+  z-index: 1;
   border-bottom: 1px solid #BBBBBB;
   transition: all 0.3s ease;
   padding: 0.5rem 1rem;
@@ -31,11 +29,10 @@
 
 .top-navbar {
   margin-right: 100px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; // para que los elementos bajen si no hay espacio
+  flex-wrap: wrap; // Para que los elementos bajen si no hay espacio
   gap: 1rem;
 
   .logo {
@@ -71,23 +68,22 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
+    z-index: 9999;
 
-
-    /*NO le afecta a los li que tienen iconos*/
+    /* NO le afecta a los li que tienen iconos */
     li:not(#user):not(#notif) {
       margin-top: 5px;
     }
-    
 
-    #user{
-      border: 1px, solid , $colorUserIcon;
+    #user,
+    #notif {
+      border: 1px solid $colorUserIcon;
       width: 40px;
       text-align: center;
-      border-radius: 80%;
+      border-radius: 50%;
       padding: 5px;
 
       a {
-
         text-decoration: none;
         color: $colorUserIcon;
         font-size: 18px;
@@ -97,32 +93,15 @@
           color: lighten($colorUserIcon, 10%);
         }
       }
-      i{
+
+      i {
         width: 20px;
         height: 20px;
       }
-      
     }
 
-    #notif{
-      border: 1px, solid , $colorUserIcon;
-      width: 40px;
-      text-align: center;
+    #notif {
       margin-right: -40px;
-
-      border-radius: 80%;
-      padding: 5px;
-      a {
-        text-decoration: none;
-        color: $colorUserIcon;
-        font-size: 18px;
-        transition: color 0.3s;
-
-        &:hover {
-          color: lighten($colorUserIcon, 10%);
-        }
-      }
-      
     }
 
     li {
@@ -142,6 +121,7 @@
       }
     }
   }
+
   hr {
     background-color: red;
     width: 100%;
@@ -149,10 +129,262 @@
     border-top: 1px solid #ccc;
     margin: 10px 0;
   }
+}
 
+.user-menu {
+  position: relative;
+  z-index: 9999999;
+}
+
+.dropdown-menu {
+  position: fixed;
+  top: 60px;
+  left: auto;
+  right: 40px;
+  background: white;
+  text-align: center;
+  list-style: none;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  opacity: 0;
+  /* Inicialmente oculto */
+  transform: translateY(-20px);
+  /* Comienza ligeramente desplazado hacia arriba */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  /* Transiciones suaves para mostrarlo */
+
+  &.show {
+    opacity: 1;
+    /* Visible */
+    transform: translateY(0);
+    /* Vuelve a la posición original */
+  }
+
+  li a {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: $secondary-color;
+    text-decoration: none;
+    font-weight: 200 !important;
+    font-size: 16px !important;
+    transition: color 0.3s ease, background-color 0.3s ease;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  li {
+    margin-top: 15px;
+    padding: 0.5rem 1rem;
+    margin: 0px !important;
+    width: 100%;
+
+    &:hover {
+      background-color: #f0f0f0;
+      /* Fondo suave al pasar el mouse */
+    }
+  }
+
+  #hrDropdown {
+    width: 60%;
+    margin: 0 auto;
+    border: none;
+    border-top: 1px solid lighten($seventh-color, 40%);
+    margin-top: 10px;
+    transition: width 0.3s ease, border-top-color 0.3s ease;
+    /* Transición de ancho y color */
+  }
+
+  /* Agregar un efecto de desvanecimiento para el <hr> al pasar el mouse */
+  &:hover #hrDropdown {
+    width: 70%;
+    /* Aumentar el ancho al pasar el mouse */
+    border-top-color: lighten($seventh-color, 20%);
+    /* Cambiar el color del borde */
+  }
+}
+
+.dropdown-menu {
+  display: none;
+}
+
+.dropdown-menu.active {
+  display: block;
 }
 
 
+// POPUP EDITAR PERFIL
+.popup-edit-perfil {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 99999;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 
-//HOVER
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
 
+  .popup-header {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .avatar-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+      border: 1px solid transparent;
+
+      &:hover {
+        border-color: $third-color;
+      }
+
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      #edit-icon {
+        position: absolute;
+        bottom: 50px;
+        right: 50px;
+        background-color: $seventh-color;
+        color: white;
+        border-radius: 50%;
+        padding: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: none;
+        transition: border-color 0.15s ease;
+
+      }
+
+      &:hover #edit-icon {
+        display: block;
+        padding: 8px;
+      }
+    }
+
+    .header-info {
+      flex-grow: 1;
+      padding: 40px 20px;
+      border: 1px solid lighten($secondary-color,40%);
+      border-radius: 20px;
+
+      h1 {
+        font-size: 20px;
+        width: 100%;
+        font-weight: bold;
+        color: #333;
+      }
+
+      p {
+        font-size: 14px;
+        color: #666;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        outline: none;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+          border-color: #007bff;
+        }
+      }
+    }
+  }
+
+  .popup-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 1rem;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #007bff;
+        color: white;
+      }
+
+      &.cancel {
+        background-color: $seventh-color;
+        color: white;
+
+        &:hover {
+          background-color: darken($seventh-color, 10%);
+        }
+      }
+
+      &.save {
+        background-color: $third-color;
+        color: white;
+
+        &:hover {
+          background-color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+// Fondo oscuro para el popup
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  visibility: hidden;
+  opacity: 0;
+  z-index: 99998;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.popup-overlay.show {
+  visibility: visible;
+  opacity: 1;
+}
