@@ -1,9 +1,4 @@
-// auth.js
 
-// Función para guardar el token en localStorage
-
-// Función para obtener el token almacenado
-// Función para obtener el token desde localStorage o sessionStorage
 export function getToken() {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
 }
@@ -63,6 +58,8 @@ export async function checkToken() {
 // Función para cerrar sesión
 export function logoutUser() {
     localStorage.removeItem("token");
+    localStorage.removeItem('avatar_url');
+    localStorage.removeItem('usuario_id');
     sessionStorage.removeItem("token");
     window.location.href = "/login";  // Redirige al login
 }

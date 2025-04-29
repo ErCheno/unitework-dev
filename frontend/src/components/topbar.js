@@ -2,6 +2,7 @@ import page from 'page';
 import { logoutUser } from '../../public/js/auth.js';
 import { showToast } from "../../public/js/validator/regex.js";
 
+let userIcon;
 
 export function TopNavbar() {
   const container = document.createElement('div');
@@ -36,9 +37,34 @@ export function TopNavbar() {
 
   const userA = document.createElement('a');
   userA.href = '#';
-  const userIcon = document.createElement('i');
-  userIcon.className = 'fa-regular fa-user';
-  userA.appendChild(userIcon);
+
+  // Crea un contenedor para el avatar
+  const userAvatarContainer = document.createElement('div');
+  userAvatarContainer.className = 'user-avatar-container';
+
+  // Verifica si hay un avatar guardado en el localStorage, si no, usa el icono por defecto
+  const avatarUrl = localStorage.getItem('avatar_url');
+  console.log(avatarUrl); // Verifica si la URL es correcta
+
+  if (avatarUrl) {
+    // Si el usuario tiene un avatar personalizado, se mostrará la imagen
+    userIcon = document.createElement('img');
+    userIcon.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/' + avatarUrl;  // Usa la URL del avatar
+    userIcon.alt = 'Avatar de usuario';
+    userAvatarContainer.id = 'user-avatar';  // Asigna un ID único para el avatar
+
+  } else {
+    // Si no tiene un avatar, se mostrará el icono de usuario por defecto
+    userIcon = document.createElement('img');
+    userIcon.className = 'fa-regular fa-user';  // Icono de usuario por defecto
+    userIcon.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';  // Usa la URL del avatar
+    userIcon.alt = 'Avatar de usuario';
+    userAvatarContainer.id = 'default-avatar';  // Asigna un ID único para el icono por defecto
+
+  }
+
+  userAvatarContainer.appendChild(userIcon);
+  userA.appendChild(userAvatarContainer);
   userLi.appendChild(userA);
 
   // Menú desplegable (oculto por defecto)
@@ -54,7 +80,7 @@ export function TopNavbar() {
     mostrarEditPerfil();  // Llama al popup para editar perfil
   });
   editarPerfil.appendChild(editarA);
-  
+
 
   const hrDropdown = document.createElement('hr');
   hrDropdown.id = 'hrDropdown';
@@ -154,44 +180,54 @@ export function mostrarEditPerfil() {
   avatarContainer.className = 'avatar-container';
 
   const avatarImg = document.createElement('img');
-  avatarImg.src = ''; // Imagen actual
+  avatarImg.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/'+localStorage.getItem('avatar_url');
   avatarImg.alt = 'Avatar';
-
-  const inputFile = document.createElement('input');
-  inputFile.type = 'file';
-  inputFile.accept = 'image/*';
-  inputFile.style.display = 'none';
 
   const editIcon = document.createElement('i');
   editIcon.id = 'edit-icon';
   editIcon.className = 'fa-solid fa-pencil';
 
-  const avatarInput = document.createElement('input');
-  avatarInput.type = 'file';
-  avatarInput.accept = 'image/*';
-  avatarInput.style.display = 'none';
-  document.body.appendChild(avatarInput);
+  const inputFile = document.createElement('input');
+  inputFile.type = 'file';
+  inputFile.accept = 'image/*';
+  inputFile.style.display = 'none';
+  document.body.appendChild(inputFile); // Añádelo al DOM para poder usarlo
 
-  editIcon.addEventListener('click', () => {
-    avatarInput.click();
+
+  [avatarImg, editIcon].forEach(element => {
+    element.addEventListener('click', () => {
+      inputFile.click();
+    });
   });
 
-  avatarInput.addEventListener('change', () => {
-    const file = avatarInput.files[0];
+  inputFile.addEventListener('change', () => {
+    const file = inputFile.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      showToast('Por favor, selecciona una imagen válida.');
-      avatarInput.value = '';
-      return;
-    }
+    const img = new Image();
+    img.onload = function () {
+      if (img.width < 100 || img.height < 100) {
+        showToast('La imagen debe tener al menos 100x100 píxeles.', 'error');
+        inputFile.value = '';
+      } else {
+        console.log('Imagen válida');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          avatarImg.src = e.target.result;
+          //localStorage.setItem('avatar_url', e.target.result);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      avatarImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+      }
     };
-    reader.readAsDataURL(file);
+
+    // Esta línea era la que te faltaba:
+    img.src = URL.createObjectURL(file);
   });
+
+
+
 
   avatarContainer.appendChild(avatarImg);
   avatarContainer.appendChild(editIcon);
@@ -235,7 +271,12 @@ export function mostrarEditPerfil() {
 
     const formData = new FormData();
     formData.append('avatar', file);
-    formData.append('usuario_id', localStorage.getItem('usuario_id')); // o donde guardes el ID
+    const userId = localStorage.getItem('usuario_id');
+    if (!userId) {
+      return alert('Usuario no autenticado');
+    }
+    formData.append('usuario_id', userId);
+
 
     try {
       const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/avatar/uploadAvatar.php', {
@@ -245,7 +286,16 @@ export function mostrarEditPerfil() {
 
       const result = await response.json();
       if (result.success) {
-        avatarImg.src = `http://localhost/uploads/usuarios/${result.avatar}`;
+        const newAvatarUrl = `http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/${result.avatar}`;
+
+        // Guarda la nueva URL en localStorage
+        localStorage.setItem('avatar_url', newAvatarUrl);
+
+        // Actualiza el avatar en el icono de la barra de navegación
+        if (userIcon.tagName === 'IMG') {
+          userIcon.src = newAvatarUrl;
+        }
+
         showToast('Avatar actualizado', 'success');
         closePopup(overlay, popup);
       } else {
@@ -270,16 +320,8 @@ export function mostrarEditPerfil() {
   overlay.classList.add('show');
   popup.classList.add('show');
 
-  editIcon.addEventListener('click', () => inputFile.click());
 
-  inputFile.addEventListener('change', () => {
-    const file = inputFile.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => avatarImg.src = e.target.result;
-      reader.readAsDataURL(file);
-    }
-  });
+
 }
 
 // Cerrar el popup

@@ -56,8 +56,10 @@ if ($result->num_rows > 0) {
 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 $uuid = Uuid::uuid4()->toString();
 
-$stmt = $conn->prepare("INSERT INTO usuarios (id, nombre, email, password) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $uuid, $name, $email, $hashedPassword);
+$avatar_url = 'default-avatar.png';
+
+$stmt = $conn->prepare("INSERT INTO usuarios (id, nombre, email, password, avatar_url) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("sssss", $uuid, $name, $email, $hashedPassword, $avatar_url);
 
 if ($stmt->execute()) {
     echo json_encode(["status" => "success", "message" => "Registro exitoso", "id" => $uuid]);

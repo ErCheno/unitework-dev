@@ -25,7 +25,7 @@ if (isset($data["email"], $data["password"])) {
     }
 
     // Preparar la consulta para obtener el usuario por su email
-    $stmt = $conn->prepare("SELECT id, nombre, password FROM usuarios WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, nombre, password, avatar_url FROM usuarios WHERE email = ?");
     if (!$stmt) {
         die(json_encode(["status" => "error", "message" => "Error en la consulta SQL: " . $conn->error]));
     }
@@ -53,9 +53,10 @@ if (isset($data["email"], $data["password"])) {
                     "status" => "success",
                     "token" => $token,
                     "usuario_id" => $user["id"],
-                    "nombre" => $user["nombre"]
+                    "nombre" => $user["nombre"],
+                    "avatar_url" => $user["avatar_url"] ?: "http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png"
+
                 ]);
-                
             } else {
                 // Si no se pudo actualizar el token, se genera un error
                 echo json_encode(["status" => "error", "message" => "No se pudo actualizar el token"]);

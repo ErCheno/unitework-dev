@@ -15,17 +15,16 @@ if (!$conn) {
     exit();
 }
 
-// Verificar que los datos hayan sido enviados correctamente
-if (!isset($_FILES['avatar']) || !isset($_POST['usuario_id'])) {
+if (!isset($_FILES['avatar']) || empty($_POST['usuario_id'])) {
     echo json_encode(['success' => false, 'message' => 'Faltan datos']);
     exit;
 }
 
 $usuarioId = $_POST['usuario_id'];
-$archivo = $_FILES['avatar']; // El archivo que se sube
+$archivo = $_FILES['avatar'];
 
-// Verificar que el usuario exista en la base de datos
-$stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");
+// Verificar que el usuario exista y obtener el avatar anterior
+$stmt = $conn->prepare("SELECT avatar_url FROM usuarios WHERE id = ?");
 $stmt->bind_param("s", $usuarioId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -34,6 +33,9 @@ if ($result->num_rows === 0) {
     echo json_encode(["success" => false, "message" => "El usuario no existe"]);
     exit;
 }
+
+$usuario = $result->fetch_assoc();
+$avatarAnterior = $usuario['avatar_url'];
 $stmt->close();
 
 // Verificar si el archivo tiene errores
@@ -45,11 +47,23 @@ if ($archivo['error'] !== UPLOAD_ERR_OK) {
 // Obtener extensión del archivo y crear un nombre único
 $ext = pathinfo($archivo['name'], PATHINFO_EXTENSION);
 $nombreArchivo = uniqid('avatar_') . '.' . $ext;
-$directorioDestino = __DIR__ . "/../../uploads/usuarios";
 
-// Crear directorio si no existe
-if (!file_exists($directorioDestino)) {
-    mkdir($directorioDestino, 0777, true);
+$directorioDestino = realpath(__DIR__ . '/../../../../../frontend/public/img/uploads/usuarios');
+
+if (!$directorioDestino) {
+    $directorioDestino = __DIR__ . '/../../../../../frontend/public/img/uploads/usuarios';
+    if (!mkdir($directorioDestino, 0777, true)) {
+        echo json_encode(["success" => false, "message" => "No se pudo crear el directorio destino"]);
+        exit;
+    }
+}
+
+// Eliminar avatar anterior (si no es el predeterminado)
+if ($avatarAnterior && $avatarAnterior !== 'default.jpg') {
+    $rutaAnterior = "$directorioDestino/$avatarAnterior";
+    if (file_exists($rutaAnterior)) {
+        unlink($rutaAnterior);
+    }
 }
 
 // Ruta final donde se guardará la imagen
@@ -57,7 +71,7 @@ $rutaFinal = "$directorioDestino/$nombreArchivo";
 
 // Mover el archivo a la carpeta de destino
 if (move_uploaded_file($archivo['tmp_name'], $rutaFinal)) {
-    // Guardar la ruta del archivo en la base de datos
+    // Guardar la ruta del nuevo avatar en la base de datos
     $stmt = $conn->prepare("UPDATE usuarios SET avatar_url = ? WHERE id = ?");
     $stmt->bind_param("ss", $nombreArchivo, $usuarioId);
     $stmt->execute();

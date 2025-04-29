@@ -82,7 +82,8 @@ export function RegisterPage() {
             name: username,
             email: email,
             password: password,
-            confirmPassword: confirmPassword
+            confirmPassword: confirmPassword,
+
         };
 
         try {
@@ -102,7 +103,7 @@ export function RegisterPage() {
             
 
             if (result.status === "success") {
-                localStorage.setItem('usuarioId', result.usuarioId);
+                localStorage.setItem('usuarioId', result.id);
 
                 showToast("Registro exitoso. Puedes iniciar sesión.", "success");
                 setTimeout(() => page('/login'), 2000);

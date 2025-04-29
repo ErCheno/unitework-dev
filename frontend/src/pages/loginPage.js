@@ -14,7 +14,7 @@ export async function LoginPage() {
         return;
     }
 
-        // Eliminar el contenedor anterior si existe
+    // Eliminar el contenedor anterior si existe
     const oldAuthContent = document.getElementById('auth-content');
     if (oldAuthContent) {
         oldAuthContent.remove();
@@ -25,13 +25,6 @@ export async function LoginPage() {
     if (oldDivDerecho) {
         oldDivDerecho.remove();
     }
-
-
-
-
-
-
-
 
     // Crear nuevo contenedor de login
     const authContent = document.createElement('div');
@@ -88,16 +81,20 @@ export async function LoginPage() {
             const result = await response.json();
 
             if (result.status === "success" && result.token) {
+                if(result.avatar_url){
+                    localStorage.setItem('avatar_url', result.avatar_url);
+                }
                 if (result.usuario_id) {
                     localStorage.setItem('usuario_id', result.usuario_id);
                 }
                 if (remember) {
                     localStorage.setItem("token", result.token);
+
                 } else {
                     sessionStorage.setItem("token", result.token);
                 }
+                localStorage.setItem("username", result.nombre);
 
-                // Limpiar el contenido antes de redirigir
                 authContent.remove();
                 divDerecho.remove();
 
@@ -135,6 +132,8 @@ export async function loginUser(email, password) {
 
         if (result.status === "success") {
             localStorage.setItem("token", result.token);
+            localStorage.setItem("username", result.nombre);  // Guardamos el nombre de usuario
+
             alert("Inicio de sesión exitoso");
             window.location.replace("/dashboard");
             //window.location.href = "/dashboard"; Es mejor opción la de arriba (al parecer evita que el usuario pueda ir con el botón atrás)

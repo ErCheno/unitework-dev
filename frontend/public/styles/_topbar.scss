@@ -78,10 +78,32 @@
     #user,
     #notif {
       border: 1px solid $colorUserIcon;
-      width: 40px;
+
       text-align: center;
       border-radius: 50%;
-      padding: 5px;
+      object-fit: cover;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+
+      .user-avatar-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+
+
+        img {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          object-position: center;
+          display: block;
+
+        }
+      }
 
       a {
         text-decoration: none;
@@ -95,13 +117,30 @@
       }
 
       i {
-        width: 20px;
-        height: 20px;
+        font-size: 24px;
       }
     }
 
+
     #notif {
       margin-right: -40px;
+      width: 50px;
+      height: 50px;
+      max-width: 50px;
+      border-radius: 50%;
+
+    }
+
+    #user {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+
+    }
+
+    #default-avatar {
+      width: 50px !important;
+      height: 50px !important;
     }
 
     li {
@@ -135,6 +174,7 @@
   position: relative;
   z-index: 9999999;
 }
+
 
 .dropdown-menu {
   position: fixed;
@@ -266,12 +306,13 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+
       }
 
       #edit-icon {
         position: absolute;
-        bottom: 50px;
-        right: 50px;
+        bottom: 20px;
+        right: 40px;
         background-color: $seventh-color;
         color: white;
         border-radius: 50%;
@@ -292,7 +333,7 @@
     .header-info {
       flex-grow: 1;
       padding: 40px 20px;
-      border: 1px solid lighten($secondary-color,40%);
+      border: 1px solid lighten($secondary-color, 40%);
       border-radius: 20px;
 
       h1 {
@@ -369,6 +410,7 @@
     }
   }
 }
+
 
 // Fondo oscuro para el popup
 .popup-overlay {
