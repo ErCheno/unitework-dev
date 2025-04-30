@@ -51,7 +51,7 @@ if (isset($data["email"], $data["password"])) {
                     "usuario_id" => $user["id"],
                     "nombre" => $user["nombre"],
                     "email" => $user["email"],
-                    "avatar_url" => $user["avatar_url"] ?: "http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png"
+                    "avatar_url" => $user["avatar_url"] ?: "default-avatar.png"
                 ]);
             } else {
                 echo json_encode(["status" => "error", "message" => "No se pudo guardar el token"]);

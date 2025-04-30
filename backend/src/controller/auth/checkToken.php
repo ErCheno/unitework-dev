@@ -12,61 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Obtener headers (funciona en Apache y otras configuraciones)
-$headers = getallheaders();
-
-// Verificar si se recibe la cabecera Authorization
-if (!isset($headers['Authorization'])) {
-    http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "No se proporcionó el token de autorización"]);
-    exit();
-}
-
-$token = str_replace('Bearer ', '', $headers['Authorization']);
-
-// Verificar conexión a la base de datos
-if (!$conn) {
-    http_response_code(500);
-    echo json_encode(["status" => "error", "message" => "Error de conexión a la base de datos"]);
-    exit();
-}
-
-// Buscar el token en la base de datos
-$stmt = $conn->prepare("SELECT * FROM usuarios WHERE token = ?");
-$stmt->bind_param("s", $token);
-$stmt->execute();
-$result = $stmt->get_result();
-
-// Token inválido
-if ($result->num_rows === 0) {
-    http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Token inválido o no encontrado"]);
-    exit();
-}
-
-// Verificar fecha de expiración
-$user = $result->fetch_assoc();
-if (isset($user['token_expiry']) && strtotime($user['token_expiry']) < time()) {
-    http_response_code(401);
-    echo json_encode(["status" => "error", "message" => "Token expirado"]);
-    exit();
-}
-
-// Token válido
-echo json_encode([
-    "status" => "success",
-    "message" => "Token válido",
-    "user" => [
-        "id" => $user['id'],
-        "nombre" => $user['nombre'],
-        "email" => $user['email'],
-        "rol" => $user['rol'],
-    ]
-]);
-
-$stmt->close();
-$conn->close();
-exit();
+// Función para verificar token
 function verificarToken($conn) {
     $headers = getallheaders();
 
@@ -74,21 +20,54 @@ function verificarToken($conn) {
         throw new Exception("Token no proporcionado");
     }
 
+    // Extraer el token
     if (!preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
         throw new Exception("Formato de token inválido");
     }
 
     $token = $matches[1];
 
-    $stmt = $conn->prepare("SELECT id FROM usuarios WHERE token = ? AND token_expira > NOW()");
+    // Verificar token en la base de datos
+    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE token = ?");
     $stmt->bind_param("s", $token);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
-        throw new Exception("Token inválido o expirado");
+        throw new Exception("Token inválido o no encontrado");
     }
 
-    $usuario = $result->fetch_assoc();
-    return $usuario['id']; // Devuelve el ID del usuario autenticado
+    // Verificar si el token está expirado
+    $user = $result->fetch_assoc();
+    if (isset($user['token_expiry']) && strtotime($user['token_expiry']) < time()) {
+        throw new Exception("Token expirado");
+    }
+
+    return $user; // Devuelve los datos del usuario
 }
+
+try {
+    // Verificar el token
+    $user = verificarToken($conn);
+
+    // Token válido
+    echo json_encode([
+        "status" => "success",
+        "message" => "Token válido",
+        "user" => [
+            "id" => $user['id'],
+            "nombre" => $user['nombre'],
+            "email" => $user['email'],
+        ]
+    ]);
+} catch (Exception $e) {
+    // En caso de error, devolver mensaje adecuado
+    http_response_code(401);
+    echo json_encode([
+        "status" => "error",
+        "message" => $e->getMessage()
+    ]);
+}
+
+$conn->close();
+exit();

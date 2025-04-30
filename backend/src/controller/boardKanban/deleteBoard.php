@@ -1,5 +1,6 @@
 <?php
 require_once "../../config/db.php";
+require_once "../auth/tokenUtils.php";
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: DELETE, OPTIONS");
@@ -13,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-if (!$input || empty($input['tablero_id']) || empty($input['usuario_id'])) {
+if (!$input || empty($input['tablero_id'])) {
     echo json_encode(["success" => false, "message" => "Datos incompletos"]);
     exit();
 }
 
 $tableroId = $input['tablero_id'];
-$usuarioId = $input['usuario_id'];
+$usuarioId = verificarToken($conn); // Llamada a la función que obtiene el ID del usuario del token
 
 // Obtener el espacio de trabajo al que pertenece el tablero
 $stmt = $conn->prepare("SELECT espacio_trabajo_id FROM tableros WHERE id = ?");
@@ -52,7 +53,12 @@ if ($row['rol'] !== 'admin') {
     exit();
 }
 
-// Eliminar el tablero (puedes eliminar también sus tareas o relaciones si lo necesitas)
+// Eliminar las tareas asociadas al tablero (si es necesario)
+$stmt = $conn->prepare("DELETE FROM tareas WHERE tablero_id = ?");
+$stmt->bind_param("i", $tableroId);
+$stmt->execute();
+
+// Eliminar el tablero
 $stmt = $conn->prepare("DELETE FROM tableros WHERE id = ?");
 $stmt->bind_param("i", $tableroId);
 $success = $stmt->execute();

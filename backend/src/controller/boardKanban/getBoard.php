@@ -1,5 +1,6 @@
 <?php
 require_once "../../config/db.php";
+require_once "../auth/tokenUtils.php";
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -16,14 +17,16 @@ if (!$conn) {
     exit();
 }
 
+$usuarioId = verificarToken($conn); // Llamada a la función que obtiene el ID del usuario del token
+
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (!$input || empty($input['usuario_id'])) {
-    echo json_encode(['success' => false, 'message' => 'El campo usuario_id es obligatorio']);
+if (!$input) {
+    echo json_encode(['success' => false, 'message' => 'El campo espacio_trabajo_id es obligatorio']);
     exit;
 }
 
-$usuarioId = $input['usuario_id'];
+
 
 // Verificar que el usuario exista
 $stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");

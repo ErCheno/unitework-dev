@@ -84,7 +84,7 @@ export async function LoginPage() {
                 // Guardar los datos en localStorage (o sessionStorage si se prefiere)
                 localStorage.setItem('usuario_id', result.usuario_id);
                 localStorage.setItem('email', result.email);
-                localStorage.setItem('avatar_url', result.avatar_url || 'default_avatar.png'); // Por si no viene avatar_url
+                localStorage.setItem('avatar_url', result.avatar_url || 'default_avatar.png');
                 localStorage.setItem('username', result.nombre);
     
                 // Almacenamos el token según la preferencia de 'remember me'

@@ -77,10 +77,10 @@ export function BoardCard(board) {
     const confirmado = await mostrarPopupConfirmacion();
     if (!confirmado) return;
   
-    const usuarioId = localStorage.getItem('usuario_id');
+    //const usuarioId = localStorage.getItem('usuario_id');
     
     try {
-      await deleteBoards(usuarioId, board.id);
+      await deleteBoards(board.id);
       card.remove(); // Eliminar la tarjeta del DOM directamente
     } catch (error) {
       console.error("Error al eliminar el tablero:", error);

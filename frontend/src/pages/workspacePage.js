@@ -84,7 +84,7 @@ export async function workspacePage(workspaceId) {
 
             const usuarioId = localStorage.getItem('usuario_id');
             try {
-                const boards = await fetchBoards(workspace.id, usuarioId);
+                const boards = await fetchBoards(workspace.id);
 
                 // Primero, añade el botón de "Crear tablero Kanban" al principio del grid
                 const cardCrear = document.createElement('div');
@@ -264,25 +264,36 @@ export async function CreateBoardPopup(workspaceId) {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+    
         const nombre = inputTitulo.value.trim();
         const descripcion = inputDescrip.value.trim();
-        const creado_por = localStorage.getItem('usuario_id');
-
-
+    
         if (!nombre) {
             showToast("El nombre del tablero es obligatorio", "error");
             return;
         }
-
+    
+        if (!workspaceId) {
+            showToast("ID del espacio de trabajo no disponible", "error");
+            return;
+        }
+    
         try {
-            await createBoards(nombre, descripcion, creado_por, workspaceId);
-            await fetchAndRenderBoards(workspaceId); // 🔄 refrescar tarjetas
+            // Crear el tablero
+            await createBoards(nombre, descripcion, workspaceId);
+    
+            // Refrescar las tarjetas del tablero
+            await fetchAndRenderBoards(workspaceId);
+    
+            // Cerrar el popup después de crear el tablero
             closePopup();
-
+    
         } catch (error) {
-            showToast("Error al crear el tablero", "error");
+            // Manejar cualquier error
+            showToast("Error al crear el tablero: " + error.message, "error");
         }
     });
+    
 
 
     return popup;
@@ -294,8 +305,7 @@ export async function CreateBoardPopup(workspaceId) {
 
 async function fetchAndRenderBoards(workspaceId) {
     try {
-        const usuarioId = localStorage.getItem('usuario_id');
-        const boards = await fetchBoards(workspaceId, usuarioId);
+        const boards = await fetchBoards(workspaceId);
 
         const grid = document.getElementById('board-list');
         if (!grid) return;

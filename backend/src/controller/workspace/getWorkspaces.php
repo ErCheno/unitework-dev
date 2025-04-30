@@ -50,23 +50,35 @@ $result = $stmt->get_result();
 
 $workspaces = [];
 while ($row = $result->fetch_assoc()) {
-    // Agregar cada espacio de trabajo a la lista
-    $workspaces[] = $row;
+    $workspaceId = $row['id'];
 
-    // Actualizar la ultima_actividad para este espacio de trabajo
-    $workspaceId = $row['id'];  // Obtener el ID del espacio de trabajo
+    // Obtener el número de tableros en este espacio
+    $stmt2 = $conn->prepare("SELECT COUNT(*) as total FROM tableros WHERE espacio_trabajo_id = ?");
+    $stmt2->bind_param("i", $workspaceId);
+    $stmt2->execute();
+    $res2 = $stmt2->get_result();
+    $countData = $res2->fetch_assoc();
+    $numTableros = $countData['total'];
+    $stmt2->close();
+
+    // Agregar el número de tableros
+    $row['num_tableros'] = $numTableros;
+
+    // Actualizar la última actividad
     $stmt5 = $conn->prepare("UPDATE espacios_trabajo SET ultima_actividad = NOW() WHERE id = ?");
     $stmt5->bind_param("i", $workspaceId);
     $stmt5->execute();
     $stmt5->close();
 
-    // Obtener la ultima actividad y convertirla al formato relativo
+    // Obtener y formatear la última actividad
     $ultimaActividad = $row['ultima_actividad'];
     $ultimaActividadRelativa = tiempoPasado($ultimaActividad);
-    
-    // Añadir la última actividad en formato relativo al espacio de trabajo
-    $workspaces[count($workspaces) - 1]['ultima_actividad_relativa'] = $ultimaActividadRelativa;
+    $row['ultima_actividad_relativa'] = $ultimaActividadRelativa;
+
+    // Agregar el workspace completo a la lista
+    $workspaces[] = $row;
 }
+
 
 // Función para calcular el tiempo pasado
 function tiempoPasado($tiempo)

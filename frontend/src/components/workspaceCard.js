@@ -88,7 +88,7 @@ export function WorkspaceCard(ws) {
     const icoTablero = document.createElement('i');
     icoTablero.id = 'icoTablero';
     const pTablero = document.createElement('p');
-    pTablero.textContent = ws.numero_tableros + " tableros activos";
+    pTablero.textContent = ws.num_tableros + " tableros activos";
     divTableroInfo.id = 'divTableroInfo';
     icoTablero.className = 'fa-solid fa-table';
 

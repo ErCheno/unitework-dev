@@ -44,7 +44,6 @@ export function TopNavbar() {
 
   // Verifica si hay un avatar guardado en el localStorage, si no, usa el icono por defecto
   const avatarUrl = localStorage.getItem('avatar_url');
-  console.log(avatarUrl); // Verifica si la URL es correcta
 
   if (avatarUrl) {
     // Si el usuario tiene un avatar personalizado, se mostrará la imagen
@@ -52,6 +51,7 @@ export function TopNavbar() {
     userIcon.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/' + avatarUrl;  // Usa la URL del avatar
     userIcon.alt = 'Avatar de usuario';
     userAvatarContainer.id = 'user-avatar';  // Asigna un ID único para el avatar
+    console.log(avatarUrl); // Verifica si la URL es correcta
 
   } else {
     // Si no tiene un avatar, se mostrará el icono de usuario por defecto
@@ -124,6 +124,75 @@ export function TopNavbar() {
   notifIcon.className = 'fa-regular fa-bell';
   notifA.appendChild(notifIcon);
   notifLi.appendChild(notifA);
+
+  // Crear la bandeja de notificaciones
+const notifDropdown = document.createElement('div');
+notifDropdown.id = 'notif-dropdown';
+notifDropdown.className = 'notif-dropdown hidden';
+
+// Header
+const notifHeader = document.createElement('div');
+notifHeader.className = 'notif-header';
+notifHeader.textContent = 'Notificaciones';
+notifDropdown.appendChild(notifHeader);
+
+// Lista de notificaciones
+const notifList = document.createElement('ul');
+notifList.className = 'notif-list';
+
+// Función para crear una notificación
+function crearNotificacion(texto, negrita = null, cursiva = null) {
+  const li = document.createElement('li');
+  if (negrita || cursiva) {
+    if (negrita) {
+      const strong = document.createElement('strong');
+      strong.textContent = negrita + ' ';
+      li.appendChild(strong);
+    }
+    const textoPlano = document.createTextNode(texto);
+    li.appendChild(textoPlano);
+    if (cursiva) {
+      const em = document.createElement('em');
+      em.textContent = ' ' + cursiva;
+      li.appendChild(em);
+    }
+  } else {
+    li.textContent = texto;
+  }
+  return li;
+}
+
+// Añadir notificaciones
+notifList.appendChild(crearNotificacion('te ha mencionado en un comentario', 'Ana'));
+notifList.appendChild(crearNotificacion('Tu tablero fue actualizado', null, 'Marketing'));
+notifList.appendChild(crearNotificacion('Tienes una nueva invitación'));
+
+notifDropdown.appendChild(notifList);
+
+// Footer
+const notifFooter = document.createElement('div');
+notifFooter.className = 'notif-footer';
+const notifLink = document.createElement('a');
+notifLink.href = '#';
+notifLink.textContent = 'Ver todas';
+notifFooter.appendChild(notifLink);
+notifDropdown.appendChild(notifFooter);
+
+// Insertar dropdown en el ítem de notificación
+notifLi.appendChild(notifDropdown);
+
+// Mostrar/ocultar al hacer clic
+notifLi.addEventListener('click', (e) => {
+  e.preventDefault();
+  notifDropdown.classList.toggle('hidden');
+});
+
+// Cerrar si se hace clic fuera del componente
+document.addEventListener('click', (e) => {
+  if (!notifLi.contains(e.target)) {
+    notifDropdown.classList.add('hidden');
+  }
+});
 
   // Otras secciones del menú
   const dasboardLi = document.createElement('li');

@@ -68,7 +68,7 @@ if ($avatarAnterior && $avatarAnterior !== 'default.jpg') {
 $rutaFinal = "$directorioDestino/$nombreArchivo";
 if (move_uploaded_file($archivo['tmp_name'], $rutaFinal)) {
     // URL completa para el frontend
-    $urlAvatar = "http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/$nombreArchivo";
+    $urlAvatar = "$nombreArchivo";
 
     // Actualizar en base de datos (solo el nombre de archivo si prefieres)
     $stmt = $conn->prepare("UPDATE usuarios SET avatar_url = ? WHERE id = ?");

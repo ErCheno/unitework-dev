@@ -2,16 +2,25 @@ import page from 'page';
 import { showToast } from "./validator/regex.js";
 import { workspacePage } from '../../src/pages/workspacePage.js';
 
-export async function fetchBoards(workspaceId, usuarioId) {
+export async function fetchBoards(workspaceId) {
     try {
+
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            return;
+        }
+
+
         const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/getBoard.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
             },
             body: JSON.stringify({
                 espacio_trabajo_id: workspaceId,
-                usuario_id: usuarioId,
             })
         });
 
@@ -32,45 +41,65 @@ export async function fetchBoards(workspaceId, usuarioId) {
 
 
 
-export async function createBoards(nombre, descripcion, creado_por, espacio_trabajo_id) {
+export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
     try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            return;
+        }
+
         const res = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/createBoard.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
             },
             body: JSON.stringify({
                 nombre,
                 descripcion,
-                creado_por,
                 espacio_trabajo_id
             }),
         });
+
+        if (!res.ok) {
+            throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
 
         const data = await res.json();
 
         if (data.success) {
             showToast("Tablero creado correctamente", "success");
-            // Refresca la página o recarga los tableros
-            //page.redirect(`/workspace/${espacio_trabajo_id}`);
+            // page.redirect(`/workspace/${espacio_trabajo_id}`);
         } else {
             showToast("Error: " + data.message, "error");
         }
     } catch (err) {
-        showToast("Error de red: " + err.message, "error");
+        showToast("Error de red o servidor: " + err.message, "error");
     }
 }
 
-export async function deleteBoards(usuarioId, tableroId) {
+
+
+export async function deleteBoards(tableroId) {
     try {
+
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            return;
+        }
+
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/deleteBoard.php', {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
             },
             body: JSON.stringify({
                 tablero_id: tableroId,
-                usuario_id: usuarioId
             })
         });
 
