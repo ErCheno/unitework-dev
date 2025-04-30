@@ -11,15 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+$usuarioId = verificarToken($conn); // Llamada a la función que obtiene el ID del usuario del token
+
 $input = json_decode(file_get_contents("php://input"), true);
 
-if (!$input || empty($input['espacio_trabajo_id']) || empty($input['usuario_id'])) {
+if (!$input || empty($input['espacio_trabajo_id'])) {
     echo json_encode(["success" => false, "message" => "Datos incompletos"]);
     exit();
 }
 
 $espacioTrabajoId = $input['espacio_trabajo_id'];
-$usuarioId = $input['usuario_id'];
 
 // Validar si el usuario es administrador de ese espacio
 $stmt = $conn->prepare("SELECT rol FROM miembros_espacios_trabajo WHERE usuario_id = ? AND espacio_trabajo_id = ?");
@@ -51,4 +52,32 @@ if ($success) {
 
 $stmt->close();
 $conn->close();
+
+function verificarToken($conn) {
+    $headers = getallheaders();
+
+    if (!isset($headers['Authorization'])) {
+        throw new Exception("Token no proporcionado");
+    }
+
+    if (!preg_match('/Bearer\s(\S+)/', $headers['Authorization'], $matches)) {
+        throw new Exception("Formato de token inválido");
+    }
+
+    $token = $matches[1];
+
+    $stmt = $conn->prepare("SELECT id FROM usuarios WHERE token = ? AND token_expira > NOW()");
+    $stmt->bind_param("s", $token);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        throw new Exception("Token inválido o expirado");
+    }
+
+    $usuario = $result->fetch_assoc();
+    return $usuario['id']; // Devuelve el ID del usuario autenticado
+}
+
+
 ?>

@@ -1,6 +1,6 @@
 import { mostrarPopupConfirmacion } from "./workspaceCard";
 import { deleteBoards } from "../../public/js/board";
-
+import { getUsuariosDisponibles } from "../../public/js/board";
 // kanbanBoard.js
 export function BoardCard(board) {
   const card = document.createElement('div');
@@ -113,7 +113,7 @@ export function BoardCard(board) {
   });
 
   invitar.addEventListener('click', (e) => {
-    mostrarPopupInvitacion();
+    mostrarPopupInvitacion(board);
   });
 
 
@@ -142,7 +142,7 @@ function obtenerClaseColorPersistente(boardId) {
 
 
 
-export function mostrarPopupInvitacion() {
+export function mostrarPopupInvitacion(board) {
   const existingPopup = document.querySelector('.invite-popup');
   if (existingPopup) existingPopup.remove();
 
@@ -175,37 +175,38 @@ export function mostrarPopupInvitacion() {
   cancelBtn.className = 'invite-cancel';
 
   // Simulamos usuarios disponibles
-  const users = [
+ /* const users = [
     { email: 'emilia@example.com', avatar: 'https://i.pravatar.cc/40?u=emilia' },
     { email: 'emilio123@example.com', avatar: 'https://i.pravatar.cc/40?u=emilio' },
     { email: 'pablo@example.com', avatar: 'https://i.pravatar.cc/40?u=pablo' },
     { email: 'emma@example.com', avatar: 'https://i.pravatar.cc/40?u=emma' },
-  ];
+  ];*/
 
-  input.addEventListener('input', () => {
+  input.addEventListener('input', async () => {
     const value = input.value.trim().toLowerCase();
     suggestionBox.textContent = '';
-
+  
     if (value.length > 0) {
-      const filtered = users.filter(user => user.email.toLowerCase().includes(value));
-      filtered.forEach(user => {
+      const users = await getUsuariosDisponibles(board.id, value); // <-- Aquí usas la función real
+  
+      users.forEach(user => {
         const suggestion = document.createElement('div');
         suggestion.className = 'suggestion-item';
-
+  
         const avatar = document.createElement('img');
-        avatar.src = user.avatar;
+        avatar.src = user.avatar_url; // <-- usa el campo del backend
         avatar.alt = 'Avatar';
         avatar.className = 'suggestion-avatar';
-
+  
         const emailText = document.createElement('span');
         emailText.textContent = user.email;
-
+  
         suggestion.append(avatar, emailText);
         suggestion.addEventListener('click', () => {
           input.value = user.email;
           suggestionBox.textContent = '';
         });
-
+  
         suggestionBox.appendChild(suggestion);
       });
     }
@@ -232,7 +233,7 @@ export function mostrarPopupInvitacion() {
   document.body.appendChild(popup);
 }
 
-function crearAvatarDefecto(usuario) {
+/*function crearAvatarDefecto(usuario) {
   const container = document.createElement('div');
   container.classList.add('avatar-container');
 
@@ -251,4 +252,4 @@ function crearAvatarDefecto(usuario) {
   }
 
   return container;
-}
+}*/

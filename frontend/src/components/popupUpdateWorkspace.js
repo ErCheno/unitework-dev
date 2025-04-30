@@ -131,7 +131,8 @@ export function mostrarFormularioEdicion(ws) {
             return;
         }
     
-        updateWorkspace(ws.id, ws.creado_por, nombreActualizado, descripcionActualizada);
+        // Aquí ya no se pasa el usuario_id, ya que se obtiene del token en el backend
+        updateWorkspace(nombreActualizado, descripcionActualizada, ws.id);
     });
     
 

@@ -175,17 +175,15 @@ export function WorkspaceCard(ws) {
     eliminar.addEventListener('click', async () => {
         const confirmado = await mostrarPopupConfirmacion();
         if (!confirmado) return;
-      
-        const usuarioId = localStorage.getItem('usuario_id');
-        
+
         try {
-          await deleteWorkspaces(usuarioId, ws.id);
-          card.remove(); // Eliminar la tarjeta del DOM directamente
+            await deleteWorkspaces(ws.id);
+            card.remove(); // Eliminar la tarjeta del DOM directamente
         } catch (error) {
-          console.error("Error al eliminar el tablero:", error);
+            console.error("Error al eliminar el tablero:", error);
         }
-      });
-      
+    });
+
 
 
 

@@ -77,27 +77,28 @@ export async function LoginPage() {
                 },
                 body: JSON.stringify({ email, password }),
             });
-
+    
             const result = await response.json();
-
+    
             if (result.status === "success" && result.token) {
-                if(result.avatar_url){
-                    localStorage.setItem('avatar_url', result.avatar_url);
-                }
-                if (result.usuario_id) {
-                    localStorage.setItem('usuario_id', result.usuario_id);
-                }
+                // Guardar los datos en localStorage (o sessionStorage si se prefiere)
+                localStorage.setItem('usuario_id', result.usuario_id);
+                localStorage.setItem('email', result.email);
+                localStorage.setItem('avatar_url', result.avatar_url || 'default_avatar.png'); // Por si no viene avatar_url
+                localStorage.setItem('username', result.nombre);
+    
+                // Almacenamos el token según la preferencia de 'remember me'
                 if (remember) {
                     localStorage.setItem("token", result.token);
-
                 } else {
                     sessionStorage.setItem("token", result.token);
                 }
-                localStorage.setItem("username", result.nombre);
-
+    
+                // Elimina los elementos de la interfaz
                 authContent.remove();
                 divDerecho.remove();
-
+    
+                // Redirigir al dashboard
                 page("/dashboard");
             } else {
                 showToast(result.message || "Error al iniciar sesión");

@@ -115,3 +115,24 @@ export async function uploadAvatar(usuarioId) {
       console.error("Error en la petición:", error);
     }
 }
+
+export async function getUsuariosDisponibles(tableroId, filtro = "") {
+    try {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsers.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ tablero_id: tableroId, filtro })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
+    }
+}

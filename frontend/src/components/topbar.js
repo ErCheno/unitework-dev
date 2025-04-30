@@ -166,6 +166,9 @@ export function TopNavbar() {
 }
 
 export function mostrarEditPerfil() {
+  //avatarImg.src = localStorage.getItem('avatar_url'); // Ya guarda la URL completa
+
+
   const overlay = document.createElement('div');
   overlay.className = 'popup-overlay';
 
@@ -180,7 +183,7 @@ export function mostrarEditPerfil() {
   avatarContainer.className = 'avatar-container';
 
   const avatarImg = document.createElement('img');
-  avatarImg.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/'+localStorage.getItem('avatar_url');
+  avatarImg.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/' + localStorage.getItem('avatar_url');
   avatarImg.alt = 'Avatar';
 
   const editIcon = document.createElement('i');
@@ -235,9 +238,9 @@ export function mostrarEditPerfil() {
   const headerInfo = document.createElement('div');
   headerInfo.className = 'header-info';
   const headerName = document.createElement('h1');
-  headerName.textContent = 'Nombre de Usuario';
+  headerName.textContent = localStorage.getItem('username') || 'Nombre de Usuario';
   const headerEmail = document.createElement('p');
-  headerEmail.textContent = 'user@example.com';
+  headerEmail.textContent = localStorage.getItem('email') || 'user@example.com';
   const inputName = document.createElement('input');
   inputName.type = 'text';
   inputName.placeholder = 'Nuevo nombre';
@@ -286,7 +289,9 @@ export function mostrarEditPerfil() {
 
       const result = await response.json();
       if (result.success) {
-        const newAvatarUrl = `http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/${result.avatar}`;
+        //const newAvatarUrl = `http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/${result.avatar}`;
+        const newAvatarUrl = result.avatar;
+
 
         // Guarda la nueva URL en localStorage
         localStorage.setItem('avatar_url', newAvatarUrl);

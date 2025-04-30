@@ -23,7 +23,6 @@ if (!isset($_FILES['avatar']) || empty($_POST['usuario_id'])) {
 $usuarioId = $_POST['usuario_id'];
 $archivo = $_FILES['avatar'];
 
-// Verificar que el usuario exista y obtener el avatar anterior
 $stmt = $conn->prepare("SELECT avatar_url FROM usuarios WHERE id = ?");
 $stmt->bind_param("s", $usuarioId);
 $stmt->execute();
@@ -38,13 +37,12 @@ $usuario = $result->fetch_assoc();
 $avatarAnterior = $usuario['avatar_url'];
 $stmt->close();
 
-// Verificar si el archivo tiene errores
+// Verifica errores en el archivo
 if ($archivo['error'] !== UPLOAD_ERR_OK) {
     echo json_encode(["success" => false, "message" => "Error al subir el archivo"]);
     exit;
 }
 
-// Obtener extensión del archivo y crear un nombre único
 $ext = pathinfo($archivo['name'], PATHINFO_EXTENSION);
 $nombreArchivo = uniqid('avatar_') . '.' . $ext;
 
@@ -58,7 +56,7 @@ if (!$directorioDestino) {
     }
 }
 
-// Eliminar avatar anterior (si no es el predeterminado)
+// Eliminar avatar anterior si no es el predeterminado
 if ($avatarAnterior && $avatarAnterior !== 'default.jpg') {
     $rutaAnterior = "$directorioDestino/$avatarAnterior";
     if (file_exists($rutaAnterior)) {
@@ -66,20 +64,20 @@ if ($avatarAnterior && $avatarAnterior !== 'default.jpg') {
     }
 }
 
-// Ruta final donde se guardará la imagen
+// Guardar nuevo archivo
 $rutaFinal = "$directorioDestino/$nombreArchivo";
-
-// Mover el archivo a la carpeta de destino
 if (move_uploaded_file($archivo['tmp_name'], $rutaFinal)) {
-    // Guardar la ruta del nuevo avatar en la base de datos
+    // URL completa para el frontend
+    $urlAvatar = "http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/$nombreArchivo";
+
+    // Actualizar en base de datos (solo el nombre de archivo si prefieres)
     $stmt = $conn->prepare("UPDATE usuarios SET avatar_url = ? WHERE id = ?");
     $stmt->bind_param("ss", $nombreArchivo, $usuarioId);
     $stmt->execute();
 
-    echo json_encode(["success" => true, "avatar" => $nombreArchivo]);
+    echo json_encode(["success" => true, "avatar" => $urlAvatar]); // DEVUELVE LA URL COMPLETA
 } else {
     echo json_encode(["success" => false, "message" => "Error al mover el archivo"]);
 }
 
 $conn->close();
-?>

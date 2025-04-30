@@ -60,6 +60,9 @@ export function logoutUser() {
     localStorage.removeItem("token");
     localStorage.removeItem('avatar_url');
     localStorage.removeItem('usuario_id');
+    localStorage.removeItem('usuarioId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('email');
     sessionStorage.removeItem("token");
     window.location.href = "/login";  // Redirige al login
 }

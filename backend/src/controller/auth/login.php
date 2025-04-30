@@ -13,23 +13,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
-error_log(print_r($data, true));
 
 if (isset($data["email"], $data["password"])) {
     $email = filter_var($data["email"], FILTER_SANITIZE_EMAIL);
     $password = $data["password"];
 
-    // Verificar conexión a la base de datos
     if (!$conn) {
-        die(json_encode(["status" => "error", "message" => "Error de conexión a la base de datos"]));
+        echo json_encode(["status" => "error", "message" => "Error de conexión a la base de datos"]);
+        exit();
     }
 
-    // Preparar la consulta para obtener el usuario por su email
-    $stmt = $conn->prepare("SELECT id, nombre, password, avatar_url FROM usuarios WHERE email = ?");
-    if (!$stmt) {
-        die(json_encode(["status" => "error", "message" => "Error en la consulta SQL: " . $conn->error]));
-    }
-
+    $stmt = $conn->prepare("SELECT id, nombre, password, avatar_url, email FROM usuarios WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -37,29 +31,30 @@ if (isset($data["email"], $data["password"])) {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
 
-        // Verificar la contraseña
         if (password_verify($password, $user['password'])) {
-            // Generar un token único
+            // Generar un token aleatorio
             $token = bin2hex(random_bytes(32));
 
-            // Preparar la consulta para actualizar el token en la base de datos
-            $stmt = $conn->prepare("UPDATE usuarios SET token = ? WHERE email = ?");
-            $stmt->bind_param("ss", $token, $email);
+            // Establecer expiración en 1 hora (3600 segundos)
+            $expires_at = time() + 3600;
+
+            // Guardar token y expiración en la base de datos
+            $stmt = $conn->prepare("UPDATE usuarios SET token = ?, token_expira = FROM_UNIXTIME(?) WHERE email = ?");
+            $stmt->bind_param("sis", $token, $expires_at, $email);
             $stmt->execute();
 
-            // Verificar si la actualización fue exitosa
             if ($stmt->affected_rows > 0) {
                 echo json_encode([
                     "status" => "success",
                     "token" => $token,
+                    "expira_en" => $expires_at, // útil para el frontend
                     "usuario_id" => $user["id"],
                     "nombre" => $user["nombre"],
+                    "email" => $user["email"],
                     "avatar_url" => $user["avatar_url"] ?: "http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png"
-
                 ]);
             } else {
-                // Si no se pudo actualizar el token, se genera un error
-                echo json_encode(["status" => "error", "message" => "No se pudo actualizar el token"]);
+                echo json_encode(["status" => "error", "message" => "No se pudo guardar el token"]);
             }
         } else {
             echo json_encode(["status" => "error", "message" => "Contraseña incorrecta"]);
@@ -74,4 +69,3 @@ if (isset($data["email"], $data["password"])) {
 }
 
 $conn->close();
-exit();

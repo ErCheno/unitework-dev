@@ -163,18 +163,17 @@ export function CreateWorkspaceModal() {
     btnCrear.addEventListener('click', async () => {
         const nombre = inputTitulo.value.trim();
         const descripcion = inputDescripcion.value.trim();
-        const usuarioId = localStorage.getItem('usuario_id');
+        //const usuarioId = localStorage.getItem('usuario_id');
 
         console.log(nombre);
         console.log(descripcion);
-        console.log(usuarioId);
 
         if (!nombre) {
             alert('El título es obligatorio');
             return;
         }
 
-        createWorkspaces(usuarioId, nombre, descripcion, modal);
+        createWorkspaces(nombre, descripcion, modal);
 
     });
 
