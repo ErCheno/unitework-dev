@@ -36,7 +36,7 @@ if (isset($data["email"], $data["password"])) {
             $token = bin2hex(random_bytes(32));
 
             // Establecer expiración en 1 hora (3600 segundos)
-            $expires_at = time() + 3600;
+            $expires_at = time() + 360000;
 
             // Guardar token y expiración en la base de datos
             $stmt = $conn->prepare("UPDATE usuarios SET token = ?, token_expira = FROM_UNIXTIME(?) WHERE email = ?");
@@ -47,7 +47,7 @@ if (isset($data["email"], $data["password"])) {
                 echo json_encode([
                     "status" => "success",
                     "token" => $token,
-                    "expira_en" => $expires_at, // útil para el frontend
+                    "expira_en" => $expires_at,
                     "usuario_id" => $user["id"],
                     "nombre" => $user["nombre"],
                     "email" => $user["email"],

@@ -439,6 +439,18 @@
   cursor: pointer;
 }
 
+.notif-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+}
+
+.notif-icon {
+  min-width: 6px;
+}
+
+
 .notif-dropdown {
   position: fixed;
   top: 6%; /* debajo del ícono */
@@ -506,4 +518,37 @@
   text-decoration: none;
   color: #007bff;
   font-weight: 500;
+}
+
+
+#notif-container {
+  position: relative;
+  display: inline-block;
+}
+
+#notif-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: rgb(218, 31, 31);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 2px 6px;
+  z-index: 1;
+}
+
+#notif a {
+  position: relative; /* Para que el badge se posicione respecto al icono */
+}
+
+
+.hidden {
+  display: none;
 }

@@ -122,77 +122,101 @@ export function TopNavbar() {
   notifA.href = '#';
   const notifIcon = document.createElement('i');
   notifIcon.className = 'fa-regular fa-bell';
+
+  const notifBadge = document.createElement('span');
+  notifBadge.className = 'notif-badge';
+  notifBadge.classList.add('hidden');
+  notifBadge.textContent = '0';
+
   notifA.appendChild(notifIcon);
+  notifA.appendChild(notifBadge);
   notifLi.appendChild(notifA);
 
   // Crear la bandeja de notificaciones
-const notifDropdown = document.createElement('div');
-notifDropdown.id = 'notif-dropdown';
-notifDropdown.className = 'notif-dropdown hidden';
+  const notifDropdown = document.createElement('div');
+  notifDropdown.id = 'notif-dropdown';
+  notifDropdown.className = 'notif-dropdown hidden';
 
-// Header
-const notifHeader = document.createElement('div');
-notifHeader.className = 'notif-header';
-notifHeader.textContent = 'Notificaciones';
-notifDropdown.appendChild(notifHeader);
+  // Header
+  const notifHeader = document.createElement('div');
+  notifHeader.className = 'notif-header';
+  notifHeader.textContent = 'Notificaciones';
+  notifDropdown.appendChild(notifHeader);
 
-// Lista de notificaciones
-const notifList = document.createElement('ul');
-notifList.className = 'notif-list';
+  // Lista de notificaciones
+  const notifList = document.createElement('ul');
+  notifList.className = 'notif-list';
 
-// Función para crear una notificación
-function crearNotificacion(texto, negrita = null, cursiva = null) {
-  const li = document.createElement('li');
-  if (negrita || cursiva) {
-    if (negrita) {
-      const strong = document.createElement('strong');
-      strong.textContent = negrita + ' ';
-      li.appendChild(strong);
+  // Función para crear una notificación
+  function crearNotificacion(texto, negrita = null, cursiva = null, iconClass = 'fa-regular fa-bell') {
+    const li = document.createElement('li');
+    li.classList.add('notif-item');
+
+    const icon = document.createElement('i');
+    icon.className = iconClass + ' notif-icon';
+    li.appendChild(icon);
+
+    if (negrita || cursiva) {
+      if (negrita) {
+        const strong = document.createElement('strong');
+        strong.textContent = negrita + ' ';
+        li.appendChild(strong);
+      }
+      const textoPlano = document.createTextNode(texto);
+      li.appendChild(textoPlano);
+      if (cursiva) {
+        const em = document.createElement('em');
+        em.textContent = ' ' + cursiva;
+        li.appendChild(em);
+      }
+    } else {
+      const span = document.createElement('span');
+      span.textContent = texto;
+      li.appendChild(span);
     }
-    const textoPlano = document.createTextNode(texto);
-    li.appendChild(textoPlano);
-    if (cursiva) {
-      const em = document.createElement('em');
-      em.textContent = ' ' + cursiva;
-      li.appendChild(em);
+
+    // Mostrar como toast al hacer clic
+    li.addEventListener('click', () => {
+      const mensaje = (negrita ? negrita + ' ' : '') + texto + (cursiva ? ' ' + cursiva : '');
+      showToast(mensaje, 'info');
+    });
+
+    return li;
+  }
+
+
+
+  notifList.appendChild(crearNotificacion('te ha mencionado en un comentario', 'Ana', null, 'fa-solid fa-at'));
+  notifList.appendChild(crearNotificacion('Tu tablero fue actualizado', null, 'Marketing', 'fa-solid fa-table-columns'));
+  notifList.appendChild(crearNotificacion('Tienes una nueva invitación', null, null, 'fa-solid fa-envelope-open-text'));
+
+  notifDropdown.appendChild(notifList);
+
+  // Footer
+  const notifFooter = document.createElement('div');
+  notifFooter.className = 'notif-footer';
+  const notifLink = document.createElement('a');
+  notifLink.href = '#';
+  notifLink.textContent = 'Ver todas';
+  notifFooter.appendChild(notifLink);
+  notifDropdown.appendChild(notifFooter);
+
+
+  // Insertar dropdown en el ítem de notificación
+  notifLi.appendChild(notifDropdown);
+
+  // Mostrar/ocultar al hacer clic
+  notifLi.addEventListener('click', (e) => {
+    e.preventDefault();
+    notifDropdown.classList.toggle('hidden');
+  });
+
+  // Cerrar si se hace clic fuera del componente
+  document.addEventListener('click', (e) => {
+    if (!notifLi.contains(e.target)) {
+      notifDropdown.classList.add('hidden');
     }
-  } else {
-    li.textContent = texto;
-  }
-  return li;
-}
-
-// Añadir notificaciones
-notifList.appendChild(crearNotificacion('te ha mencionado en un comentario', 'Ana'));
-notifList.appendChild(crearNotificacion('Tu tablero fue actualizado', null, 'Marketing'));
-notifList.appendChild(crearNotificacion('Tienes una nueva invitación'));
-
-notifDropdown.appendChild(notifList);
-
-// Footer
-const notifFooter = document.createElement('div');
-notifFooter.className = 'notif-footer';
-const notifLink = document.createElement('a');
-notifLink.href = '#';
-notifLink.textContent = 'Ver todas';
-notifFooter.appendChild(notifLink);
-notifDropdown.appendChild(notifFooter);
-
-// Insertar dropdown en el ítem de notificación
-notifLi.appendChild(notifDropdown);
-
-// Mostrar/ocultar al hacer clic
-notifLi.addEventListener('click', (e) => {
-  e.preventDefault();
-  notifDropdown.classList.toggle('hidden');
-});
-
-// Cerrar si se hace clic fuera del componente
-document.addEventListener('click', (e) => {
-  if (!notifLi.contains(e.target)) {
-    notifDropdown.classList.add('hidden');
-  }
-});
+  });
 
   // Otras secciones del menú
   const dasboardLi = document.createElement('li');
@@ -407,3 +431,20 @@ function closePopup(overlay, popup) {
     document.body.removeChild(popup);
   }, 300);
 }
+
+function updateNotifications(count) {
+  const badge = document.getElementById('notif-badge');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+/*
+window.onload = function() {
+  // Aquí puedes colocar tus simulaciones o lógicas de notificación
+  setTimeout(() => updateNotifications(1), 2000);
+  setTimeout(() => updateNotifications(5), 4000);
+  setTimeout(() => updateNotifications(0), 6000);
+};*/

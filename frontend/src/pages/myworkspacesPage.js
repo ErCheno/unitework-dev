@@ -69,8 +69,7 @@ export async function myWorkspacesPage() {
     grid.id = 'workspace-list';
 
     try {
-        const usuarioId = localStorage.getItem('usuario_id');
-        const workspaces = await fetchWorkspaces(usuarioId);
+        const workspaces = await fetchWorkspaces();
         if (workspaces.length === 0) {
             const noWorkspacesMsg = document.createElement('p');
             noWorkspacesMsg.textContent = '¡Empieza creando un proyecto!';

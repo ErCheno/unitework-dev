@@ -20,7 +20,7 @@ if (!$input || empty($input['tablero_id'])) {
 }
 
 $tableroId = $input['tablero_id'];
-$usuarioId = verificarToken($conn); // Llamada a la función que obtiene el ID del usuario del token
+$usuarioId = verificarToken($conn);
 
 // Obtener el espacio de trabajo al que pertenece el tablero
 $stmt = $conn->prepare("SELECT espacio_trabajo_id FROM tableros WHERE id = ?");
@@ -36,7 +36,7 @@ if ($result->num_rows === 0) {
 $row = $result->fetch_assoc();
 $espacioTrabajoId = $row['espacio_trabajo_id'];
 
-// Verificar si el usuario es admin de ese tablero
+// Verificar si el usuario es admin del tablero
 $stmt = $conn->prepare("SELECT rol FROM miembros_tableros WHERE usuario_id = ? AND tablero_id = ?");
 $stmt->bind_param("si", $usuarioId, $tableroId);
 $stmt->execute();
@@ -53,7 +53,7 @@ if ($row['rol'] !== 'admin') {
     exit();
 }
 
-// Eliminar las tareas asociadas al tablero (si es necesario)
+// Eliminar tareas asociadas al tablero
 $stmt = $conn->prepare("DELETE FROM tareas WHERE tablero_id = ?");
 $stmt->bind_param("i", $tableroId);
 $stmt->execute();
@@ -64,6 +64,11 @@ $stmt->bind_param("i", $tableroId);
 $success = $stmt->execute();
 
 if ($success) {
+    $stmt_update = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = GREATEST(numero_tableros - 1, 0), ultima_actividad = NOW() WHERE id = ?");
+    $stmt_update->bind_param("i", $espacioTrabajoId);
+    $stmt_update->execute();
+    $stmt_update->close();
+
     echo json_encode(["success" => true, "message" => "Tablero eliminado correctamente"]);
 } else {
     echo json_encode(["success" => false, "message" => "Error al eliminar el tablero"]);
@@ -71,4 +76,3 @@ if ($success) {
 
 $stmt->close();
 $conn->close();
-?>

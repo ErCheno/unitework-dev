@@ -1,5 +1,6 @@
 <?php
 require_once "../../config/db.php";
+require_once ".../../../auth/tokenUtils.php";
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -16,26 +17,8 @@ if (!$conn) {
     exit();
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-
-if (!$input || empty($input['creado_por'])) {
-    echo json_encode(['success' => false, 'message' => 'El campo creado_por (usuarioId) es obligatorio']);
-    exit;
-}
-
-$userId = $input['creado_por'];
-
-// Verificar que el usuario exista
-$stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");
-$stmt->bind_param("s", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo json_encode(["success" => false, "message" => "El usuario no existe"]);
-    exit;
-}
-$stmt->close();
+// Obtener userId desde el token
+$userId = verificarToken($conn);
 
 // Obtener workspaces donde el usuario es miembro (ya sea creador o invitado)
 $stmt = $conn->prepare("
@@ -61,6 +44,12 @@ while ($row = $result->fetch_assoc()) {
     $numTableros = $countData['total'];
     $stmt2->close();
 
+    // Actualizar el campo 'numeros_tableros' en la tabla 'espacios_trabajo'
+    $stmt3 = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = ? WHERE id = ?");
+    $stmt3->bind_param("ii", $numTableros, $workspaceId);
+    $stmt3->execute();
+    $stmt3->close();
+
     // Agregar el número de tableros
     $row['num_tableros'] = $numTableros;
 
@@ -79,7 +68,6 @@ while ($row = $result->fetch_assoc()) {
     $workspaces[] = $row;
 }
 
-
 // Función para calcular el tiempo pasado
 function tiempoPasado($tiempo)
 {
@@ -88,35 +76,35 @@ function tiempoPasado($tiempo)
     $time_difference = $current_time - $tiempoPasado;
 
     $segundos = $time_difference;
-    $minutos      = round($segundos / 60);
-    $horas        = round($segundos / 3600);
-    $dias         = round($segundos / 86400);
-    $semanas        = round($segundos / 604800);
-    $meses       = round($segundos / 2629440);
-    $anyos        = round($segundos / 31553280);
+    $minutos = round($segundos / 60);
+    $horas = round($segundos / 3600);
+    $dias = round($segundos / 86400);
+    $semanas = round($segundos / 604800);
+    $meses = round($segundos / 2629440);
+    $anyos = round($segundos / 31553280);
 
     if ($segundos <= 60) {
         return "Hace $segundos segundos";
-    } else if ($minutos <= 60) {
+    } elseif ($minutos <= 60) {
         return ($minutos == 1) ? "Hace un minuto" : "Hace $minutos minutos";
-    } else if ($horas <= 24) {
+    } elseif ($horas <= 24) {
         return ($horas == 1) ? "Hace una hora" : "Hace $horas horas";
-    } else if ($dias <= 7) {
+    } elseif ($dias <= 7) {
         return ($dias == 1) ? "Ayer" : "Hace $dias días";
-    } else if ($semanas <= 4.3) { // 4.3 == 30/7
+    } elseif ($semanas <= 4.3) {
         return ($semanas == 1) ? "Hace una semana" : "Hace $semanas semanas";
-    } else if ($meses <= 12) {
+    } elseif ($meses <= 12) {
         return ($meses == 1) ? "Hace un mes" : "Hace $meses meses";
     } else {
         return ($anyos == 1) ? "Hace un año" : "Hace $anyos años";
     }
 }
 
+// Enviar respuesta
 echo json_encode([
     "success" => true,
     "workspaces" => $workspaces
 ]);
 
-$stmt->close();
 $conn->close();
 ?>

@@ -1,15 +1,21 @@
 import { showToast } from "../js/validator/regex";
 import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
 
-export async function fetchWorkspaces(usuarioId) {
+export async function fetchWorkspaces() {
+    const token = localStorage.getItem('token'); // Asegúrate de que el token esté guardado al iniciar sesión
+    console.log(token);
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        return;
+    }
     try {
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/getWorkspaces.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Envías el token aquí
             },
             body: JSON.stringify({
-                creado_por: usuarioId
             }),        
         });
 

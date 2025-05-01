@@ -1,5 +1,11 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 require_once __DIR__ . '/../../../config/db.php';
+require_once __DIR__ . '/../../../vendor/autoload.php'; // Incluir PHPMailer con Composer
+require_once "../../auth/tokenUtils.php";
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -23,7 +29,7 @@ if (!$input || empty($input['creado_por']) || empty($input['email']) || empty($i
     exit;
 }
 
-$userId = $input['creado_por'];
+$userId = verificarToken($conn); // Llamada a la función que obtiene el ID del usuario del token
 $email = $input['email'];
 $espacioTrabajoId = $input['espacio_trabajo_id'];
 $tableroId = $input['tablero_id'];
@@ -75,12 +81,38 @@ $executeSuccess = $stmt->execute();
 $stmt->close();
 
 if ($executeSuccess) {
-    // Aquí puedes enviar el token por correo o hacer lo que necesites con él
-    echo json_encode(["success" => true, "message" => "Invitación enviada correctamente", "token" => $token]);
+    // Enviar el correo de invitación
+    $mail = new PHPMailer(true);
+    try {
+        // Configuración de PHPMailer
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';  // Servidor SMTP de Gmail
+        $mail->SMTPAuth = true;
+        $mail->Username = 'tucorreo@gmail.com';  // Tu dirección de correo electrónico de Gmail
+        $mail->Password = 'tu-contraseña';  // Tu contraseña de Gmail o contraseña de aplicación
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;  // Puerto estándar para Gmail
+        
+        // Destinatario
+        $mail->setFrom('tucorreo@gmail.com', 'Tu Nombre');
+        $mail->addAddress($email);
+
+        // Contenido del correo
+        $mail->isHTML(true);
+        $mail->Subject = 'Invitación a tablero';
+        $mail->Body    = "Has sido invitado al tablero con el rol de $rolTablero en el espacio de trabajo. Usa el siguiente enlace para aceptar la invitación: <a href='https://tusitio.com/aceptar-invitacion?token=$token'>Aceptar Invitación</a>";
+
+        // Enviar el correo
+        $mail->send();
+        echo json_encode(["success" => true, "message" => "Invitación enviada correctamente", "token" => $token]);
+
+    } catch (Exception $e) {
+        echo json_encode(["success" => false, "message" => "No se pudo enviar el correo: {$mail->ErrorInfo}"]);
+        exit;
+    }
 } else {
     echo json_encode(["success" => false, "message" => "Error al enviar la invitación"]);
 }
 
 $conn->close();
-
 ?>

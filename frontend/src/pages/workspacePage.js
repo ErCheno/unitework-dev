@@ -102,6 +102,7 @@ export async function workspacePage(workspaceId) {
                     // Pasa el workspaceId correctamente como argumento
                     CreateBoardPopup(workspaceId).then(popup => {
                         document.body.appendChild(popup);
+                        requestAnimationFrame(() => popup.classList.remove('hidden'));
 
                         setTimeout(() => {
                             const rect = cardCrear.getBoundingClientRect();
@@ -131,9 +132,9 @@ export async function workspacePage(workspaceId) {
                 console.error('Error al cargar los tableros: ' + error, 'error');
             }
 
-            /*mostrarDetallesWorkspace(workspace); // Puedes lanzar el modal si quieres, o quitarlo
+            /*mostrarDetallesWorkspace(workspace);
  
-             const card = WorkspaceCard(workspace); // Reutilizas la tarjeta si quieres mostrarla
+             const card = WorkspaceCard(workspace);
              card.setAttribute('draggable', true);
              card.id = `workspace-${workspace.id}`;
              card.classList.add('workspace-draggable');
@@ -174,13 +175,18 @@ export async function workspacePage(workspaceId) {
 
     setupSortable('board-list', '.board-draggable', (evt) => {
         console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
-    });}
+    });
+
+
+}
 
 
 export async function CreateBoardPopup(workspaceId) {
     const popup = document.createElement('div');
-    popup.classList.add('board-popup', 'animate-popup');
-
+    popup.classList.add('board-popup');
+    setTimeout(() => {
+        popup.classList.add('animate-popup');
+      }, 50);
     const flecha = document.createElement('div');
     flecha.classList.add('popup-arrow');
     popup.appendChild(flecha);
@@ -246,8 +252,12 @@ export async function CreateBoardPopup(workspaceId) {
     function closePopup() {
         popup.classList.remove('animate-popup');
         popup.classList.add('fade-out');
-        popup.addEventListener('animationend', () => popup.remove(), { once: true });
-        document.removeEventListener('mousedown', handleClickOutside);
+        
+        popup.addEventListener('animationend', () => {
+            console.log("Entre")
+            popup.remove();
+        }, { once: true });
+            document.removeEventListener('mousedown', handleClickOutside);
         document.removeEventListener('keydown', handleEscape);
     }
 
@@ -327,6 +337,7 @@ async function fetchAndRenderBoards(workspaceId) {
         // Cuando el usuario hace clic para crear un tablero
         cardCrear.addEventListener('click', () => {
             const existing = document.querySelector('.board-popup');
+
             if (existing) existing.remove();
 
             // Pasa el workspaceId correctamente como argumento

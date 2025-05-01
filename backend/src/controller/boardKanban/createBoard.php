@@ -1,6 +1,6 @@
 <?php
 require_once "../../config/db.php";
-require_once "../auth/tokenUtils.php"; // Asegúrate de que esta función esté incluida
+require_once "../auth/tokenUtils.php";
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
@@ -16,14 +16,14 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 // Verificar token y obtener el ID del usuario autenticado
 try {
-    $usuarioId = verificarToken($conn); // Llamada a la función que obtiene el ID del usuario
+    $usuarioId = verificarToken($conn);
 } catch (Exception $e) {
     http_response_code(401);
     echo json_encode(["success" => false, "message" => $e->getMessage()]);
     exit();
 }
 
-// Validación de los datos de entrada
+// Validar datos de entrada
 if (!$input || empty($input['nombre']) || empty($input['espacio_trabajo_id'])) {
     echo json_encode(['success' => false, 'message' => 'Faltan datos obligatorios']);
     exit();
@@ -41,12 +41,17 @@ $stmt->bind_param("ssiss", $nombre, $descripcion, $espacio_trabajo_id, $usuarioI
 if ($stmt->execute()) {
     $tablero_id = $conn->insert_id;
 
-    // Insertar al creador como miembro del tablero con rol 'admin'
+    // Añadir al creador como miembro con rol 'admin'
     $rol = 'admin';
     $stmt_miembro = $conn->prepare("INSERT INTO miembros_tableros (usuario_id, tablero_id, rol) VALUES (?, ?, ?)");
     $stmt_miembro->bind_param("sis", $usuarioId, $tablero_id, $rol);
 
     if ($stmt_miembro->execute()) {
+        $stmt_update = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = numero_tableros + 1, ultima_actividad = NOW() WHERE id = ?");
+        $stmt_update->bind_param("i", $espacio_trabajo_id);
+        $stmt_update->execute();
+        $stmt_update->close();
+
         echo json_encode(['success' => true, 'message' => 'Tablero y miembro creados correctamente']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Tablero creado, pero error al añadir miembro']);
