@@ -114,11 +114,13 @@
         &:hover {
           color: lighten($colorUserIcon, 10%);
         }
+
+        i {
+          font-size: 24px;
+        }
       }
 
-      i {
-        font-size: 24px;
-      }
+
     }
 
 
@@ -172,7 +174,7 @@
 
 .user-menu {
   position: relative;
-  z-index: 9999999;
+  z-index: 0;
 }
 
 
@@ -441,21 +443,197 @@
 
 .notif-item {
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  padding: 5px;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+
+  span {
+    font-size: 12px;
+  }
+}
+
+.notif-item {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.notif-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notif-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notif-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.notif-text {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.btn-notif {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-aceptar {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-aceptar:hover {
+  background-color: #218838;
+}
+
+.btn-cancelar {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background-color: #c82333;
+}
+
+.notif-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.notif-contenedor {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.notif-avatar-container {
+  margin-right: 15px;
+}
+
+.notif-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.notif-texto-container {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex-grow: 1;
+  width: 50%;
+
+  .notif-texto-container span {
+    display: inline; /* Cambié esto para asegurarme que el texto no se apile */
+  }
+  
+  #spanCursiva {
+    font-style: italic; /* Asegúrate de que el texto esté en cursiva */
+    width: auto; /* Quitar el ancho fijo de 50%, ya que puede estar limitando la expansión */
+    font-size: 0.9em; /* Ajusta el tamaño si es necesario */
+    margin-top: 5px; /* Separa el texto en cursiva */
+  }
+  
+  .notif-content {
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+  }
+
 }
 
 .notif-icon {
-  min-width: 6px;
+  margin-right: 10px;
+}
+
+.notif-content {
+  font-weight: bold;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-notif {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.btn-aceptarNotif {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-cancelarNotif {
+  background-color: #f44336;
+  color: white;
+}
+
+.notif-actions button {
+  flex-grow: 1;
+  /* Esto hace que los botones ocupen el mismo espacio */
+}
+
+
+.btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: white;
 }
 
 
 .notif-dropdown {
   position: fixed;
-  top: 6%; /* debajo del ícono */
+  top: 6%;
+  /* debajo del ícono */
   right: 5%;
-  width: 250px;
+  width: 450px;
 
   border: 1px solid #ccc;
   border-radius: 0.5rem;
@@ -485,11 +663,14 @@
 }
 
 .notif-list {
+
+
   list-style: none;
   margin: 0;
   padding: 0;
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   margin-left: -50px;
 
 }
@@ -526,9 +707,10 @@
   display: inline-block;
 }
 
-#notif-icon {
-  font-size: 24px;
-  cursor: pointer;
+.notif-icon {
+  margin: 10px;
+  color: #666;
+  font-size: 18px;
 }
 
 .notif-badge {
@@ -545,10 +727,130 @@
 }
 
 #notif a {
-  position: relative; /* Para que el badge se posicione respecto al icono */
+  position: relative;
+  /* Para que el badge se posicione respecto al icono */
 }
+
+.notif-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.btn-notif {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-aceptarNotif {
+  background-color: $third-color;
+  color: white;
+}
+
+.btn-aceptarNotif:hover {
+  background-color: $third-color;
+}
+
+.btn-cancelarNotif {
+  background-color: $seventh-color;
+  color: white;
+}
+
+.btn-cancelarNotif:hover {
+  background-color: $seventh-color;
+}
+
+
 
 
 .hidden {
   display: none;
+}
+
+
+// POPUP NOTIFICACIONES
+
+.invite-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(30, 30, 30, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.invite-popup-container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: popup-fade-in 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes popup-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.invite-popup-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.invite-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.invite-buttons button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.invite-rechazar {
+  background-color: $deny-button;
+  color: white;
+}
+
+.invite-rechazar:hover {
+  background-color: darken($deny-button, 10%);
+}
+
+
+.invite-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: $seventh-color;
 }

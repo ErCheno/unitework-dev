@@ -160,46 +160,10 @@
   transition: opacity 0.5s ease, transform 0.3s ease, z-index 0s 0.5s;  /* Animación suave */
 }
 
-/* Clase para hacer visible el popup con animación */
-.show {
-  opacity: 1;
-  transform: translateX(0);  /* Cuando está visible, se mueve a la posición original */
-}
-
-/* Flechita estilo bocadillo */
-.popup-arrow {
-  position: absolute;
-  top: 20px;
-  left: -8px;
-  width: 16px;
-  height: 16px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  transform: rotate(45deg);
-  z-index: -1;  /* Asegura que la flecha esté detrás del popup */
-}
-
-/* Animación para mostrar el popup */
-.animate-popup {
-  opacity: 1 !important;
-  transform: translateX(0) !important;  /* Asegura que la animación esté completa */
-}
-
-/* Desvanecer cuando se cierra */
-.fade-out {
-  opacity: 0 !important;
-  z-index: -99999;
-  transform: translateX(-10px) !important; /* Mueve ligeramente al cerrar */
-  transition: opacity 0.2s ease, transform 0.2s ease, z-index 0s 0.5s;  /* Desvanecimiento y movimiento */
-}
-
 /* La clase 'show' muestra el popup con animación */
 .show {
   display: block;
-  opacity: 1;
-  transform: translateX(0);
-  
+  opacity: 1;  
 }
 
 /* Flechita estilo bocadillo (izquierda del popup) */

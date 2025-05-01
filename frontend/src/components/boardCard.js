@@ -1,6 +1,7 @@
 import { mostrarPopupConfirmacion } from "./workspaceCard";
 import { deleteBoards } from "../../public/js/board";
 import { getUsuariosDisponibles } from "../../public/js/board";
+import { createInvitation } from "../../public/js/notifications";
 // kanbanBoard.js
 export function BoardCard(board) {
   const card = document.createElement('div');
@@ -10,6 +11,8 @@ export function BoardCard(board) {
   card.setAttribute('aria-label', `Abrir tablero: ${board.nombre}`);
   card.classList.add(obtenerClaseColorPersistente(board.id));
 
+  console.log(board);
+  console.log(board.rol);
 
   const boardHeader = document.createElement('div');
   boardHeader.className = 'board-header';
@@ -42,7 +45,7 @@ export function BoardCard(board) {
   eliminar.id = 'eliminarLi';
 
   menu.appendChild(detalle);
-  if (board.rol !== 'admin') {
+  if (board.rol_tablero !== 'admin') {
     menu.appendChild(salir);
   } else {
     menu.appendChild(invitar);
@@ -212,10 +215,11 @@ export function mostrarPopupInvitacion(board) {
     }
   });
 
-  enviarBtn.addEventListener('click', () => {
+  enviarBtn.addEventListener('click', async () => {
     const email = input.value.trim();
     if (email) {
       console.log('Invitación enviada a:', email);
+      await createInvitation(email, board.espacio_trabajo_id, board.id, board.rol_espacio_trabajo, board.rol_tablero);
       popup.remove();
     } else {
       input.classList.add('error');

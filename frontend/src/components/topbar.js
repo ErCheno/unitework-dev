@@ -1,7 +1,8 @@
 import page from 'page';
 import { logoutUser } from '../../public/js/auth.js';
 import { showToast } from "../../public/js/validator/regex.js";
-
+import { acceptInvitation, getInvitations } from '../../public/js/notifications.js';
+import { getUsuariosDisponibles } from '../../public/js/board.js';
 let userIcon;
 
 export function TopNavbar() {
@@ -147,49 +148,11 @@ export function TopNavbar() {
   const notifList = document.createElement('ul');
   notifList.className = 'notif-list';
 
+  cargarInvitaciones(notifList, notifBadge);
+
+
   // Función para crear una notificación
-  function crearNotificacion(texto, negrita = null, cursiva = null, iconClass = 'fa-regular fa-bell') {
-    const li = document.createElement('li');
-    li.classList.add('notif-item');
-
-    const icon = document.createElement('i');
-    icon.className = iconClass + ' notif-icon';
-    li.appendChild(icon);
-
-    if (negrita || cursiva) {
-      if (negrita) {
-        const strong = document.createElement('strong');
-        strong.textContent = negrita + ' ';
-        li.appendChild(strong);
-      }
-      const textoPlano = document.createTextNode(texto);
-      li.appendChild(textoPlano);
-      if (cursiva) {
-        const em = document.createElement('em');
-        em.textContent = ' ' + cursiva;
-        li.appendChild(em);
-      }
-    } else {
-      const span = document.createElement('span');
-      span.textContent = texto;
-      li.appendChild(span);
-    }
-
-    // Mostrar como toast al hacer clic
-    li.addEventListener('click', () => {
-      const mensaje = (negrita ? negrita + ' ' : '') + texto + (cursiva ? ' ' + cursiva : '');
-      showToast(mensaje, 'info');
-    });
-
-    return li;
-  }
-
-
-
-  notifList.appendChild(crearNotificacion('te ha mencionado en un comentario', 'Ana', null, 'fa-solid fa-at'));
-  notifList.appendChild(crearNotificacion('Tu tablero fue actualizado', null, 'Marketing', 'fa-solid fa-table-columns'));
-  notifList.appendChild(crearNotificacion('Tienes una nueva invitación', null, null, 'fa-solid fa-envelope-open-text'));
-
+  
   notifDropdown.appendChild(notifList);
 
   // Footer
@@ -254,6 +217,7 @@ export function TopNavbar() {
   nav.appendChild(contenedorLogo);
   nav.appendChild(menu);
   container.appendChild(nav);
+
 
   return container;
 }
@@ -448,3 +412,232 @@ window.onload = function() {
   setTimeout(() => updateNotifications(5), 4000);
   setTimeout(() => updateNotifications(0), 6000);
 };*/
+
+export async function cargarInvitaciones(notifList, notifBadge) {
+  try {
+    const invitations = await getInvitations();
+
+    for (const inv of invitations) {
+      const { id_invitacion, tablero_id, remitente_id, nombre_tablero, nombre_espacio_trabajo, nombre_remitente, avatar_url_remitente} = inv;
+
+      // Obtener todos los usuarios disponibles en ese tablero (puedes optimizar esto si es muy pesado)
+      const usuarios = await getUsuariosDisponibles(tablero_id);
+      const remitente = usuarios.find(u => u.id === remitente_id);
+
+      const nombreRemitente = nombre_remitente || 'Usuario desconocido';
+      const avatarRemitente = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/'+avatar_url_remitente || 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';
+
+      const aceptar = async (li) => {
+        try {
+          await aceptarInvitacion(id_invitacion);
+          li.remove();
+        } catch (err) {
+          console.error('Error al aceptar invitación:', err);
+        }
+      };
+
+      const rechazar = async (li) => {
+        try {
+          await rechazarInvitacion(id_invitacion);
+          li.remove();
+        } catch (err) {
+          console.error('Error al rechazar invitación:', err);
+        }
+      };
+
+      const li = crearNotificacion(
+        'Te han invitado a un tablero',
+        nombreRemitente,
+        `(${nombre_tablero} en ${nombre_espacio_trabajo})`,
+        'fa-solid fa-envelope-open-text',
+        'invitacion',
+        avatarRemitente,
+        aceptar,
+        rechazar
+      );
+
+      notifList.appendChild(li);
+    }
+
+    if (invitations.length > 0) {
+      notifBadge.textContent = invitations.length;
+      notifBadge.classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('Error al cargar las invitaciones:', error);
+  }
+}
+export function crearNotificacion(
+  texto,
+  negrita = null,
+  cursiva = null,
+  iconClass = 'fa-regular fa-bell',
+  tipo = 'normal',
+  avatarUrl = null,
+  onAceptar = null,
+  onRechazar = null
+) {
+  const li = document.createElement('li');
+  li.classList.add('notif-item');
+
+  // Contenedor para imagen y contenido
+  const contenedor = document.createElement('div');
+  contenedor.classList.add('notif-contenedor');
+
+  // Contenedor de la imagen (Avatar)
+  const contenedorAvatar = document.createElement('div');
+  contenedorAvatar.classList.add('notif-avatar-container');
+  
+  // Avatar si está disponible
+  if (avatarUrl) {
+    const avatar = document.createElement('img');
+    avatar.src = avatarUrl;
+    avatar.alt = 'Avatar';
+    avatar.classList.add('notif-avatar');
+    contenedorAvatar.appendChild(avatar);
+  }
+
+  // Contenedor del icono y contenido
+  const contenedorTexto = document.createElement('div');
+  contenedorTexto.classList.add('notif-texto-container');
+
+  // Icono
+  const icon = document.createElement('i');
+  icon.className = `notif-icon ${iconClass}`;
+  contenedorTexto.appendChild(icon);
+
+  // Contenido del mensaje
+  const contenido = document.createElement('span');
+
+  if (negrita) {
+    const strong = document.createElement('strong');
+    strong.textContent = negrita + ' ';
+    contenido.appendChild(strong);
+  }
+
+  contenido.appendChild(document.createTextNode(texto));
+
+  if (cursiva) {
+    const spanCursiva = document.createElement('span');
+    spanCursiva.id = 'spanCursiva';
+    spanCursiva.textContent = ' ' + cursiva;
+    contenido.appendChild(spanCursiva);
+  }
+
+  contenedorTexto.appendChild(contenido);
+
+  // Añadir los contenedores al principal
+  contenedor.appendChild(contenedorAvatar);
+  contenedor.appendChild(contenedorTexto);
+
+  // Añadir contenedor al li
+  li.appendChild(contenedor);
+
+  // Botones de acción solo para invitaciones
+  if (tipo === 'invitacion') {
+    const acciones = document.createElement('div');
+    acciones.classList.add('notif-actions');
+
+    const btnAceptar = document.createElement('button');
+    btnAceptar.textContent = 'Aceptar';
+    btnAceptar.classList.add('btn-notif', 'btn-aceptarNotif');
+    btnAceptar.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (typeof onAceptar === 'function') await onAceptar(li);
+    });
+
+    const btnCancelar = document.createElement('button');
+    btnCancelar.textContent = 'Cancelar';
+    btnCancelar.classList.add('btn-notif', 'btn-cancelarNotif');
+    btnCancelar.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (typeof onRechazar === 'function') await onRechazar(li);
+    });
+
+    acciones.appendChild(btnAceptar);
+    acciones.appendChild(btnCancelar);
+    li.appendChild(acciones);
+  }
+
+  // Popup de detalle al hacer clic
+  li.addEventListener('click', () => {
+    const mensaje = (negrita ? negrita + ' ' : '') + texto + (cursiva ? ' ' + cursiva : '');
+    mostrarPopupDetallesInvitacion({
+      titulo: 'Detalles de la invitación',
+      mensaje,
+      tipo,
+    });
+  });
+
+  return li;
+}
+
+
+
+
+export function mostrarPopupDetallesInvitacion({ titulo, mensaje, tipo }) {
+  const overlay = document.createElement('div');
+  overlay.classList.add('invite-popup');
+
+  const container = document.createElement('div');
+  container.classList.add('invite-popup-container');
+
+  // Botón de cerrar (icono X de FontAwesome)
+  const closeBtn = document.createElement('button');
+  closeBtn.classList.add('invite-close-btn');
+  
+  // Crear el icono <i> manualmente
+  const icon = document.createElement('i');
+  icon.classList.add('fas', 'fa-times');
+
+  closeBtn.title = 'Cerrar';
+  closeBtn.setAttribute('aria-label', 'Cerrar');
+
+  closeBtn.appendChild(icon);
+  
+  closeBtn.addEventListener('click', () => {
+    overlay.remove();
+  });
+  
+
+  const h2 = document.createElement('h2');
+  h2.textContent = titulo;
+
+  const p = document.createElement('p');
+  p.textContent = mensaje;
+
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.classList.add('invite-buttons');
+
+  const aceptarBtn = document.createElement('button');
+  aceptarBtn.classList.add('invite-send');
+  aceptarBtn.textContent = 'Aceptar';
+
+  aceptarBtn.addEventListener('click', () => {
+    console.log('Invitación aceptada desde popup');
+    acceptInvitation()
+    overlay.remove();
+  });
+
+  const rechazarBtn = document.createElement('button');
+  rechazarBtn.classList.add('invite-rechazar');
+  rechazarBtn.textContent = 'Rechazar';
+  rechazarBtn.addEventListener('click', () => {
+    overlay.remove();
+  });
+
+  buttonsDiv.appendChild(aceptarBtn);
+  buttonsDiv.appendChild(rechazarBtn);
+
+  // Añadir botón de cerrar al contenedor
+  container.appendChild(closeBtn);
+  container.appendChild(h2);
+  container.appendChild(p);
+  container.appendChild(buttonsDiv);
+  overlay.appendChild(container);
+
+  document.body.appendChild(overlay);
+}
+
+
+ 

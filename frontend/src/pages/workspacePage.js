@@ -82,7 +82,7 @@ export async function workspacePage(workspaceId) {
 
             title.textContent = workspace.nombre;
 
-            const usuarioId = localStorage.getItem('usuario_id');
+            //const usuarioId = localStorage.getItem('usuario_id');
             try {
                 const boards = await fetchBoards(workspace.id);
 

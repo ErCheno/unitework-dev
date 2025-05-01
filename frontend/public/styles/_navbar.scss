@@ -225,7 +225,7 @@ nav.sidebar {
 .sidebar ul li a:hover{
   color: lighten($colorFondoBuscarInput, 30%);
 }
-
+/*
 button:hover {
   background-color: color.scale($secondary-color, $lightness: -20%);
 }
@@ -238,7 +238,7 @@ hr, #hr2:hover {
   color: color.scale($secondary-color, $lightness: 10%);
 
 }
-
+*/
 #buscarLi:has(input:focus) {
   #buscarDiv {
     padding: 20px; 

@@ -21,12 +21,10 @@ $usuarioId = verificarToken($conn); // Llamada a la función que obtiene el ID d
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (!$input) {
+if (empty($input['espacio_trabajo_id'])) {
     echo json_encode(['success' => false, 'message' => 'El campo espacio_trabajo_id es obligatorio']);
     exit;
 }
-
-
 
 // Verificar que el usuario exista
 $stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");
@@ -42,22 +40,27 @@ $stmt->close();
 
 // Obtener tableros del espacio de trabajo
 $stmt = $conn->prepare("
-    SELECT t.*, mt.rol
+    SELECT t.*, 
+           mt.rol AS rol_tablero,
+           me.rol AS rol_espacio_trabajo
     FROM tableros t
-    INNER JOIN miembros_tableros mt ON t.id = mt.tablero_id
+    INNER JOIN miembros_tableros mt ON t.id = mt.tablero_id AND mt.usuario_id = ?
+    INNER JOIN miembros_espacios_trabajo me ON t.espacio_trabajo_id = me.espacio_trabajo_id AND me.usuario_id = ?
     WHERE t.espacio_trabajo_id = ?
 ");
-$stmt->bind_param("s", $input['espacio_trabajo_id']);
+$stmt->bind_param("ssi", $usuarioId, $usuarioId, $input['espacio_trabajo_id']);
+
 $stmt->execute();
 $result = $stmt->get_result();
 
 $tableros = [];
 while ($row = $result->fetch_assoc()) {
-    // Determinar si el usuario es admin o miembro en el tablero
-    $esAdmin = ($row['rol'] === 'admin');
+    $esAdminTablero = ($row['rol_tablero'] === 'admin');
+    $esAdminEspacio = ($row['rol_espacio_trabajo'] === 'admin'); // Corregido aquí
 
-    // Agregar el rol al tablero
-    $row['es_admin_tablero'] = $esAdmin;
+    $row['es_admin_tablero'] = $esAdminTablero;
+    $row['es_admin_espacio'] = $esAdminEspacio;
+
     $row['fecha_creacion_relativa'] = tiempoPasado($row['fecha_creacion']);
     $tableros[] = $row;
 }
