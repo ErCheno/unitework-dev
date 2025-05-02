@@ -87,13 +87,22 @@ if (!$invitacion['espacio_trabajo_id'] || !$invitacion['tablero_id']) {
 $conn->begin_transaction();
 
 try {
-    // Insertar en miembros_espacios_trabajo (si no existe)
+    // Insertar en miembros_espacios_trabajo
     $stmt1 = $conn->prepare("INSERT IGNORE INTO miembros_espacios_trabajo (usuario_id, espacio_trabajo_id, rol) VALUES (?, ?, ?)");
     $stmt1->bind_param("sis", $userId, $invitacion['espacio_trabajo_id'], $invitacion['rol_espacio_trabajo']);
     $stmt1->execute();
+
+    // Solo si se insertó un nuevo registro
+    if ($stmt1->affected_rows > 0) {
+        $stmtUpdate = $conn->prepare("UPDATE espacios_trabajo SET numero_miembros = numero_miembros + 1 WHERE id = ?");
+        $stmtUpdate->bind_param("i", $invitacion['espacio_trabajo_id']);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+    }
+
     $stmt1->close();
 
-    // Insertar en miembros_tableros (si no existe)
+    // Insertar en miembros_tableros
     $stmt2 = $conn->prepare("INSERT IGNORE INTO miembros_tableros (usuario_id, tablero_id, rol) VALUES (?, ?, ?)");
     $stmt2->bind_param("sis", $userId, $invitacion['tablero_id'], $invitacion['rol_tablero']);
     $stmt2->execute();
@@ -119,5 +128,4 @@ try {
 }
 
 $conn->close();
-
 ?>

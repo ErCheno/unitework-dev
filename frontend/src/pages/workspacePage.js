@@ -85,34 +85,34 @@ export async function workspacePage(workspaceId) {
             //const usuarioId = localStorage.getItem('usuario_id');
             try {
                 const boards = await fetchBoards(workspace.id);
-
-                // Primero, añade el botón de "Crear tablero Kanban" al principio del grid
-                const cardCrear = document.createElement('div');
-                cardCrear.classList.add('board-card', 'create-board-card');
-                const text = document.createElement('span');
-                text.textContent = '+ Crear un tablero Kanban';
-                cardCrear.appendChild(text);
-                cardCrear.setAttribute('aria-label', 'Crear un nuevo tablero');
-                grid.appendChild(cardCrear);  // Aquí es donde aseguramos que esté al principio
-
-                cardCrear.addEventListener('click', () => {
-                    const existing = document.querySelector('.board-popup');
-                    if (existing) existing.remove();
-
-                    // Pasa el workspaceId correctamente como argumento
-                    CreateBoardPopup(workspaceId).then(popup => {
-                        document.body.appendChild(popup);
-                        requestAnimationFrame(() => popup.classList.remove('hidden'));
-
-                        setTimeout(() => {
-                            const rect = cardCrear.getBoundingClientRect();
-                            popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
-                            popup.style.left = `${rect.left + 240 + window.scrollX}px`;
-                        }, 50);  // Retardo pequeño para asegurarse de que el popup esté en el DOM
-                    }).catch(error => {
-                        console.error('Error al crear el popup:', error);
+                if (workspace.rol === 'admin') {
+                    const cardCrear = document.createElement('div');
+                    cardCrear.classList.add('board-card', 'create-board-card');
+                    const text = document.createElement('span');
+                    text.textContent = '+ Crear un tablero Kanban';
+                    cardCrear.appendChild(text);
+                    cardCrear.setAttribute('aria-label', 'Crear un nuevo tablero');
+                    grid.appendChild(cardCrear);  // Aquí es donde aseguramos que esté al principio
+                
+                    cardCrear.addEventListener('click', () => {
+                        const existing = document.querySelector('.board-popup');
+                        if (existing) existing.remove();
+                
+                        CreateBoardPopup(workspaceId).then(popup => {
+                            document.body.appendChild(popup);
+                            requestAnimationFrame(() => popup.classList.remove('hidden'));
+                
+                            setTimeout(() => {
+                                const rect = cardCrear.getBoundingClientRect();
+                                popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
+                                popup.style.left = `${rect.left + 240 + window.scrollX}px`;
+                            }, 50);
+                        }).catch(error => {
+                            console.error('Error al crear el popup:', error);
+                        });
                     });
-                });
+                }
+                
 
                 if (boards.length === 0) {
                     const noBoardsMsg = document.createElement('p');

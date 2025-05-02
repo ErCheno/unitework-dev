@@ -197,13 +197,13 @@ export function TopNavbar() {
   const gruposLi = document.createElement('li');
   const gruposA = document.createElement('a');
   gruposA.href = '#/groups';
-  gruposA.textContent = 'Grupos';
+  gruposA.textContent = 'Espacios Trabajo';
   gruposLi.appendChild(gruposA);
 
   const mapasmentalesLi = document.createElement('li');
   const mapasmentalesA = document.createElement('a');
   mapasmentalesA.href = '#/kanban';
-  mapasmentalesA.textContent = 'Tablero Kanban';
+  mapasmentalesA.textContent = 'Mapas mentales';
   mapasmentalesLi.appendChild(mapasmentalesA);
 
   // Añadir al menú principal

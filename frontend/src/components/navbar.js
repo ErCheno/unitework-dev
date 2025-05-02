@@ -73,6 +73,7 @@ export function Navbar() {
   const dashboardLiNovedades = document.createElement('li');
   const dashboardLinkNovedades = document.createElement('a');
   const iDashboard = document.createElement('i');
+
   iDashboard.className = 'fa-solid fa-house';
   dashboardLinkNovedades.href = '/dashboard';
   dashboardLinkNovedades.textContent = ' Novedades';
@@ -82,11 +83,23 @@ export function Navbar() {
   const dashboardLiEspaciosTrabajo = document.createElement('li');
   const dashboardLinkEspaciosTrabajos = document.createElement('a');
   const iDashboardEspaciosTrabajo = document.createElement('i');
+
   iDashboardEspaciosTrabajo.className = 'fa-solid fa-toolbox';
   dashboardLinkEspaciosTrabajos.href = '/myworkspaces';
   dashboardLinkEspaciosTrabajos.textContent = ' Mis espacios de Trabajo';
   dashboardLinkEspaciosTrabajos.prepend(iDashboardEspaciosTrabajo);
   dashboardLiEspaciosTrabajo.appendChild(dashboardLinkEspaciosTrabajos);
+
+  const dashboardLiKanban = document.createElement('li');
+  const dashboardLinkKanban = document.createElement('a');
+  const iDashboardKanban = document.createElement('i');
+  
+  iDashboardKanban.className = 'fa-solid fa-columns';
+  dashboardLinkKanban.href = '/kanban';
+  dashboardLinkKanban.textContent = ' Tablero Kanban';
+  dashboardLinkKanban.prepend(iDashboardKanban);
+  dashboardLiKanban.appendChild(dashboardLinkKanban);
+  
 
   // Logout
   const divDebajo = document.createElement('div');
@@ -109,6 +122,7 @@ export function Navbar() {
 
   ul.appendChild(dashboardLiNovedades);
   ul.appendChild(dashboardLiEspaciosTrabajo);
+  ul.appendChild(dashboardLiKanban);
 
   // Montamos el nav
   nav.appendChild(hr1);
