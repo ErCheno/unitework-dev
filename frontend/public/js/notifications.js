@@ -28,8 +28,7 @@ export async function actualizarNotificaciones() {
 // Llamar a esta función cuando sea necesario
 //actualizarNotificaciones();
 
-
-export async function createInvitation(gmail, workspaceId, boardId, rolEspacioTrabajo, rolTablero) {
+export async function createInvitation(gmail, workspaceId, boardId, rolTablero) {
   try {
     const token = localStorage.getItem('token');
 
@@ -49,7 +48,6 @@ export async function createInvitation(gmail, workspaceId, boardId, rolEspacioTr
         email: gmail,
         espacio_trabajo_id: workspaceId,
         tablero_id: boardId,
-        rol_espacio_trabajo: rolEspacioTrabajo,  // Pasamos los roles
         rol_tablero: rolTablero
       }),
     });
@@ -71,6 +69,8 @@ export async function createInvitation(gmail, workspaceId, boardId, rolEspacioTr
     throw new Error('Error al crear la invitación: ' + err.message);
   }
 }
+
+
 
 export async function getInvitations() {
   try {
@@ -108,7 +108,7 @@ export async function getInvitations() {
 }
 
 
-export async function acceptInvitation() {
+export async function acceptInvitation(invitacionId) {
   try {
     const token = localStorage.getItem('token');
 
@@ -124,21 +124,27 @@ export async function acceptInvitation() {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
       },
-      body: JSON.stringify({ token })
+      body: JSON.stringify({ invitacion_id: invitacionId })
     });
 
     const data = await response.json();
 
     if (!response.ok || !data.success) {
       console.error("Error al aceptar la invitación:", data.message);
-      // Aquí podrías lanzar una toast o mostrar el error en UI
+      showToast(data.message || "Hubo un problema al aceptar la invitación. Intenta nuevamente.", "error");
       return;
     }
 
     console.log("Invitación aceptada correctamente:", data.message);
-    // Aquí puedes refrescar la lista, navegar o actualizar el estado en UI
+    showToast(data.message, "success");
+    /*if (data.tablero_id) {
+      page(`/boards/${data.tablero_id}`);
+    } else {
+      showToast("No se ha recibido el ID del tablero", "error");
+    }*/
+
   } catch (error) {
     console.error("Error de red o servidor:", error);
-    // Muestra error genérico si el servidor no responde
+    showToast("Error de red o del servidor", "error");
   }
 }

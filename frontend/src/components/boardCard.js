@@ -75,13 +75,13 @@ export function BoardCard(board) {
 
   card.appendChild(boardHeader);
   card.appendChild(divIconosDebajo);
-  
+
   eliminar.addEventListener('click', async () => {
     const confirmado = await mostrarPopupConfirmacion();
     if (!confirmado) return;
-  
+
     //const usuarioId = localStorage.getItem('usuario_id');
-    
+
     try {
       await deleteBoards(board.id);
       card.remove(); // Eliminar la tarjeta del DOM directamente
@@ -89,7 +89,7 @@ export function BoardCard(board) {
       console.error("Error al eliminar el tablero:", error);
     }
   });
-  
+
 
 
   /*
@@ -166,6 +166,64 @@ export function mostrarPopupInvitacion(board) {
   const suggestionBox = document.createElement('div');
   suggestionBox.className = 'invite-suggestions';
 
+  // Contenedor para el input, selector y sugerencias en fila
+  const inputRoleContainer = document.createElement('div');
+  inputRoleContainer.className = 'invite-input-role-container';
+
+  // Contenedor para el selector de rol
+  const roleContainer = document.createElement('div');
+  roleContainer.className = 'invite-role-container';
+
+  const selectWrapper = document.createElement('div');
+  selectWrapper.className = 'select-wrapper';
+  // Crear el icono de Font Awesome
+  const icon = document.createElement('i');
+  icon.className = 'fa fa-chevron-down'; // Añadir la clase de Font Awesome
+
+  const selectBox = document.createElement('div');
+  selectBox.className = 'select-box';
+  selectBox.textContent = 'Miembro'; // Rol por defecto
+
+
+  selectBox.appendChild(icon);
+
+  const roleOptions = document.createElement('div');
+  roleOptions.className = 'role-options';
+
+  const memberOption = document.createElement('div');
+  memberOption.className = 'role-option';
+  memberOption.textContent = 'Miembro';
+
+  const adminOption = document.createElement('div');
+  adminOption.className = 'role-option';
+  adminOption.textContent = 'Administrador';
+
+  roleOptions.appendChild(memberOption);
+  roleOptions.appendChild(adminOption);
+
+  selectBox.addEventListener('click', () => {
+    roleOptions.classList.toggle('open');
+  });
+
+  memberOption.addEventListener('click', () => {
+    selectBox.textContent = 'miembro';
+    roleOptions.classList.remove('open');
+  });
+
+  adminOption.addEventListener('click', () => {
+    selectBox.textContent = 'admin';
+    roleOptions.classList.remove('open');
+  });
+
+  selectWrapper.appendChild(selectBox);
+  selectWrapper.appendChild(roleOptions);
+
+  roleContainer.appendChild(selectWrapper);
+
+  // Añadimos el input y el contenedor del rol al contenedor de fila
+  inputRoleContainer.appendChild(input);
+  inputRoleContainer.appendChild(roleContainer);
+
   const buttons = document.createElement('div');
   buttons.className = 'invite-buttons';
 
@@ -177,49 +235,83 @@ export function mostrarPopupInvitacion(board) {
   cancelBtn.textContent = 'Cancelar';
   cancelBtn.className = 'invite-cancel';
 
-  // Simulamos usuarios disponibles
- /* const users = [
-    { email: 'emilia@example.com', avatar: 'https://i.pravatar.cc/40?u=emilia' },
-    { email: 'emilio123@example.com', avatar: 'https://i.pravatar.cc/40?u=emilio' },
-    { email: 'pablo@example.com', avatar: 'https://i.pravatar.cc/40?u=pablo' },
-    { email: 'emma@example.com', avatar: 'https://i.pravatar.cc/40?u=emma' },
-  ];*/
+  /*input.addEventListener('input', async () => {
+    const value = input.value.trim().toLowerCase();
+    suggestionBox.textContent = '';
+
+    if (value.length > 0) {
+      const users = await getUsuariosDisponibles(board.id, value); // <-- Aquí usas la función real
+
+      users.forEach(user => {
+        const suggestion = document.createElement('div');
+        suggestion.className = 'suggestion-item';
+
+        const avatar = document.createElement('img');
+        avatar.src = user.avatar_url; // <-- usa el campo del backend
+        avatar.alt = 'Avatar';
+        avatar.className = 'suggestion-avatar';
+
+        const emailText = document.createElement('span');
+        emailText.textContent = user.email;
+
+        suggestion.append(avatar, emailText);
+        suggestion.addEventListener('click', () => {
+          input.value = user.email;
+          suggestionBox.textContent = '';
+        });
+
+        suggestionBox.appendChild(suggestion);
+      });
+    }
+  });*/
 
   input.addEventListener('input', async () => {
     const value = input.value.trim().toLowerCase();
     suggestionBox.textContent = '';
   
     if (value.length > 0) {
-      const users = await getUsuariosDisponibles(board.id, value); // <-- Aquí usas la función real
+      const users = await getUsuariosDisponibles(board.id, value);
   
       users.forEach(user => {
+        const isAlreadyMember = board.miembros.some(miembro => miembro.email === user.email); // compara por email
+  
         const suggestion = document.createElement('div');
         suggestion.className = 'suggestion-item';
+        if (isAlreadyMember) {
+          suggestion.classList.add('disabled'); // puedes usar esta clase para estilos grises
+        }
   
         const avatar = document.createElement('img');
-        avatar.src = user.avatar_url; // <-- usa el campo del backend
+        avatar.src = user.avatar_url;
         avatar.alt = 'Avatar';
         avatar.className = 'suggestion-avatar';
   
         const emailText = document.createElement('span');
-        emailText.textContent = user.email;
+        emailText.textContent = isAlreadyMember
+          ? `${user.email} (ya está en el tablero)`
+          : user.email;
   
         suggestion.append(avatar, emailText);
-        suggestion.addEventListener('click', () => {
-          input.value = user.email;
-          suggestionBox.textContent = '';
-        });
+  
+        if (!isAlreadyMember) {
+          suggestion.addEventListener('click', () => {
+            input.value = user.email;
+            suggestionBox.textContent = '';
+          });
+        }
   
         suggestionBox.appendChild(suggestion);
       });
     }
   });
+  
 
   enviarBtn.addEventListener('click', async () => {
     const email = input.value.trim();
+    const selectedRole = selectBox.textContent; // Obtener el rol seleccionado
     if (email) {
       console.log('Invitación enviada a:', email);
-      await createInvitation(email, board.espacio_trabajo_id, board.id, board.rol_espacio_trabajo, board.rol_tablero);
+      await createInvitation(email, board.espacio_trabajo_id, board.id, selectedRole); // Usar el rol seleccionado
       popup.remove();
     } else {
       input.classList.add('error');
@@ -232,10 +324,11 @@ export function mostrarPopupInvitacion(board) {
   });
 
   buttons.append(enviarBtn, cancelBtn);
-  container.append(title, input, suggestionBox, buttons);
+  container.append(title, inputRoleContainer, suggestionBox, buttons);
   popup.appendChild(container);
   document.body.appendChild(popup);
 }
+
 
 /*function crearAvatarDefecto(usuario) {
   const container = document.createElement('div');

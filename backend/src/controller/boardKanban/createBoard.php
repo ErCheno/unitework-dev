@@ -16,7 +16,8 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 // Verificar token y obtener el ID del usuario autenticado
 try {
-    $usuarioId = verificarToken($conn);
+    $usuario = verificarToken($conn);
+    $usuarioId = $usuario['id'];      // ID del usuario autenticado
 } catch (Exception $e) {
     http_response_code(401);
     echo json_encode(["success" => false, "message" => $e->getMessage()]);

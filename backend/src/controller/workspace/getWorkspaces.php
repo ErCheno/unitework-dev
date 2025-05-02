@@ -18,11 +18,12 @@ if (!$conn) {
 }
 
 // Obtener userId desde el token
-$userId = verificarToken($conn);
+$usuario = verificarToken($conn);
 
+$userId = $usuario['id'];      // ID del usuario autenticado
 // Obtener workspaces donde el usuario es miembro (ya sea creador o invitado)
 $stmt = $conn->prepare("
-    SELECT et.*, met.rol
+    SELECT DISTINCT et.*, met.rol
     FROM espacios_trabajo et
     INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
     WHERE met.usuario_id = ?

@@ -18,9 +18,10 @@ if (!$conn) {
     exit();
 }
 
-$userId = verificarToken($conn);
+$usuario = verificarToken($conn);
+$userId = $usuario['id'];
 
-// Obtener el email del usuario actual
+// Obtener el email del usuario autenticado
 $stmt = $conn->prepare("SELECT email FROM usuarios WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -34,15 +35,21 @@ if ($result->num_rows === 0) {
 $email = $result->fetch_assoc()['email'];
 $stmt->close();
 
-// Actualizar invitaciones expiradas a estado 'expirada'
-$updateExpired = $conn->query("UPDATE invitaciones SET estado = 'expirada' WHERE estado = 'pendiente' AND fecha_expiracion IS NOT NULL AND fecha_expiracion < NOW()");
+// Marcar como expiradas las invitaciones pendientes cuya fecha ya venció
+$updateExpired = $conn->query("
+    UPDATE invitaciones 
+    SET estado = 'expirada' 
+    WHERE estado = 'pendiente' 
+      AND fecha_expiracion IS NOT NULL 
+      AND fecha_expiracion < NOW()
+");
 
 if (!$updateExpired) {
     echo json_encode(["success" => false, "message" => "Error al actualizar las invitaciones expiradas"]);
     exit;
 }
 
-// Buscar invitaciones PENDIENTES válidas (no expiradas)
+// Consultar invitaciones pendientes válidas con datos del remitente en una sola consulta
 $stmt = $conn->prepare("
     SELECT 
         i.id, 
@@ -56,13 +63,17 @@ $stmt = $conn->prepare("
         i.fecha_expiracion,
         i.remitente_id,
         et.nombre AS nombre_espacio_trabajo,
-        t.nombre AS nombre_tablero
+        t.nombre AS nombre_tablero,
+        u.nombre AS nombre_remitente,
+        u.avatar_url AS avatar_url_remitente
     FROM 
         invitaciones i
     LEFT JOIN 
         espacios_trabajo et ON i.espacio_trabajo_id = et.id
     LEFT JOIN 
         tableros t ON i.tablero_id = t.id
+    LEFT JOIN 
+        usuarios u ON i.remitente_id = u.id
     WHERE 
         i.email = ? AND i.estado = 'pendiente'
     ORDER BY 
@@ -73,31 +84,15 @@ $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
 
-
 $invitaciones = [];
 
-
 while ($row = $result->fetch_assoc()) {
-    // Obtener nombre y avatar del remitente utilizando el remitente_id
-    $remitenteId = $row['remitente_id'];
-    if (isset($remitenteId) && $remitenteId != null) {
-        $stmtRemitente = $conn->prepare("SELECT nombre, avatar_url FROM usuarios WHERE id = ?");
-        $stmtRemitente->bind_param("i", $remitenteId);
-        $stmtRemitente->execute();
-        $remitenteResult = $stmtRemitente->get_result();
-
-        if ($remitenteResult->num_rows > 0) {
-            $remitente = $remitenteResult->fetch_assoc();
-            $row['nombre_remitente'] = $remitente['nombre'];  // Agregar el nombre del remitente
-            $row['avatar_url_remitente'] = $remitente['avatar_url'];  // Agregar el avatar_url del remitente
-        } else {
-            $row['nombre_remitente'] = 'Usuario desconocido';  // En caso de no encontrar al remitente
-            $row['avatar_url_remitente'] = null;  // No hay avatar disponible
-        }
-        $stmtRemitente->close();
-    } else {
-        $row['nombre_remitente'] = 'Usuario desconocido';  // En caso de que no haya remitente_id
-        $row['avatar_url_remitente'] = null;  // No hay avatar disponible
+    // Si el remitente es null, poner valores por defecto
+    if (!$row['nombre_remitente']) {
+        $row['nombre_remitente'] = 'Usuario desconocido';
+    }
+    if (!$row['avatar_url_remitente']) {
+        $row['avatar_url_remitente'] = null;
     }
 
     $invitaciones[] = $row;

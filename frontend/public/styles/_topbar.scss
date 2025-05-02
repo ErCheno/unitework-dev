@@ -495,15 +495,6 @@
   justify-content: center;
 }
 
-.btn-notif {
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 20px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
 .btn-aceptar {
   background-color: #28a745;
   color: white;
@@ -562,50 +553,6 @@
     font-size: 0.9em; /* Ajusta el tamaño si es necesario */
     margin-top: 5px; /* Separa el texto en cursiva */
   }
-  
-  .notif-content {
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 1.2;
-    margin: 0;
-    padding: 0;
-  }
-
-}
-
-.notif-icon {
-  margin-right: 10px;
-}
-
-.notif-content {
-  font-weight: bold;
-}
-
-.notif-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.btn-notif {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.btn-aceptarNotif {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-cancelarNotif {
-  background-color: #f44336;
-  color: white;
-}
-
-.notif-actions button {
-  flex-grow: 1;
-  /* Esto hace que los botones ocupen el mismo espacio */
 }
 
 
@@ -707,11 +654,6 @@
   display: inline-block;
 }
 
-.notif-icon {
-  margin: 10px;
-  color: #666;
-  font-size: 18px;
-}
 
 .notif-badge {
   position: absolute;
@@ -739,12 +681,14 @@
 }
 
 .btn-notif {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+  padding: 0.4rem;
+  max-width: 150px;
+  width: 150px;
+  font-size: 14px;
   cursor: pointer;
   border: 1px solid transparent;
   border-radius: 10px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-aceptarNotif {
@@ -753,16 +697,16 @@
 }
 
 .btn-aceptarNotif:hover {
-  background-color: $third-color;
+  background-color: darken($third-color,10%);
 }
 
 .btn-cancelarNotif {
-  background-color: $seventh-color;
-  color: white;
+  color: $seventh-color;
+  border: 1px solid $seventh-color;
 }
 
 .btn-cancelarNotif:hover {
-  background-color: $seventh-color;
+  border: 1px solid darken($seventh-color,20%);
 }
 
 
@@ -817,6 +761,141 @@
   font-size: 1.5rem;
   color: #333;
 }
+
+
+
+/* Contenedor para los elementos en fila (input, rol y sugerencias) */
+.invite-input-role-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 15px; /* Espaciado entre los elementos */
+}
+
+/* Estilo del input */
+.invite-input {
+  width: 60%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  background-color: #f4f4f4;
+  font-size: 16px;
+  flex-grow: 1; /* Hace que el input ocupe el espacio disponible */
+}
+
+/* Contenedor del selector de rol */
+.invite-role-container {
+  display: flex;
+  align-items: center;
+  width: 30%;
+  justify-content: center;
+}
+
+/* Etiqueta del rol */
+.invite-role-container label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-right: 10px;
+}
+
+/* Estilo del select box */
+.invite-role-container .select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 150px; /* Controla el tamaño del selector */
+}
+
+.invite-role-container .select-box {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  background-color: #f4f4f4;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin: 0px 0px 8px;
+
+}
+
+.invite-role-container .select-box:hover {
+  background-color: #e0e0e0;
+}
+
+/* Opciones del rol */
+.invite-role-container .role-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.invite-role-container .role-options.open {
+  display: flex;
+}
+
+.invite-role-container .role-option {
+  padding: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.invite-role-container .role-option:hover {
+  background-color: #f0f0f0;
+}
+
+.invite-role-container .role-option.selected {
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Estilos del avatar en el selector */
+.invite-role-container .role-option img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* Estilos de los botones de acción */
+.invite-buttons button {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.invite-buttons button:hover {
+  background-color: #45a049;
+}
+
+.invite-buttons .invite-cancel {
+  background-color: #f44336;
+}
+
+.invite-buttons .invite-cancel:hover {
+  background-color: #e53935;
+}
+
 
 .invite-buttons {
   display: flex;

@@ -152,7 +152,7 @@ export function TopNavbar() {
 
 
   // Función para crear una notificación
-  
+
   notifDropdown.appendChild(notifList);
 
   // Footer
@@ -355,7 +355,7 @@ export function mostrarEditPerfil() {
 
         // Actualiza el avatar en el icono de la barra de navegación
         if (userIcon.tagName === 'IMG') {
-          userIcon.src = newAvatarUrl;
+          userIcon.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/'+newAvatarUrl;
         }
 
         showToast('Avatar actualizado', 'success');
@@ -418,18 +418,21 @@ export async function cargarInvitaciones(notifList, notifBadge) {
     const invitations = await getInvitations();
 
     for (const inv of invitations) {
-      const { id_invitacion, tablero_id, remitente_id, nombre_tablero, nombre_espacio_trabajo, nombre_remitente, avatar_url_remitente} = inv;
+      const { id_invitacion, nombre_tablero, nombre_espacio_trabajo, nombre_remitente, avatar_url_remitente } = inv;
 
-      // Obtener todos los usuarios disponibles en ese tablero (puedes optimizar esto si es muy pesado)
-      const usuarios = await getUsuariosDisponibles(tablero_id);
-      const remitente = usuarios.find(u => u.id === remitente_id);
 
       const nombreRemitente = nombre_remitente || 'Usuario desconocido';
       const avatarRemitente = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/'+avatar_url_remitente || 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';
 
+      /*const avatarRemitente = avatar_url_remitente
+        ? 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/' + avatar_url_remitente
+        : 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';*/
+      
+      //console.log(inv);
+
       const aceptar = async (li) => {
         try {
-          await aceptarInvitacion(id_invitacion);
+          await acceptInvitation(inv.id);
           li.remove();
         } catch (err) {
           console.error('Error al aceptar invitación:', err);
@@ -487,7 +490,7 @@ export function crearNotificacion(
   // Contenedor de la imagen (Avatar)
   const contenedorAvatar = document.createElement('div');
   contenedorAvatar.classList.add('notif-avatar-container');
-  
+
   // Avatar si está disponible
   if (avatarUrl) {
     const avatar = document.createElement('img');
@@ -501,10 +504,6 @@ export function crearNotificacion(
   const contenedorTexto = document.createElement('div');
   contenedorTexto.classList.add('notif-texto-container');
 
-  // Icono
-  const icon = document.createElement('i');
-  icon.className = `notif-icon ${iconClass}`;
-  contenedorTexto.appendChild(icon);
 
   // Contenido del mensaje
   const contenido = document.createElement('span');
@@ -543,6 +542,8 @@ export function crearNotificacion(
     btnAceptar.classList.add('btn-notif', 'btn-aceptarNotif');
     btnAceptar.addEventListener('click', async (e) => {
       e.stopPropagation();
+      console.log('Invitación aceptada desde popup');
+      //acceptInvitation();
       if (typeof onAceptar === 'function') await onAceptar(li);
     });
 
@@ -585,7 +586,7 @@ export function mostrarPopupDetallesInvitacion({ titulo, mensaje, tipo }) {
   // Botón de cerrar (icono X de FontAwesome)
   const closeBtn = document.createElement('button');
   closeBtn.classList.add('invite-close-btn');
-  
+
   // Crear el icono <i> manualmente
   const icon = document.createElement('i');
   icon.classList.add('fas', 'fa-times');
@@ -594,11 +595,11 @@ export function mostrarPopupDetallesInvitacion({ titulo, mensaje, tipo }) {
   closeBtn.setAttribute('aria-label', 'Cerrar');
 
   closeBtn.appendChild(icon);
-  
+
   closeBtn.addEventListener('click', () => {
     overlay.remove();
   });
-  
+
 
   const h2 = document.createElement('h2');
   h2.textContent = titulo;
@@ -615,7 +616,7 @@ export function mostrarPopupDetallesInvitacion({ titulo, mensaje, tipo }) {
 
   aceptarBtn.addEventListener('click', () => {
     console.log('Invitación aceptada desde popup');
-    acceptInvitation()
+    //acceptInvitation();
     overlay.remove();
   });
 
@@ -640,4 +641,3 @@ export function mostrarPopupDetallesInvitacion({ titulo, mensaje, tipo }) {
 }
 
 
- 

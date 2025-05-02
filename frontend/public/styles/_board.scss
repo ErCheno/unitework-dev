@@ -360,8 +360,8 @@
     background: #fff;
     padding: 2rem;
     border-radius: 1rem;
-    width: 90%;
-    max-width: 400px;
+    width: 100%;
+    max-width: 600px;
     box-shadow: 0 0 20px rgba(0,0,0,0.3);
     text-align: center;
     animation: popup-fade-in 0.3s ease-out;
@@ -422,6 +422,13 @@
         }
       }
     }
+
+    .suggestion-item.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: default;
+    }
+    
 
     .invite-buttons {
       display: flex;

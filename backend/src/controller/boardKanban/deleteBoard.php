@@ -20,8 +20,8 @@ if (!$input || empty($input['tablero_id'])) {
 }
 
 $tableroId = $input['tablero_id'];
-$usuarioId = verificarToken($conn);
-
+$usuario = verificarToken($conn);
+$usuarioId = $usuario['id'];      // ID del usuario autenticado
 // Obtener el espacio de trabajo al que pertenece el tablero
 $stmt = $conn->prepare("SELECT espacio_trabajo_id FROM tableros WHERE id = ?");
 $stmt->bind_param("i", $tableroId);

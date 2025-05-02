@@ -12,7 +12,7 @@ function verificarToken($conn)
 
     $token = str_replace('Bearer ', '', $headers['Authorization']);
 
-    $stmt = $conn->prepare("SELECT id FROM usuarios WHERE token = ? AND token_expira > NOW()");
+    $stmt = $conn->prepare("SELECT id, email FROM usuarios WHERE token = ? AND token_expira > NOW()");
     $stmt->bind_param("s", $token);
     $stmt->execute();
     $res = $stmt->get_result();
@@ -23,6 +23,5 @@ function verificarToken($conn)
         exit();
     }
 
-    $usuario = $res->fetch_assoc();
-    return $usuario['id'];
+    return $res->fetch_assoc(); // Devuelve ['id' => ..., 'email' => ...]
 }
