@@ -25,33 +25,33 @@ export function Navbar() {
 
   toggleBtn.addEventListener('click', () => {
     nav.classList.toggle('open');
-  
+
     const topNavbar = document.querySelector('.top-navbar-container');
     const mainContent = document.querySelector('.main-content');
-  
+
     if (mainContent) {
       mainContent.classList.toggle('shifted', nav.classList.contains('open'));
     }
-  
+
     topNavbar.classList.toggle('top-navbar-compact', nav.classList.contains('open'));
     topNavbar.classList.toggle('top-navbar-moved', nav.classList.contains('open'));
-  
-    toggleBtn.style.left = nav.classList.contains('open') ? '230px' : '0px';
+
+    toggleBtn.style.left = nav.classList.contains('open') ? '210px' : '0px';
     icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
-  
+
     hr1.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
     hr2.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
-  
+
     document.body.classList.toggle('sidebar-open', nav.classList.contains('open'));
   });
-  
+
 
   // UL para contener los elementos del menú
   const ul = document.createElement('ul');
 
   // Novedades / Dashboard
   // Crear el li contenedor para la barra de búsqueda
-  const buscarLi = document.createElement('li');
+  /*const buscarLi = document.createElement('li');
   buscarLi.id = 'buscarLi';
 
   const buscarDiv = document.createElement('div');
@@ -68,43 +68,49 @@ export function Navbar() {
 
   buscarDiv.appendChild(buscarIcon);
   buscarDiv.appendChild(buscarInput);
-  buscarLi.appendChild(buscarDiv); // <li><div><input></div></li>
-
+  buscarLi.appendChild(buscarDiv); // <li><div><input></div></li>*/
   const dashboardLiNovedades = document.createElement('li');
   const dashboardLinkNovedades = document.createElement('a');
   const iDashboard = document.createElement('i');
+  const spanNovedades = document.createElement('span');
 
   iDashboard.className = 'fa-solid fa-house';
   dashboardLinkNovedades.href = '/dashboard';
-  dashboardLinkNovedades.textContent = ' Novedades';
-  dashboardLinkNovedades.prepend(iDashboard);
+  spanNovedades.textContent = ' Novedades';
+  dashboardLinkNovedades.appendChild(iDashboard);
+  dashboardLinkNovedades.appendChild(spanNovedades);
   dashboardLiNovedades.appendChild(dashboardLinkNovedades);
 
   const dashboardLiEspaciosTrabajo = document.createElement('li');
   const dashboardLinkEspaciosTrabajos = document.createElement('a');
   const iDashboardEspaciosTrabajo = document.createElement('i');
+  const spanEspaciosTrabajo = document.createElement('span');
 
   iDashboardEspaciosTrabajo.className = 'fa-solid fa-toolbox';
   dashboardLinkEspaciosTrabajos.href = '/myworkspaces';
-  dashboardLinkEspaciosTrabajos.textContent = ' Mis espacios de Trabajo';
-  dashboardLinkEspaciosTrabajos.prepend(iDashboardEspaciosTrabajo);
+  spanEspaciosTrabajo.textContent = ' Mis espacios de Trabajo';
+  dashboardLinkEspaciosTrabajos.appendChild(iDashboardEspaciosTrabajo);
+  dashboardLinkEspaciosTrabajos.appendChild(spanEspaciosTrabajo);
   dashboardLiEspaciosTrabajo.appendChild(dashboardLinkEspaciosTrabajos);
 
   const dashboardLiKanban = document.createElement('li');
   const dashboardLinkKanban = document.createElement('a');
   const iDashboardKanban = document.createElement('i');
-  
+  const spanKanban = document.createElement('span');
+
   iDashboardKanban.className = 'fa-solid fa-columns';
   dashboardLinkKanban.href = '/kanban';
-  dashboardLinkKanban.textContent = ' Tablero Kanban';
-  dashboardLinkKanban.prepend(iDashboardKanban);
+  spanKanban.textContent = ' Tablero Kanban';
+  dashboardLinkKanban.appendChild(iDashboardKanban);
+  dashboardLinkKanban.appendChild(spanKanban);
   dashboardLiKanban.appendChild(dashboardLinkKanban);
-  
+
+
 
   // Logout
   const divDebajo = document.createElement('div');
   divDebajo.id = 'divDebajo';
-  
+
   const logoutIco = document.createElement('i');
   logoutIco.id = 'logoutIco'
   logoutIco.className = 'fa-solid fa-right-from-bracket';
@@ -118,7 +124,7 @@ export function Navbar() {
   divDebajo.appendChild(configIco);
 
   // Añadir todos los <li> al <ul>
-  ul.appendChild(buscarLi);
+  //ul.appendChild(buscarLi);
 
   ul.appendChild(dashboardLiNovedades);
   ul.appendChild(dashboardLiEspaciosTrabajo);

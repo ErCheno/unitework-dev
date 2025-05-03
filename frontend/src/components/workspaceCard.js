@@ -184,9 +184,10 @@ export function WorkspaceCard(ws) {
         }
     });
 
-
-
-
+    card.addEventListener('click', () => {
+        page(`/workspace/${ws.id}`); // Redirige a la página del workspace con el ID del workspace
+    });
+    
     return card;
 }
 

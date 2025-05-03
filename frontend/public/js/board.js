@@ -1,11 +1,12 @@
 import page from 'page';
 import { showToast } from "./validator/regex.js";
 import { workspacePage } from '../../src/pages/workspacePage.js';
+import { getToken } from './auth.js';
 
 export async function fetchBoards(workspaceId) {
     try {
 
-        const token = localStorage.getItem('token');
+        const token = getToken();
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -43,7 +44,7 @@ export async function fetchBoards(workspaceId) {
 
 export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
     try {
-        const token = localStorage.getItem('token');
+        const token = getToken();
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -85,7 +86,7 @@ export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
 export async function deleteBoards(tableroId) {
     try {
 
-        const token = localStorage.getItem('token');
+        const token = getToken();
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");

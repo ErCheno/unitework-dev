@@ -1,8 +1,9 @@
 import { showToast } from "../js/validator/regex";
 import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
+import { getToken } from "./auth.js";
 
 export async function fetchWorkspaces() {
-    const token = localStorage.getItem('token'); // Asegúrate de que el token esté guardado al iniciar sesión
+    const token = getToken(); // Asegúrate de que el token esté guardado al iniciar sesión
     console.log(token);
     if (!token) {
         showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -36,7 +37,7 @@ export async function fetchWorkspaces() {
 
 export async function createWorkspaces(nombre, descripcion, modal) {
     try {
-        const token = localStorage.getItem('token'); // Asegúrate de que el token esté guardado al iniciar sesión
+        const token = getToken(); // Asegúrate de que el token esté guardado al iniciar sesión
         console.log(token);
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -77,7 +78,7 @@ export async function createWorkspaces(nombre, descripcion, modal) {
 
 export async function deleteWorkspaces(espacioTrabajoId) {
     try {
-        const token = localStorage.getItem('token'); // Asegúrate de tener el token guardado al iniciar sesión
+        const token = getToken(); // Asegúrate de tener el token guardado al iniciar sesión
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -117,7 +118,7 @@ export async function deleteWorkspaces(espacioTrabajoId) {
 
 export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
     try {
-        const token = localStorage.getItem('token');
+        const token = getToken();
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");

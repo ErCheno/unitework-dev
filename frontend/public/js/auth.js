@@ -16,7 +16,7 @@ export function setToken(token, remember) {
 
 // Función para verificar el token en el backend
 export async function checkToken() {
-    const token = localStorage.getItem("token");
+    const token = getToken(); // Usamos la función unificada
 
     if (!token) {
         alert("No hay token, redirigiendo al login...");
@@ -40,7 +40,7 @@ export async function checkToken() {
 
         if (result.status === 'success') {
             console.log("Token válido:", result.user);  // El token es válido
-            
+
 
             return result.user;  // Devolver los datos del usuario si el token es válido
         } else {
@@ -55,21 +55,26 @@ export async function checkToken() {
     }
 }
 
-// Función para cerrar sesión
+// Eliminar el token de ambos almacenamientos y otros datos
 export function logoutUser() {
-    localStorage.removeItem("token");
-    localStorage.removeItem('avatar_url');
-    localStorage.removeItem('usuario_id');
-    localStorage.removeItem('usuarioId');
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
-    sessionStorage.removeItem("token");
-    window.location.href = "/login";  // Redirige al login
+    eliminarToken();
+
+    // Eliminar otros posibles datos almacenados
+    localStorage.removeItem("avatar_url");
+    localStorage.removeItem("usuario_id");
+    localStorage.removeItem("usuarioId");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+
+    window.location.href = "/login";
 }
 
+// Eliminar el token sin redireccionar
 export function eliminarToken() {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
 }
+
 // Función para verificar si hay un token almacenado
 export function isAuthenticated() {
     return !!getToken();  // Retorna true si el token está presente

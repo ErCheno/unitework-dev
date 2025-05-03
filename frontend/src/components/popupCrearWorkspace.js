@@ -159,11 +159,10 @@ export function CreateWorkspaceModal() {
             modal.style.display = 'none';
         }
     });
-
-    btnCrear.addEventListener('click', async () => {
+    // Acción principal
+    async function handleCreateWorkspace() {
         const nombre = inputTitulo.value.trim();
         const descripcion = inputDescripcion.value.trim();
-        //const usuarioId = localStorage.getItem('usuario_id');
 
         console.log(nombre);
         console.log(descripcion);
@@ -174,8 +173,21 @@ export function CreateWorkspaceModal() {
         }
 
         createWorkspaces(nombre, descripcion, modal);
+    }
 
+    // Al hacer clic en el botón
+    btnCrear.addEventListener('click', handleCreateWorkspace);
+
+    // Al presionar Enter en el input de título o descripción
+    [inputTitulo, inputDescripcion].forEach(input => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evita comportamiento por defecto como enviar un formulario
+                handleCreateWorkspace();
+            }
+        });
     });
+
 
     // Método para mostrar
     modal.show = () => {

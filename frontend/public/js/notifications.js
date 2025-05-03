@@ -1,6 +1,7 @@
 // Función para obtener las notificaciones
 import page from "page";
 import { showToast } from "./validator/regex";
+import { getToken } from "./auth";
 export async function actualizarNotificaciones() {
   try {
     const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/invitation.php');
@@ -30,7 +31,7 @@ export async function actualizarNotificaciones() {
 
 export async function createInvitation(gmail, workspaceId, boardId, rolTablero) {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
 
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -74,7 +75,7 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
 
 export async function getInvitations() {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
 
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -110,7 +111,7 @@ export async function getInvitations() {
 
 export async function acceptInvitation(invitacionId) {
   try {
-    const token = localStorage.getItem('token');
+    const token = getToken();
 
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");

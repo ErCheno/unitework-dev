@@ -52,7 +52,7 @@ export function DashboardPage() {
     // h1 y párrafo
     const h1 = document.createElement('h1');
     const usuarioId = localStorage.getItem('username');
-    h1.textContent = '¡Bienvenido '+usuarioId+'!';
+    h1.textContent = '¡Bienvenid@ '+usuarioId+'!';
     leftColumn.appendChild(h1);
 
     const p = document.createElement('p');
