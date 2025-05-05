@@ -17,7 +17,7 @@ export async function fetchWorkspaces() {
                 'Authorization': `Bearer ${token}` // Envías el token aquí
             },
             body: JSON.stringify({
-            }),        
+            }),
         });
 
         const data = await response.json();
@@ -58,19 +58,24 @@ export async function createWorkspaces(nombre, descripcion, modal) {
 
         const result = await response.json(); // Esperas la respuesta del backend
 
-        if (result.status === true || result.status === "success") { 
+        if (result.status === true || result.status === "success") {
             // Verificas si el resultado es exitoso
             showToast("Espacio creado con éxito", "success");
             modal.style.display = 'none';
             modal.remove();
 
             myWorkspacesPage(); // Recargar los espacios de trabajo
+            return result.workspace_id; // ← ¡Esto es clave! Devuelves el nuevo workspace
         } else {
             showToast(result.message || "Error al crear espacio", "error"); // En caso de error
+            return null;
+
         }
     } catch (err) {
         console.error(err);
         alert('Error en la petición'); // Mostrar un alert si ocurre un error
+        return null;
+
     }
 }
 
@@ -150,5 +155,27 @@ export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
     } catch (error) {
         showToast('Error de conexión con el servidor', 'error');
         console.error('Error en updateWorkspace:', error);
+    }
+}
+
+
+export async function getUsuariosDisponiblesWorkspace(workspaceId, filtro = "") {
+    try {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsersWorkspace.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ espacio_trabajo_id: workspaceId, filtro })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
     }
 }

@@ -28,19 +28,13 @@ body {
         margin-top: 50px;
         font-size: 34px;
         position: absolute;
-        transition: transform 0.3s ease; // animación suave
+        transition: transform 0.3s ease;
     }
 
     p {
         text-align: left;
     }
 }
-
-// Cuando el sidebar está abierto, movemos el h3
-/*.sidebar-open .dashboard-right h3 {
-    transform: translateX(-70px);
-}*/
-
 
 .dashboard-left {
     width: 40%;
@@ -49,23 +43,6 @@ body {
 
 .dashboard-right {
     width: 50%;
-
-}
-
-.dashboard-left h1 {
-    width: 100%;
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.dashboard-left p {
-    font-size: 1.2rem;
-    color: $colorParrafo;
-    margin-bottom: 20px;
-}
-
-.dashboard-right {
     align-items: center;
     text-align: center;
 
@@ -81,9 +58,19 @@ body {
         font-size: 1.1rem;
         color: $colorParrafo;
     }
+}
 
+.dashboard-left h1 {
+    width: 100%;
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
 
-
+.dashboard-left p {
+    font-size: 1.2rem;
+    color: $colorParrafo;
+    margin-bottom: 20px;
 }
 
 .dashboard-logo {
@@ -94,26 +81,13 @@ body {
     margin-bottom: 20px;
 }
 
-
-
-/* Asegurarnos de que el contenedor del contenido ocupe el 100% del ancho */
 #content {
     display: flex;
     flex-direction: column;
     height: 100%;
-    /* Ocupa toda la altura de la ventana */
     width: 90%;
     padding-top: 60px;
-    /* Espacio debajo del topbar */
 }
-
-/**.sidebar-container {
-    width: 250px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-  }**/
 
 .divMainContent {
     width: 85%;
@@ -124,9 +98,7 @@ body {
     p {
         font-size: large;
         color: $colorParrafo;
-
     }
-
 
     img {
         margin-top: 25px;
@@ -134,8 +106,6 @@ body {
         height: 100px;
         border-radius: 50%;
     }
-
-
 }
 
 #div3 {
@@ -176,25 +146,14 @@ body {
             transform: scale(1.05);
         }
     }
-
 }
 
-
 .main-content {
-
-    width: calc(100% - 0px);
+    width: 100%;
     padding: 20px;
     background-color: #f4f4f4;
     height: 100%;
-    /* Asegura que se ajuste a la altura */
     z-index: 0;
-    /*box-shadow: 0px 4px 10px $primary-color;*/
-
-}
-
-.main-content {
-    padding: 20px;
-    transition: margin-left 0.3s ease, width 0.3s ease;
 
     h1 {
         font-size: 50px;
@@ -203,9 +162,7 @@ body {
 
 #content.shifted {
     width: calc(100% - 300px);
-
 }
-
 
 #sabermas {
     margin-bottom: 30px;
@@ -216,17 +173,7 @@ body {
         font-weight: bolder;
         cursor: pointer;
     }
-
 }
-
-
-/*.top-navbar-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 10;
-  }*/
 
 h1 {
     width: 50%;
@@ -236,26 +183,107 @@ h1 {
 
 #dashboardCarousel {
     visibility: hidden;
-
     border: 4px solid $primary-color;
-    border-radius: 20px;    
+    border-radius: 20px;
     box-shadow: 0 2px 5px 2px $primary-color;
-    max-width: 600px; /* o lo que quieras */
+    max-width: 600px;
     margin: auto;
     overflow: hidden;
-  }
-  #dashboardCarousel.show-carousel {
-    visibility: visible;
-  }
-  .carousel-inner {
+
+    &.show-carousel {
+        visibility: visible;
+    }
+}
+
+.carousel-inner {
     width: 100%;
-    height: 300px; /* fija altura para evitar saltos */
-  }
-  
-  .carousel-inner .carousel-item img {
+    height: 300px;
+}
+
+.carousel-inner .carousel-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-  
- 
+}
+
+/* ---------- MEDIA QUERIES ---------- */
+
+/* Portátiles (<=1024px) */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .dashboard-left,
+    .dashboard-right {
+        width: 100%;
+        align-items: center;
+    }
+
+    .dashboard-right p {
+        width: 80%;
+    }
+
+    #div3 {
+        width: 80%;
+    }
+
+    .divMainContent {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+
+    #sabermas {
+        width: 80%;
+    }
+}
+
+/* Móviles y tablets (<=768px) */
+@media (max-width: 768px) {
+    .dashboard-left h1 {
+        font-size: 2rem;
+    }
+
+    .dashboard-left p,
+    .dashboard-right p {
+        font-size: 1rem;
+        width: 90%;
+    }
+
+    .dashboard-right h3 {
+        font-size: 1.5rem;
+        position: static;
+        margin-top: 20px;
+    }
+
+    .kanban-btn {
+        width: 80%;
+    }
+
+    #div3 {
+        padding: 30px;
+        width: 95%;
+    }
+
+    .dashboard-logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .carousel-inner {
+        height: 200px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        width: 90%;
+    }
+
+    #sabermas {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -138,6 +138,49 @@ export async function acceptInvitation(invitacionId) {
 
     console.log("Invitación aceptada correctamente:", data.message);
     showToast(data.message, "success");
+    page(page.current); // recarga la ruta actual
+    /*if (data.tablero_id) {
+      page(`/boards/${data.tablero_id}`);
+    } else {
+      showToast("No se ha recibido el ID del tablero", "error");
+    }*/
+
+  } catch (error) {
+    console.error("Error de red o servidor:", error);
+    showToast("Error de red o del servidor", "error");
+  }
+}
+
+
+export async function denyInvitation(invitacionId) {
+  try {
+    const token = getToken();
+
+    if (!token) {
+      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+      page("/login");
+      return;
+    }
+
+    const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/denyInvitation.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+      body: JSON.stringify({ invitacion_id: invitacionId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      console.error("Error al denegar la invitación:", data.message);
+      showToast(data.message || "Hubo un problema al aceptar la invitación. Intenta nuevamente.", "error");
+      return;
+    }
+
+    console.log("Invitación denegada:", data.message);
+    showToast(data.message, "info");
     /*if (data.tablero_id) {
       page(`/boards/${data.tablero_id}`);
     } else {

@@ -36,7 +36,7 @@ export function Navbar() {
     topNavbar.classList.toggle('top-navbar-compact', nav.classList.contains('open'));
     topNavbar.classList.toggle('top-navbar-moved', nav.classList.contains('open'));
 
-    toggleBtn.style.left = nav.classList.contains('open') ? '210px' : '0px';
+    toggleBtn.style.left = nav.classList.contains('open') ? '215px' : '10px';
     icon.className = nav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
 
     hr1.style.opacity = nav.classList.contains('open') ? '100%' : '0%';
@@ -72,6 +72,7 @@ export function Navbar() {
   const dashboardLiNovedades = document.createElement('li');
   const dashboardLinkNovedades = document.createElement('a');
   const iDashboard = document.createElement('i');
+  iDashboard.title = 'Novedades';
   const spanNovedades = document.createElement('span');
 
   iDashboard.className = 'fa-solid fa-house';
@@ -87,6 +88,8 @@ export function Navbar() {
   const spanEspaciosTrabajo = document.createElement('span');
 
   iDashboardEspaciosTrabajo.className = 'fa-solid fa-toolbox';
+  iDashboardEspaciosTrabajo.title = 'Mis espacios de Trabajo';
+
   dashboardLinkEspaciosTrabajos.href = '/myworkspaces';
   spanEspaciosTrabajo.textContent = ' Mis espacios de Trabajo';
   dashboardLinkEspaciosTrabajos.appendChild(iDashboardEspaciosTrabajo);

@@ -43,7 +43,7 @@ $invitacion = $result->fetch_assoc();
 $stmt->close();
 
 // Rechazar la invitación
-$stmt = $conn->prepare("UPDATE invitaciones SET estado = 'rechazada', fecha_respuesta = NOW() WHERE id = ?");
+$stmt = $conn->prepare("UPDATE invitaciones SET estado = 'rechazada', fecha_aceptacion = NOW() WHERE id = ?");
 $stmt->bind_param("i", $invitacionId);
 $success = $stmt->execute();
 $stmt->close();

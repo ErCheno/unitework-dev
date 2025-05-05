@@ -35,8 +35,7 @@ if (isset($data["email"], $data["password"])) {
             // Generar un token aleatorio
             $token = bin2hex(random_bytes(32));
 
-            // Establecer expiración en 1 hora (3600 segundos)
-            $expires_at = time() + 360000;
+            $expires_at = time() + (12 * 60 * 60); // 12 horas en segundos
 
             // Guardar token y expiración en la base de datos
             $stmt = $conn->prepare("UPDATE usuarios SET token = ?, token_expira = FROM_UNIXTIME(?) WHERE email = ?");

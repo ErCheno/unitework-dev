@@ -62,7 +62,7 @@ nav.sidebar {
 
   ul {
     list-style: none;
-    padding: 0px;
+    padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -136,13 +136,10 @@ nav.sidebar {
   }
 }
 
-
-
 /* Botón toggle */
 #toggleBtn {
   position: fixed;
   top: 5px;
-  left: 0.1rem;
   font-size: 30px;
   background: none;
   border: none;
@@ -150,14 +147,11 @@ nav.sidebar {
   cursor: pointer;
   z-index: 201;
   transition: left 0.3s ease;
-  margin-left: 10px;
 
   i {
     font-size: 24px;
   }
 }
-
-
 
 .sidebar.open + #toggleBtn {
   left: 240px;
@@ -175,55 +169,6 @@ nav.sidebar {
 #hr2 {
   margin-top: 265%;
 }
-
-/*#buscarLi {
-  list-style: none;
-  align-self: center;
-  text-align: center;
-  padding: 0;
-  margin: 0;
-
-  #buscarDiv {
-    padding: 5px;
-    background-color: $colorFondoBuscarInput;
-    border-radius: 10px;
-    width: 80%;
-    transition: all 0.3s ease;
-
-    i {
-      width: 20px;
-      color: #ccc;
-      margin: 5px;
-    }
-
-    .buscar-input {
-      width: 70%;
-      padding: 10px;
-      border: none;
-      background-color: $colorFondoBuscarInput;
-      color: $colorTextoNav;
-      font-size: 15px;
-
-      &::placeholder {
-        color: darken($colorTextoNav, 10%);
-      }
-
-      &:focus {
-        outline: none;
-      }
-    }
-  }
-
-  &:has(input:focus) #buscarDiv {
-    padding: 20px;
-  }
-
-  .active #buscarDiv {
-    padding: 15px;
-    width: 80%;
-    background-color: lighten($colorSidebar, 8%);
-  }
-}*/
 
 /* Iconos debajo */
 #divDebajo {
@@ -255,10 +200,88 @@ nav.sidebar {
   }
 }
 
-/* Responsive */
+/* Responsive móviles */
 @media (max-width: 600px) {
-  nav.sidebar,
+  /*nav.sidebar,
   #toggleBtn {
     display: none;
+  }
+
+  .sidebar {
+    display: none;
+  }*/
+}
+
+/* Responsive tablets */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .sidebar {
+    width: 50px;
+
+    a i {
+      font-size: 18px;
+    }
+
+    a span {
+      font-size: 14px;
+    }
+
+    &.open a span {
+      max-width: 150px;
+    }
+
+    #divDebajo {
+      width: 220px;
+    }
+  }
+
+  #toggleBtn {
+    left: 0.3rem;
+
+    i {
+      font-size: 22px;
+    }
+  }
+
+  .sidebar.open + #toggleBtn {
+    left: 200px;
+  }
+}
+
+/* Responsive PC */
+@media (min-width: 1025px) {
+  .sidebar {
+    width: 60px;
+
+    &.open {
+      width: 260px;
+    }
+
+    a i {
+      font-size: 20px;
+    }
+
+    a span {
+      font-size: 16px;
+    }
+
+    &.open a span {
+      max-width: 200px;
+    }
+
+    #divDebajo {
+      width: 240px;
+    }
+  }
+
+  #toggleBtn {
+    left: 0.5rem;
+
+    i {
+      font-size: 24px;
+    }
+  }
+
+  .sidebar.open + #toggleBtn {
+    left: 240px;
   }
 }

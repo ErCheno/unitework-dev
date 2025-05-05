@@ -12,6 +12,15 @@ import { workspacePage } from './pages/workspacePage.js';
     return token !== null && token !== '';
 }*/
 
+function authGuard(ctx, next) {
+    if (!isAuthenticated()) {
+        page('/login');
+    } else {
+        next();
+    }
+}
+
+
 // Definir las rutas con `page.js`
 page('/', () => {
     if (isAuthenticated()) {
@@ -22,12 +31,19 @@ page('/', () => {
         page('/login');
     }
 });
-page('/myworkspaces', () => {
+
+
+page('/dashboard', authGuard, () => {
+    DashboardPage();
+});
+
+
+page('/myworkspaces', authGuard, () => {
     document.body.className = 'workspaces-bg';
     myWorkspacesPage();
 });
 
-page('/workspace/:workspaceId', (context) => {
+page('/workspace/:workspaceId', authGuard, (context) => {
     const workspaceId = context.params.workspaceId;
     workspacePage(workspaceId);  // Llama a la función que maneja el contenido del workspace
 });
@@ -35,13 +51,5 @@ page('/workspace/:workspaceId', (context) => {
 
 page('/login', LoginPage);
 page('/registro', RegisterPage);
-
-page('/dashboard', () => {
-    if (isAuthenticated()) {
-        DashboardPage();
-    } else {
-        page('/login');
-    }
-});
 
 page();

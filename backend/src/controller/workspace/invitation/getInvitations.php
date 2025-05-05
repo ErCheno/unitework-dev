@@ -23,7 +23,7 @@ $userId = $usuario['id'];
 
 // Obtener el email del usuario autenticado
 $stmt = $conn->prepare("SELECT email FROM usuarios WHERE id = ?");
-$stmt->bind_param("i", $userId);
+$stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 

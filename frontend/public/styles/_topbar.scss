@@ -40,7 +40,7 @@
     align-items: center;
     flex-shrink: 1;
     min-width: 0;
-    width: 15%;
+    width: 10%;
 
     img {
       width: 20%;
@@ -51,7 +51,7 @@
     }
 
     h1 {
-      width: 50%;
+      width: 100%;
       font-size: clamp(14px, 5vw, 20px);
       color: black;
       margin: 0;
@@ -932,4 +932,199 @@
   font-size: 1.2rem;
   cursor: pointer;
   color: $seventh-color;
+}
+
+// Media queries para responsive design
+
+// Para portátiles pequeños y tablets horizontales (<= 1024px)
+@media (max-width: 1024px) {
+  .top-navbar-container {
+    margin-left: 0;
+    width: 100%;
+
+    &.top-navbar-compact,
+    &.top-navbar-moved {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  .top-navbar {
+    margin-right: 0;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .logo {
+      visibility: hidden;
+      width: 100%;
+      justify-content: center;
+
+      img {
+        width: 40px;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 16px;
+      }
+    }
+
+    .menu {
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      li {
+        margin-left: 20px;
+
+        a {
+          font-size: 14px;
+        }
+      }
+
+      #user,
+      #notif {
+        width: 40px;
+        height: 40px;
+
+        .user-avatar-container img,
+        #default-avatar {
+          width: 40px !important;
+          height: 40px !important;
+        }
+      }
+
+      #notif {
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+// Para tablets verticales y móviles grandes (<= 768px)
+@media (max-width: 768px) {
+  .top-navbar {
+    display: none;
+    align-items: center;
+    .logo{
+      display: flex;
+      flex-direction: column;
+      h1 {
+        font-size: 14px;
+      }
+
+    } 
+
+    .menu {
+      flex-direction: column;
+      align-items: center;
+
+      li {
+        margin-left: 0;
+      }
+    }
+  }
+
+  .dropdown-menu {
+    right: 10px;
+    top: 50px;
+    font-size: 14px;
+  }
+
+  .popup-edit-perfil {
+    padding: 1rem;
+    max-width: 95%;
+
+    .popup-header {
+      flex-direction: column;
+      align-items: center;
+
+      .avatar-container {
+        width: 150px;
+        height: 150px;
+      }
+
+      .header-info {
+        padding: 20px;
+        text-align: center;
+
+        h1 {
+          font-size: 18px;
+        }
+
+        p,
+        input {
+          font-size: 14px;
+        }
+      }
+    }
+
+    .popup-footer {
+      flex-direction: column;
+      gap: 1rem;
+
+      button {
+        width: 100%;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Para móviles pequeños (<= 480px)
+@media (max-width: 480px) {
+  .top-navbar-container {
+    padding: 0.3rem 0.5rem;
+    
+  }
+
+  .top-navbar {
+    .logo h1 {
+      font-size: 12px;
+    }
+
+    .menu {
+      gap: 0.3rem;
+
+      li {
+        a {
+          font-size: 13px;
+        }
+      }
+
+      #user,
+      #notif {
+        width: 35px;
+        height: 35px;
+
+        .user-avatar-container img,
+        #default-avatar {
+          width: 35px !important;
+          height: 35px !important;
+        }
+      }
+    }
+  }
+
+  .dropdown-menu {
+    top: 45px;
+    right: 5px;
+    font-size: 13px;
+
+    li a {
+      padding: 0.3rem 0.5rem;
+    }
+  }
+
+  .popup-edit-perfil {
+    padding: 0.8rem;
+
+    .popup-header .header-info h1 {
+      font-size: 16px;
+    }
+
+    .popup-footer button {
+      font-size: 13px;
+    }
+  }
 }

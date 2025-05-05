@@ -1,7 +1,7 @@
 import page from 'page';
 import { logoutUser } from '../../public/js/auth.js';
 import { showToast } from "../../public/js/validator/regex.js";
-import { acceptInvitation, getInvitations } from '../../public/js/notifications.js';
+import { acceptInvitation, denyInvitation, getInvitations } from '../../public/js/notifications.js';
 import { getUsuariosDisponibles } from '../../public/js/board.js';
 let userIcon;
 
@@ -19,10 +19,10 @@ export function TopNavbar() {
 
   const logoImg = document.createElement('img');
   logoImg.src = '../img/poff.png';
-  logoImg.alt = 'Logo de UWrk';
+  logoImg.alt = 'Logo de Unite Work';
 
   const tituloH1 = document.createElement('h1');
-  tituloH1.textContent = 'UWrk';
+  tituloH1.textContent = 'UniteWork';
 
   contenedorLogo.appendChild(logoImg);
   contenedorLogo.appendChild(tituloH1);
@@ -396,6 +396,7 @@ function closePopup(overlay, popup) {
   }, 300);
 }
 
+/*
 function updateNotifications(count) {
   const badge = document.getElementById('notif-badge');
   if (count > 0) {
@@ -404,7 +405,7 @@ function updateNotifications(count) {
   } else {
     badge.classList.add('hidden');
   }
-}
+}*/
 /*
 window.onload = function() {
   // Aquí puedes colocar tus simulaciones o lógicas de notificación
@@ -441,7 +442,7 @@ export async function cargarInvitaciones(notifList, notifBadge) {
 
       const rechazar = async (li) => {
         try {
-          await rechazarInvitacion(id_invitacion);
+          await denyInvitation(inv.id);
           li.remove();
         } catch (err) {
           console.error('Error al rechazar invitación:', err);
@@ -548,7 +549,7 @@ export function crearNotificacion(
     });
 
     const btnCancelar = document.createElement('button');
-    btnCancelar.textContent = 'Cancelar';
+    btnCancelar.textContent = 'Rechazar';
     btnCancelar.classList.add('btn-notif', 'btn-cancelarNotif');
     btnCancelar.addEventListener('click', async (e) => {
       e.stopPropagation();

@@ -1,7 +1,6 @@
 @use 'variables' as *;
 
-* {
-}
+* {}
 
 //MYWORKSPACE
 
@@ -68,7 +67,8 @@
 
 //WORKSPACE CARDS
 
-#workspace-list, #board-list{
+#workspace-list,
+#board-list {
   margin: 50px;
 
   position: relative;
@@ -108,7 +108,7 @@
   }
 }
 
-#workspace-list{
+#workspace-list {
   background-color: lightgray;
 }
 
@@ -164,6 +164,12 @@
   width: 80%;
   margin-top: 0;
   font-size: 1.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // Se quería un difuminado al final del texto y se ha buscado por internet esta opción.
+  mask-image: linear-gradient(to right, $primary-color 80%, transparent 100%); // https://lenguajecss.com/css/mascaras-y-recortes/mask-image/
 }
 
 .workspace-card button {}
@@ -478,8 +484,9 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  visibility: visible;              /* Asegura que sea visible */
-  opacity: 1;    
+  visibility: visible;
+  /* Asegura que sea visible */
+  opacity: 1;
 }
 
 .popup {
@@ -490,7 +497,8 @@
   max-width: 400px;
   text-align: center;
   font-family: sans-serif;
-  z-index: 10000; /* Asegura que el popup esté por encima del overlay */
+  z-index: 10000;
+  /* Asegura que el popup esté por encima del overlay */
 
 }
 
@@ -579,23 +587,23 @@
 
 .detalles-popup input,
 .detalles-popup textarea {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
 
 .detalles-popup input:focus,
 .detalles-popup textarea:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
-    background-color: #fff;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  background-color: #fff;
 }
 
 
@@ -652,45 +660,169 @@
 
 //INVITATION
 
+#filaInvitacion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  text-align: left;
+  max-height: 150px;
+  width: 60%;
+  overflow-y: auto;
+  
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 600px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  text-align: center;
+  animation: popup-fade-in 0.3s ease-out;
+  position: relative;
 
+
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    .suggestion-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 0.75rem;
+    }
+
+    /*span {
+      font-size: 0.95rem;
+      color: $secondary-color;
+    }*/
+  }
+
+  .suggestion-item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  #miembro {}
+
+
+
+}
 
 // Contenedor para los correos
 #emails-container {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 15px;
+  justify-content: space-between;
+
+  button {
+    max-width: 30%;
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    border: 1px solid lighten($seventh-color, 50%);
+
+    font-size: 14px;
+    padding: 6px 10px;
+    cursor: pointer;
+  }
+  
+  span {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: $seventh-color;
+    display: flex;
+    align-items: center;
+  }
+
 }
 
-// Cada correo
-#emails-container span {
-  background-color: #ecf0f1;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #333;
-  display: flex;
-  align-items: center;
+
+#emails-container input[type="email"] {
+  flex: 1;
 }
 
-// Ventana de selección de tableros
+
+/* Ventana de selección de tableros */
 #ventana-tableros {
   position: absolute;
-  top: 50px;
-  right: 0;
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 15px;
+  top: 80%;
+  left: 35%;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 12px 16px;
   display: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
-  max-height: 200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 280px;
+  max-height: 250px;
   overflow-y: auto;
-  border-radius: 8px;
+  border-radius: 10px;
+  z-index: 1000;
+  font-family: sans-serif;
+}
+
+#ventana-tableros label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
 }
 
 #ventana-tableros input[type="checkbox"] {
   margin-right: 10px;
+  transform: scale(1.1);
+}
+
+.invite-popup-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+
+.tableros-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.tablero-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.checkbox-label {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.tablero-checkbox {
+  margin-right: 10px;
+}
+
+.tablero-role-select {
+  margin-left: 10px;
+  padding: 5px;
+  font-size: 14px;
 }
 
 
@@ -703,5 +835,120 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Estilos para tablets (pantallas medianas)
+@media (max-width: 1024px) {
+  #content {
+    margin: 30px;
+
+    #divConjuntoArriba {
+      flex-direction: column;
+      margin-left: 30px;
+      margin-right: 30px;
+      align-items: flex-start;
+      gap: 1rem;
+
+      #tituloMyWorkspaces {
+        width: 100%;
+        font-size: 1.5rem;
+      }
+
+      #botonCrear {
+        width: auto;
+        padding: 0.5rem 1.5rem;
+      }
+    }
+
+    #hrMyWorkspaces {
+      width: 80%;
+      margin-left: 30px;
+    }
+  }
+
+  #workspace-list {
+    grid-template-rows: 1fr; // Solo una fila
+    padding: 1rem;
+  }
+
+  .workspace-card {
+    width: 250px;
+    height: 220px;
+  }
+}
+
+// Estilos para móviles (pantallas pequeñas)
+@media (max-width: 768px) {
+  #content {
+    margin: 20px;
+
+    #divConjuntoArriba {
+      flex-direction: column;
+      margin-left: 20px;
+      margin-right: 20px;
+
+      #tituloMyWorkspaces {
+        width: 100%;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+
+      #botonCrear {
+        width: 100%;
+        justify-content: center;
+        padding: 0.5rem;
+        height: auto;
+
+        #icoCrear {
+          font-size: 24px;
+        }
+
+        #parrafoCrear {
+          font-size: 16px;
+        }
+      }
+    }
+
+    #hrMyWorkspaces {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+
+  #workspace-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem;
+    gap: 1rem;
+    grid-template-rows: none;
+  }
+
+  .workspace-card {
+    width: 240px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .workspace-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    #divRol,
+    #divInfo,
+    #enter-btn {
+      width: 100%;
+    }
+
+    #divRol {
+      justify-content: center;
+    }
+  }
+
+  .modal-content {
+    width: 90%;
   }
 }
