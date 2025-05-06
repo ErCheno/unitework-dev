@@ -106,7 +106,7 @@ export function RegisterPage() {
                 localStorage.setItem('usuarioId', result.id);
 
                 showToast("Registro exitoso. Puedes iniciar sesión.", "success");
-                setTimeout(() => page('/login'), 2000);
+                setTimeout(() => page('/login'), 500);
             } else {
                 showToast(result.message, 'error');
             }

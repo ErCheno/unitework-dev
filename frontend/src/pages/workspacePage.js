@@ -58,12 +58,30 @@ export async function workspacePage(workspaceId) {
     botonVolver.appendChild(icoVolver);
     botonVolver.appendChild(parrafoVolver);
 
+    const divBotonesArriba = document.createElement('div');
+    divBotonesArriba.id = 'divBotonesArriba';
+
+    const botonRecarga = document.createElement('button');
+    botonRecarga.id = 'botonRecarga';
+    botonRecarga.title = 'Recargar Espacios de trabajo'
+    const icoRecarga = document.createElement('i');
+    icoRecarga.className = 'fa-solid fa-rotate-right';
+    icoRecarga.id = 'icoRecarga';
+
+    botonRecarga.append(icoRecarga);
+    botonRecarga.addEventListener('click', () => {
+        fetchAndRenderBoards(workspaceId);
+    });
+
     botonVolver.addEventListener('click', () => {
         page('/myworkspaces'); // Redirige a la página de 'Mis Espacios de Trabajo'
     });
 
     divConjuntoArriba.appendChild(title);
-    divConjuntoArriba.appendChild(botonVolver);
+    divBotonesArriba.appendChild(botonRecarga);
+    divBotonesArriba.appendChild(botonVolver);
+
+    divConjuntoArriba.appendChild(divBotonesArriba);
 
     const hrWorkspace = document.createElement('hr');
     hrWorkspace.id = 'hrMyWorkspaces';

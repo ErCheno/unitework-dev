@@ -3,6 +3,7 @@ import { logoutUser } from '../../public/js/auth.js';
 import { showToast } from "../../public/js/validator/regex.js";
 import { acceptInvitation, denyInvitation, getInvitations } from '../../public/js/notifications.js';
 import { getUsuariosDisponibles } from '../../public/js/board.js';
+import { startPollingNotificaciones } from '../../public/js/pollingManager.js';
 let userIcon;
 
 export function TopNavbar() {
@@ -52,7 +53,6 @@ export function TopNavbar() {
     userIcon.src = 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/' + avatarUrl;  // Usa la URL del avatar
     userIcon.alt = 'Avatar de usuario';
     userAvatarContainer.id = 'user-avatar';  // Asigna un ID único para el avatar
-    console.log(avatarUrl); // Verifica si la URL es correcta
 
   } else {
     // Si no tiene un avatar, se mostrará el icono de usuario por defecto
@@ -149,6 +149,7 @@ export function TopNavbar() {
   notifList.className = 'notif-list';
 
   cargarInvitaciones(notifList, notifBadge);
+  startPollingNotificaciones(); // Polling cada 5s
 
 
   // Función para crear una notificación
@@ -270,7 +271,6 @@ export function mostrarEditPerfil() {
         showToast('La imagen debe tener al menos 100x100 píxeles.', 'error');
         inputFile.value = '';
       } else {
-        console.log('Imagen válida');
         const reader = new FileReader();
         reader.onload = (e) => {
           avatarImg.src = e.target.result;
@@ -543,7 +543,6 @@ export function crearNotificacion(
     btnAceptar.classList.add('btn-notif', 'btn-aceptarNotif');
     btnAceptar.addEventListener('click', async (e) => {
       e.stopPropagation();
-      console.log('Invitación aceptada desde popup');
       //acceptInvitation();
       if (typeof onAceptar === 'function') await onAceptar(li);
     });
@@ -616,7 +615,6 @@ export function mostrarPopupDetallesInvitacion({ titulo, mensaje, tipo }) {
   aceptarBtn.textContent = 'Aceptar';
 
   aceptarBtn.addEventListener('click', () => {
-    console.log('Invitación aceptada desde popup');
     //acceptInvitation();
     overlay.remove();
   });

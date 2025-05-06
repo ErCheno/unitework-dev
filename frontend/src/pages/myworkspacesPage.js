@@ -59,34 +59,49 @@ export async function myWorkspacesPage() {
         modal.show();
     });
 
+    const botonVolver = document.createElement('button');
+    botonVolver.id = 'botonVolver';
+    const icoVolver = document.createElement('i');
+    icoVolver.className = 'fa-solid fa-house';
+    icoVolver.id = 'icoVolver';
+    const parrafoVolver = document.createElement('p');
+    parrafoVolver.id = 'parrafoVolver';
+    parrafoVolver.textContent = 'Volver al inicio';
+    botonVolver.append(icoVolver, parrafoVolver);
+
+    botonVolver.addEventListener('click', () => page('/dashboard'));
+
+    const botonRecarga = document.createElement('button');
+    botonRecarga.id = 'botonRecarga';
+    botonRecarga.title = 'Recargar Espacios de trabajo'
+    const icoRecarga = document.createElement('i');
+    icoRecarga.className = 'fa-solid fa-rotate-right';
+    icoRecarga.id = 'icoRecarga';
+
+    botonRecarga.append(icoRecarga);
+    botonRecarga.addEventListener('click', () => {
+        renderWorkspaces(grid);
+    });
+
     divConjuntoArriba.appendChild(title);
-    divConjuntoArriba.appendChild(botonCrear);
+
+
+    const divBotonesArriba = document.createElement('div');
+    divBotonesArriba.id = 'divBotonesArriba';
+
+    divBotonesArriba.appendChild(botonRecarga);
+    divBotonesArriba.appendChild(botonVolver);
+    divBotonesArriba.appendChild(botonCrear);
+
+    divConjuntoArriba.appendChild(divBotonesArriba);
 
     const hrWorkspaces = document.createElement('hr');
     hrWorkspaces.id = 'hrMyWorkspaces';
 
     const grid = document.createElement('div');
     grid.id = 'workspace-list';
+    await renderWorkspaces(grid);
 
-    try {
-        const workspaces = await fetchWorkspaces();
-        if (workspaces.length === 0) {
-            const noWorkspacesMsg = document.createElement('p');
-            noWorkspacesMsg.textContent = '¡Empieza creando un proyecto!';
-            noWorkspacesMsg.classList.add('no-workspaces-msg');
-            grid.appendChild(noWorkspacesMsg);
-        } else {
-            workspaces.forEach(ws => {
-                const card = WorkspaceCard(ws);
-                card.setAttribute('draggable', true);
-                card.id = `workspace-${ws.id}`;
-                card.classList.add('workspace-draggable');
-                grid.appendChild(card);
-            });
-        }
-    } catch (error) {
-        showToast('Error al cargar los espacios de trabajo: '+error, 'error');
-    }
 
     container.appendChild(divConjuntoArriba);
     container.appendChild(hrWorkspaces);
@@ -103,4 +118,47 @@ export async function myWorkspacesPage() {
 
 
     
+}
+
+
+export async function renderWorkspaces(grid) {
+  try {
+    const workspaces = await fetchWorkspaces();
+    const currentIds = new Set([...grid.children].map(card => card.dataset.id));
+
+    const newIds = new Set(workspaces.map(ws => String(ws.id)));
+
+    // Eliminar los que ya no están
+    [...grid.children].forEach(card => {
+      if (!newIds.has(card.dataset.id)) {
+        grid.removeChild(card);
+      }
+    });
+
+    // Agregar nuevos
+    workspaces.forEach(ws => {
+      const id = String(ws.id);
+      if (!currentIds.has(id)) {
+        const card = WorkspaceCard(ws);
+        card.setAttribute('draggable', true);
+        card.dataset.id = id;
+        card.classList.add('workspace-draggable');
+        grid.appendChild(card);
+      }
+    });
+
+    // Si no hay ninguno
+    if (workspaces.length === 0 && !grid.querySelector('.no-workspaces-msg')) {
+      const noWorkspacesMsg = document.createElement('p');
+      noWorkspacesMsg.textContent = '¡Empieza creando un proyecto!';
+      noWorkspacesMsg.classList.add('no-workspaces-msg');
+      grid.appendChild(noWorkspacesMsg);
+    } else if (workspaces.length > 0) {
+      const msg = grid.querySelector('.no-workspaces-msg');
+      if (msg) msg.remove();
+    }
+
+  } catch (error) {
+    showToast('Error al cargar los espacios de trabajo: ' + error, 'error');
+  }
 }

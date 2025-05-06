@@ -2,6 +2,7 @@ import { mostrarPopupConfirmacion } from "./workspaceCard";
 import { deleteBoards } from "../../public/js/board";
 import { getUsuariosDisponibles } from "../../public/js/board";
 import { createInvitation } from "../../public/js/notifications";
+import page from "page";
 // kanbanBoard.js
 export function BoardCard(board) {
   const card = document.createElement('div');
@@ -75,6 +76,11 @@ export function BoardCard(board) {
 
   card.appendChild(boardHeader);
   card.appendChild(divIconosDebajo);
+
+  card.addEventListener('click', () => {
+    page(`/board/${board.id}`); // Redirige a la página del workspace con el ID del workspace
+  });
+
 
   eliminar.addEventListener('click', async () => {
     const confirmado = await mostrarPopupConfirmacion();
@@ -268,43 +274,43 @@ export function mostrarPopupInvitacion(board) {
   input.addEventListener('input', async () => {
     const value = input.value.trim().toLowerCase();
     suggestionBox.textContent = '';
-  
+
     if (value.length > 0) {
       const users = await getUsuariosDisponibles(board.id, value);
-  
+
       users.forEach(user => {
         const isAlreadyMember = board.miembros.some(miembro => miembro.email === user.email); // compara por email
-  
+
         const suggestion = document.createElement('div');
         suggestion.className = 'suggestion-item';
         if (isAlreadyMember) {
           suggestion.classList.add('disabled'); // puedes usar esta clase para estilos grises
         }
-  
+
         const avatar = document.createElement('img');
         avatar.src = user.avatar_url;
         avatar.alt = 'Avatar';
         avatar.className = 'suggestion-avatar';
-  
+
         const emailText = document.createElement('span');
         emailText.textContent = isAlreadyMember
           ? `${user.email} (ya está en el tablero)`
           : user.email;
-  
+
         suggestion.append(avatar, emailText);
-  
+
         if (!isAlreadyMember) {
           suggestion.addEventListener('click', () => {
             input.value = user.email;
             suggestionBox.textContent = '';
           });
         }
-  
+
         suggestionBox.appendChild(suggestion);
       });
     }
   });
-  
+
 
   enviarBtn.addEventListener('click', async () => {
     const email = input.value.trim();

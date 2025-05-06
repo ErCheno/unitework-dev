@@ -171,6 +171,22 @@ export function setupSortable(containerId, handleClass, onEndCallback) {
     });
 }
 
+export function setupSortableKanban(containerSelector, listSelector, onEndCallback) {
+    const container = document.getElementById(containerSelector) || document.querySelector(containerSelector);
+    if (!container) return;
+
+    const lists = container.querySelectorAll(listSelector);
+
+    lists.forEach(list => {
+        Sortable.create(list, {
+            group: 'kanban', // clave: mismo grupo permite mover entre columnas
+            animation: 150,
+            ghostClass: 'opacity-50',
+            onEnd: onEndCallback
+        });
+    });
+}
+
 export function scrollHorizontal(container) {
     let isDown = false;
     let startX;

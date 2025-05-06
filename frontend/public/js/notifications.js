@@ -36,7 +36,7 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");
       page("/login");
-      return;
+      return null;
     }
 
     const res = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/invitation.php', {
@@ -54,7 +54,6 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
     });
 
     const data = await res.json();
-    console.log('Respuesta del backend:', data);
 
     if (!data.success) {
       showToast(data.message || 'Error al crear la invitación', 'error');
@@ -80,7 +79,7 @@ export async function getInvitations() {
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");
       page("/login");
-      return;
+      return null;
     }
 
     const res = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/getInvitations.php', {
@@ -92,7 +91,6 @@ export async function getInvitations() {
     });
 
     const data = await res.json();
-    console.log('Invitaciones recibidas:', data);
 
     if (!data.success) {
       showToast(data.message || 'Error al obtener las invitaciones', 'error');
@@ -116,7 +114,7 @@ export async function acceptInvitation(invitacionId) {
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");
       page("/login");
-      return;
+      return null;
     }
 
     const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/acceptInvitation.php", {
@@ -136,7 +134,6 @@ export async function acceptInvitation(invitacionId) {
       return;
     }
 
-    console.log("Invitación aceptada correctamente:", data.message);
     showToast(data.message, "success");
     page(page.current); // recarga la ruta actual
     /*if (data.tablero_id) {
@@ -159,7 +156,7 @@ export async function denyInvitation(invitacionId) {
     if (!token) {
       showToast("Token no disponible. Inicia sesión nuevamente.", "error");
       page("/login");
-      return;
+      return null;
     }
 
     const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/denyInvitation.php", {
@@ -179,7 +176,6 @@ export async function denyInvitation(invitacionId) {
       return;
     }
 
-    console.log("Invitación denegada:", data.message);
     showToast(data.message, "info");
     /*if (data.tablero_id) {
       page(`/boards/${data.tablero_id}`);

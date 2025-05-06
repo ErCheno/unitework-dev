@@ -1,13 +1,17 @@
 import { showToast } from "../js/validator/regex";
 import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
 import { getToken } from "./auth.js";
+import page from 'page';
+
+let pollingInterval;
 
 export async function fetchWorkspaces() {
     const token = getToken(); // Asegúrate de que el token esté guardado al iniciar sesión
     console.log(token);
     if (!token) {
         showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-        return;
+        page("/login");
+        return null;
     }
     try {
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/getWorkspaces.php', {
@@ -21,7 +25,6 @@ export async function fetchWorkspaces() {
         });
 
         const data = await response.json();
-        console.log('Respuesta del backend:', data);
 
         if (!data.success) {
             throw new Error(data.message || 'Error desconocido al obtener los workspaces');
@@ -41,7 +44,8 @@ export async function createWorkspaces(nombre, descripcion, modal) {
         console.log(token);
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-            return;
+            page("/login");
+            return null;
         }
 
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/espaciosTrabajo.php', {
@@ -87,7 +91,8 @@ export async function deleteWorkspaces(espacioTrabajoId) {
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-            return;
+            page("/login");
+            return null;
         }
 
         // Datos a enviar
@@ -127,7 +132,8 @@ export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-            return;
+            page("/login");
+            return null;
         }
 
         const response = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/putWorkspaces.php`, {
@@ -161,6 +167,15 @@ export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
 
 export async function getUsuariosDisponiblesWorkspace(workspaceId, filtro = "") {
     try {
+
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
         const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsersWorkspace.php", {
             method: "POST",
             headers: {

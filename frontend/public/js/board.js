@@ -10,6 +10,7 @@ export async function fetchBoards(workspaceId) {
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
             return;
         }
 
@@ -26,7 +27,6 @@ export async function fetchBoards(workspaceId) {
         });
 
         const data = await res.json();
-        console.log('Respuesta del backend:', data);
 
         if (!data.success) {
             throw new Error(data.message || 'Error desconocido al obtener los tableros');
@@ -48,6 +48,7 @@ export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
             return;
         }
 
@@ -90,6 +91,7 @@ export async function deleteBoards(tableroId) {
 
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
             return;
         }
 

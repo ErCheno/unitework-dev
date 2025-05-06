@@ -1,3 +1,4 @@
+import { showToast } from "./validator/regex";
 
 export function getToken() {
     return localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -19,7 +20,8 @@ export async function checkToken() {
     const token = getToken(); // Usamos la función unificada
 
     if (!token) {
-        alert("No hay token, redirigiendo al login...");
+        showToast("No hay token, redirigiendo al login...","error");
+        page("/login")
         return false;  // No hay token, no se puede verificar
 
     }

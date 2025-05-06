@@ -21,35 +21,7 @@
     }
 
 
-    #botonCrear {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-
-      width: 8%;
-      background-color: $white-button;
-      box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.1);
-      height: 50px;
-      border-radius: 15px;
-
-      #icoCrear {
-        color: $primary-color;
-        font-size: 30px;
-        margin-right: 5px;
-      }
-
-      #parrafoCrear {
-        color: $primary-color;
-        font-weight: bold;
-        font-size: 20px;
-      }
-
-    }
+   
 
 
   }
@@ -625,32 +597,76 @@
   color: $primary-color;
 }
 
-#botonVolver {
-  padding: 0.25rem 0.5rem;
-  align-items: center;
-
-  background-color: $white-button;
-  color: $primary-color;
-  border: none;
-  border-radius: 5px;
-
+#divBotonesArriba{
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
 
-  box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.1);
-  height: 50px;
-  border-radius: 15px;
+  #botonCrear, #botonRecarga, #botonVolver{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 
-  #parrafoVolver {
-    margin-top: 15px;
-    font-weight: bold;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: $third-color;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  
+    &:hover {
+      transform: translateY(-2px);
+    }
+  
+    &:active {
+      transform: translateY(0);
+    }
+  
+    &:focus {
+      outline: 2px solid #c7d2fe;
+      outline-offset: 2px;
+    }
+
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+
+    width: 35%;
+    background-color: $white-button;
+    box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.1);
+    height: 50px;
+    border-radius: 15px;
+
+    #icoCrear, #icoRecarga {
+      color: $primary-color;
+      font-size: 30px;
+      margin-right: 5px;
+    }
+
+
+
+    #parrafoCrear {
+      color: $primary-color;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
   }
 
-  #icoVolver {
+  #botonRecarga{
+    width: 20% !important;
+  }
+
+  button{
     margin: 10px;
-  }
 
+  }
 }
+
+
 
 
 .sortable-ghost {
