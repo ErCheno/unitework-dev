@@ -1,6 +1,6 @@
 import page from 'page';
-import { showToast } from "./validator/regex.js";
-import { workspacePage } from '../../src/pages/workspacePage.js';
+import { showToast } from "../../public/js/validator/regex.js";
+import { workspacePage } from '../pages/workspacePage.js';
 import { getToken } from './auth.js';
 
 export async function fetchBoards(workspaceId) {

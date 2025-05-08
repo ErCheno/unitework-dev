@@ -1,10 +1,13 @@
-import { mostrarPopupConfirmacion } from "./workspaceCard";
-import { deleteBoards } from "../../public/js/board";
-import { getUsuariosDisponibles } from "../../public/js/board";
-import { createInvitation } from "../../public/js/notifications";
+import { mostrarPopupConfirmacion } from "./workspaceCard.js";
+import { deleteBoards } from "../js/board.js";
+import { getUsuariosDisponibles } from "../js/board.js";
+import { createInvitation } from "../js/notifications.js";
 import page from "page";
-import { socket } from "../../public/js/socket";
-// kanbanBoard.js
+import { socket } from "../js/socket.js";
+import { socketGetInvitations } from "../js/socketsEvents.js";
+// kanbanBoard
+
+
 export function BoardCard(board) {
   const card = document.createElement('div');
   card.className = 'board-card';
@@ -319,12 +322,10 @@ export function mostrarPopupInvitacion(board) {
     if (email) {
       console.log('Invitación enviada a:', email);
       await createInvitation(email, board.espacio_trabajo_id, board.id, selectedRole); // Usar el rol seleccionado
-      socket.emit("nueva-invitacion", {
-        email: email,
-        workspaceId: board.espacio_trabajo_id,
-        boardId: board.id,
-        rolTablero: selectedRole,
-      });
+      console.log("socket conectado:", socket); // Prueba en el archivo donde lo usas
+      
+      socketGetInvitations();
+      
       popup.remove();
     } else {
       input.classList.add('error');

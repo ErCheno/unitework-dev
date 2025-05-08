@@ -1,9 +1,8 @@
 // Función para obtener las notificaciones
 import page from "page";
-import { showToast } from "./validator/regex";
-import { getToken } from "./auth";
-import { socket } from "./socket";
-
+import { showToast } from "../../public/js/validator/regex.js";
+import { getToken } from "./auth.js";
+import { socket } from "./socket.js";
 export async function createInvitation(gmail, workspaceId, boardId, rolTablero) {
   try {
     const token = getToken();
@@ -35,13 +34,35 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
       throw new Error(data.message || 'Error al crear la invitación');
     }
 
-    const emailDestinatario = gmail;  // El email del destinatario
-    socket.emit("nueva-invitacion", {
-      email: emailDestinatario,
-      workspaceId: workspaceId,
-      boardId: boardId,
-      rolTablero: rolTablero
+    const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/getIdByEmail.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({ email: gmail }),
     });
+    
+    const dataId = await response.json();
+    if (dataId.success) {
+      console.log("El ID del usuario es:", dataId.usuario_id);
+    } else {
+      console.warn(dataId.message);
+    }
+
+    const emailDestinatario = gmail;  // El email del destinatario
+    if (socket && socket.connected) {
+      socket.emit("nueva-invitacion", {
+        id: dataId.usuario_id,
+        email: emailDestinatario,
+        workspaceId,
+        boardId,
+        rolTablero
+      });
+    } else {
+      console.warn('⚠️ Socket no conectado, no se pudo emitir la invitación.');
+    }
+    
 
     showToast('Invitación enviada correctamente', 'success');
     return data.token; // Puedes devolver el token si lo necesitas

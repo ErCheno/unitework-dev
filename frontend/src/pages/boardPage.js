@@ -1,7 +1,7 @@
 import { cleanupView } from '../../public/js/cleanup';
 import { Navbar } from '../components/navbar';
 import { TopNavbar } from '../components/topbar';
-import { scrollHorizontal, setupSortable } from '../components/dragAnimation';
+import { scrollHorizontal, setupSortable } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { TaskCard } from '../components/taskCard.js';

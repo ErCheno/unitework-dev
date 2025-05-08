@@ -1,5 +1,5 @@
-import { showToast } from "../js/validator/regex";
-import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
+import { showToast } from "../../public/js/validator/regex.js";
+import { myWorkspacesPage } from "../pages/myworkspacesPage.js";
 import { getToken } from "./auth.js";
 import page from 'page';
 

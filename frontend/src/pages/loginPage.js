@@ -1,11 +1,11 @@
 // LoginPage.js
 import page from 'page';
 import { LoginForm } from '../components/form.js';
-import { getToken } from '../../public/js/auth.js';
+import { getToken } from '../js/auth.js';
 import { isValidEmail, isValidPassword } from '../../public/js/validator/regex.js';
 import { showToast } from '../../public/js/validator/regex.js'; // nueva función toast
 import { cleanupView } from '../../public/js/cleanup.js';
-import { socket } from '../../public/js/socket.js';
+import { connectSocket } from '../js/socket.js';
 
 export async function LoginPage() {
     cleanupView();
@@ -88,24 +88,26 @@ export async function LoginPage() {
                 localStorage.setItem('avatar_url', result.avatar_url || 'default_avatar.png');
                 localStorage.setItem('username', result.nombre);
 
-                // Almacenamos el token según la preferencia de 'remember me'
                 if (remember) {
                     localStorage.setItem("token", result.token);
                 } else {
                     sessionStorage.setItem("token", result.token);
                 }
 
+
+                connectSocket();
+
                 // Elimina los elementos de la interfaz
                 authContent.remove();
                 divDerecho.remove();
 
 
-                socket.on("connect", () => {
+                /*socket?.on("connect", () => {
                     const email = localStorage.getItem("email");
                     if (email) {
                         socket.emit("usuario-conectado", { email });
                     }
-                });
+                });*/
 
                 // Redirigir al dashboard
                 page("/dashboard");
@@ -190,3 +192,4 @@ export function logoutUser() {
     localStorage.removeItem("token");
     window.location.href = "/login";
 }
+

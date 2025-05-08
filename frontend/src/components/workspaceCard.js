@@ -1,5 +1,5 @@
 import { showToast } from "../../public/js/validator/regex.js";
-import { deleteWorkspaces } from "../../public/js/workspaces.js";
+import { deleteWorkspaces } from "../js/workspaces.js";
 import { mostrarDetallesWorkspace } from "./popupUpdateWorkspace.js";
 import page from 'page';
 

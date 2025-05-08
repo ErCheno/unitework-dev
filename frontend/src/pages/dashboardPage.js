@@ -1,8 +1,8 @@
 import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
-import { getToken } from '../../public/js/auth.js';
+import { getToken } from '../js/auth.js';
 import page from 'page';
-import { socketGetWorkspaces } from '../../public/js/socketsEvents.js';
+import { socketGetWorkspaces } from '../js/socketsEvents.js';
 
 
 export function DashboardPage() {

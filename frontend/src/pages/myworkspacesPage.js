@@ -7,10 +7,10 @@ import { WorkspaceCard } from '../components/workspaceCard.js';
 //import { setupHorizontalScroll } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
-import { fetchWorkspaces } from '../../public/js/workspaces.js';
+import { fetchWorkspaces } from '../js/workspaces.js';
 import { setupSortable } from '../components/dragAnimation.js';
 import { scrollHorizontal } from '../components/dragAnimation.js';
-import { socketGetWorkspaces } from '../../public/js/socketsEvents.js';
+import { socketGetWorkspaces } from '../js/socketsEvents.js';
 
 export async function myWorkspacesPage() {
     cleanupView();

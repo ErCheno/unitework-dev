@@ -1,11 +1,10 @@
 import page from 'page';
-import { logoutUser } from '../../public/js/auth.js';
+import { logoutUser } from '../js/auth.js';
 import { showToast } from "../../public/js/validator/regex.js";
-import { acceptInvitation, denyInvitation, getInvitations } from '../../public/js/notifications.js';
-import { getUsuariosDisponibles } from '../../public/js/board.js';
-import { startPollingNotificaciones } from '../../public/js/pollingManager.js';
-import { socket } from '../../public/js/socket.js';
-import { socketGetInvitations, socketGetWorkspaces } from '../../public/js/socketsEvents.js';
+import { acceptInvitation, denyInvitation, getInvitations } from '../js/notifications.js';
+import { getUsuariosDisponibles } from '../js/board.js';
+import { connectSocket, socket } from '../js/socket.js';
+import { socketGetInvitations, socketGetWorkspaces } from '../js/socketsEvents.js';
 import { renderWorkspaces } from '../pages/myworkspacesPage.js';
 let userIcon;
 
@@ -152,7 +151,7 @@ export function TopNavbar() {
   notifList.className = 'notif-list';
 
   cargarInvitaciones(notifList, notifBadge);
-  
+
 
   //startPollingNotificaciones(); // Polling cada 5s
 
@@ -224,7 +223,7 @@ export function TopNavbar() {
   nav.appendChild(menu);
   container.appendChild(nav);
 
-  socketGetInvitations();
+
 
   return container;
 }
@@ -424,75 +423,81 @@ export async function cargarInvitaciones(notifList, notifBadge) {
   try {
     const invitations = await getInvitations();
 
-    // Función para manejar la creación de notificaciones
-    const crearNotificacionDeInvitacion = (inv) => {
-      const { id_invitacion, nombre_tablero, nombre_espacio_trabajo, nombre_remitente, avatar_url_remitente } = inv;
+    notifList.innerHTML = ''; // Limpia la lista antes
 
-      const nombreRemitente = nombre_remitente || 'Usuario desconocido';
-      const avatarRemitente = avatar_url_remitente
-        ? 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/' + avatar_url_remitente
-        : 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';
-
-      const aceptar = async (li) => {
-        try {
-          await acceptInvitation(inv.id);
-          socketGetWorkspaces();
-          const grid = document.getElementById('workspace-list');
-          renderWorkspaces(grid);
-          li.remove();
-        } catch (err) {
-          console.error('Error al aceptar invitación:', err);
-        }
-      };
-
-      const rechazar = async (li) => {
-        try {
-          await denyInvitation(inv.id);
-          li.remove();
-        } catch (err) {
-          console.error('Error al rechazar invitación:', err);
-        }
-      };
-
-      const li = crearNotificacion(
-        'Te han invitado a un tablero',
-        nombreRemitente,
-        `(${nombre_tablero} en ${nombre_espacio_trabajo})`,
-        'fa-solid fa-envelope-open-text',
-        'invitacion',
-        avatarRemitente,
-        aceptar,
-        rechazar
-      );
-
-      notifList.appendChild(li);
-    };
-
-    // Cargar las invitaciones iniciales
     for (const inv of invitations) {
-      crearNotificacionDeInvitacion(inv);
+      crearNotificacionDeInvitacion(inv, notifList, notifBadge);
     }
 
-    // Actualizar el contador de invitaciones si es necesario
-    if (invitations.length > 0) {
-      notifBadge.textContent = invitations.length;
-      notifBadge.classList.remove('hidden');
-    }
-
-    // Escuchar nuevas invitaciones (solo una vez)
-    socket.on('nueva-invitacion', (invitacion) => {
-      crearNotificacionDeInvitacion(invitacion);
-
-      // Actualizar el contador de invitaciones no leídas
-      const count = notifList.querySelectorAll('.notif-item').length;
-      notifBadge.textContent = count;
-      notifBadge.classList.remove('hidden');
-    });
+    // Actualizar contador
+    notifBadge.textContent = invitations.length;
+    notifBadge.classList.toggle('hidden', invitations.length === 0);
 
   } catch (error) {
     console.error('Error al cargar las invitaciones:', error);
   }
 }
+// Función para manejar la creación de notificaciones
+export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
+  const {
+    id_invitacion,
+    nombre_tablero,
+    nombre_espacio_trabajo,
+    nombre_remitente,
+    avatar_url_remitente
+  } = inv;
+
+  const nombreRemitente = nombre_remitente || 'Usuario desconocido';
+  const avatarRemitente = avatar_url_remitente
+    ? `http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/${avatar_url_remitente}`
+    : 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';
+
+  const aceptar = async (li) => {
+    try {
+      await acceptInvitation(inv.id);
+      socket?.emit('nuevoWorkspace', { nombre, descripcion }); // 🔥 Emite el evento a los demás
+      const grid = document.getElementById('workspace-list');
+      renderWorkspaces(grid);
+      li.remove();
+      updateBadge();
+    } catch (err) {
+      console.error('Error al aceptar invitación:', err);
+    }
+  };
+
+  const rechazar = async (li) => {
+    try {
+      await denyInvitation(inv.id);
+      li.remove();
+      updateBadge();
+    } catch (err) {
+      console.error('Error al rechazar invitación:', err);
+    }
+  };
+
+  const li = crearNotificacion(
+    'Te han invitado a un tablero',
+    nombreRemitente,
+    `(${nombre_tablero} en ${nombre_espacio_trabajo})`,
+    'fa-solid fa-envelope-open-text',
+    'invitacion',
+    avatarRemitente,
+    aceptar,
+    rechazar
+  );
+
+  notifList.appendChild(li);
+  updateBadge();
+
+  function updateBadge() {
+    const count = notifList.querySelectorAll('.notif-item').length;
+    notifBadge.textContent = count;
+    notifBadge.classList.toggle('hidden', count === 0);
+  }
+}
+//connectSocket();
+// Escuchar nuevas invitaciones (solo una vez)
+
 export function crearNotificacion(
   texto,
   negrita = null,
