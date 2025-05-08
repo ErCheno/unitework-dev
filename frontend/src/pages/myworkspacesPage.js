@@ -10,6 +10,7 @@ import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../../public/js/workspaces.js';
 import { setupSortable } from '../components/dragAnimation.js';
 import { scrollHorizontal } from '../components/dragAnimation.js';
+import { socketGetWorkspaces } from '../../public/js/socketsEvents.js';
 
 export async function myWorkspacesPage() {
     cleanupView();
@@ -115,7 +116,7 @@ export async function myWorkspacesPage() {
         console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
     });
     
-
+    socketGetWorkspaces();
 
     
 }

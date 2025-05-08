@@ -5,6 +5,7 @@ import { getToken } from '../../public/js/auth.js';
 import { isValidEmail, isValidPassword } from '../../public/js/validator/regex.js';
 import { showToast } from '../../public/js/validator/regex.js'; // nueva función toast
 import { cleanupView } from '../../public/js/cleanup.js';
+import { socket } from '../../public/js/socket.js';
 
 export async function LoginPage() {
     cleanupView();
@@ -77,27 +78,35 @@ export async function LoginPage() {
                 },
                 body: JSON.stringify({ email, password }),
             });
-    
+
             const result = await response.json();
-    
+
             if (result.status === "success" && result.token) {
                 // Guardar los datos en localStorage (o sessionStorage si se prefiere)
                 localStorage.setItem('usuario_id', result.usuario_id);
                 localStorage.setItem('email', result.email);
                 localStorage.setItem('avatar_url', result.avatar_url || 'default_avatar.png');
                 localStorage.setItem('username', result.nombre);
-    
+
                 // Almacenamos el token según la preferencia de 'remember me'
                 if (remember) {
                     localStorage.setItem("token", result.token);
                 } else {
                     sessionStorage.setItem("token", result.token);
                 }
-    
+
                 // Elimina los elementos de la interfaz
                 authContent.remove();
                 divDerecho.remove();
-    
+
+
+                socket.on("connect", () => {
+                    const email = localStorage.getItem("email");
+                    if (email) {
+                        socket.emit("usuario-conectado", { email });
+                    }
+                });
+
                 // Redirigir al dashboard
                 page("/dashboard");
             } else {

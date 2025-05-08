@@ -2,7 +2,7 @@ import { showToast } from '../../public/js/validator/regex.js';
 import { WorkspaceCard } from './workspaceCard.js';
 import { myWorkspacesPage } from '../pages/myworkspacesPage.js';
 import { createWorkspaces } from '../../public/js/workspaces.js';
-
+import { socket } from '../../public/js/socket.js';
 export function CreateWorkspaceModal() {
     // Crear elementos base
     const modal = document.createElement('div');
@@ -120,6 +120,9 @@ export function CreateWorkspaceModal() {
         }
 
         createWorkspaces(nombre, descripcion, modal);
+        socket.emit('nuevoWorkspace', { nombre, descripcion }); // 🔥 Emite el evento a los demás
+          
+        
     }
 
     // Al hacer clic en el botón

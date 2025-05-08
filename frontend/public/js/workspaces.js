@@ -3,11 +3,8 @@ import { myWorkspacesPage } from "../../src/pages/myworkspacesPage.js";
 import { getToken } from "./auth.js";
 import page from 'page';
 
-let pollingInterval;
-
 export async function fetchWorkspaces() {
-    const token = getToken(); // Asegúrate de que el token esté guardado al iniciar sesión
-    console.log(token);
+    const token = getToken();
     if (!token) {
         showToast("Token no disponible. Inicia sesión nuevamente.", "error");
         page("/login");
@@ -18,16 +15,15 @@ export async function fetchWorkspaces() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Envías el token aquí
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-            }),
+            body: JSON.stringify({})
         });
 
         const data = await response.json();
 
         if (!data.success) {
-            throw new Error(data.message || 'Error desconocido al obtener los workspaces');
+            throw new Error(data.message || 'Error al obtener workspaces');
         }
 
         return data.workspaces || [];
@@ -153,7 +149,6 @@ export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
 
         if (data.success) {
             showToast('Espacio actualizado correctamente', 'success');
-            setTimeout(() => location.reload(), 1000);
         } else {
             showToast('Error al actualizar: ' + data.message, 'error');
             console.error(data.message);

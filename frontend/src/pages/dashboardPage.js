@@ -2,6 +2,7 @@ import { Navbar } from '../components/navbar.js';
 import { TopNavbar } from '../components/topbar.js';
 import { getToken } from '../../public/js/auth.js';
 import page from 'page';
+import { socketGetWorkspaces } from '../../public/js/socketsEvents.js';
 
 
 export function DashboardPage() {
@@ -219,5 +220,7 @@ export function DashboardPage() {
     // Añadir al mainContent
     mainContent.appendChild(dashboardContainer);
     contentDiv.appendChild(mainContent);
+
+    socketGetWorkspaces();
 
 }

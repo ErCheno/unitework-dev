@@ -2,32 +2,7 @@
 import page from "page";
 import { showToast } from "./validator/regex";
 import { getToken } from "./auth";
-export async function actualizarNotificaciones() {
-  try {
-    const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/invitation.php');
-    const notificaciones = await response.json();
-    const notifBadge = document.querySelector('.notif-badge');
-    const notifList = document.querySelector('.notif-list');
-
-    if (notificaciones.length > 0) {
-      notifBadge.classList.remove('hidden');
-      notifBadge.textContent = notificaciones.length;
-      notifList.textContent = '';  // Limpiar las notificaciones previas
-
-      notificaciones.forEach(notif => {
-        const notifItem = crearNotificacion(notif.texto, notif.negrita, notif.cursiva, notif.icono);
-        notifList.appendChild(notifItem);
-      });
-    } else {
-      notifBadge.classList.add('hidden');
-    }
-  } catch (error) {
-    console.error('Error al cargar las notificaciones:', error);
-  }
-}
-
-// Llamar a esta función cuando sea necesario
-//actualizarNotificaciones();
+import { socket } from "./socket";
 
 export async function createInvitation(gmail, workspaceId, boardId, rolTablero) {
   try {
@@ -59,6 +34,14 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
       showToast(data.message || 'Error al crear la invitación', 'error');
       throw new Error(data.message || 'Error al crear la invitación');
     }
+
+    const emailDestinatario = gmail;  // El email del destinatario
+    socket.emit("nueva-invitacion", {
+      email: emailDestinatario,
+      workspaceId: workspaceId,
+      boardId: boardId,
+      rolTablero: rolTablero
+    });
 
     showToast('Invitación enviada correctamente', 'success');
     return data.token; // Puedes devolver el token si lo necesitas

@@ -3,6 +3,7 @@ import { deleteBoards } from "../../public/js/board";
 import { getUsuariosDisponibles } from "../../public/js/board";
 import { createInvitation } from "../../public/js/notifications";
 import page from "page";
+import { socket } from "../../public/js/socket";
 // kanbanBoard.js
 export function BoardCard(board) {
   const card = document.createElement('div');
@@ -318,6 +319,12 @@ export function mostrarPopupInvitacion(board) {
     if (email) {
       console.log('Invitación enviada a:', email);
       await createInvitation(email, board.espacio_trabajo_id, board.id, selectedRole); // Usar el rol seleccionado
+      socket.emit("nueva-invitacion", {
+        email: email,
+        workspaceId: board.espacio_trabajo_id,
+        boardId: board.id,
+        rolTablero: selectedRole,
+      });
       popup.remove();
     } else {
       input.classList.add('error');
