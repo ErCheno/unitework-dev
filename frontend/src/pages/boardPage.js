@@ -5,6 +5,7 @@ import { scrollHorizontal, setupSortable } from '../components/dragAnimation.js'
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { TaskCard } from '../components/taskCard.js';
+import { cargarTareasKanban, crearEstado } from '../js/task.js';
 
 export function BoardPage(boardId) {
     cleanupView();
@@ -35,18 +36,77 @@ export function BoardPage(boardId) {
     title.textContent = 'Tareas';
 
     const botonCrear = document.createElement('button');
-    botonCrear.id = 'crearTarea';
+    botonCrear.id = 'crearLista';
     const icoCrear = document.createElement('i');
-    icoCrear.className = 'fa-solid fa-square-plus';
+    icoCrear.className = 'fa-solid fa-plus';
     icoCrear.id = 'icoCrear';
-    const parrafoCrear = document.createElement('p');
+    const parrafoCrear = document.createElement('span');
     parrafoCrear.id = 'parrafoCrear';
-    parrafoCrear.textContent = 'Crear tarea';
+    parrafoCrear.textContent = 'Crear lista';
     botonCrear.append(icoCrear, parrafoCrear);
 
-    botonCrear.addEventListener('click', () => {
-        // Aquí puedes abrir un modal personalizado
+  botonCrear.addEventListener('click', () => {
+    botonCrear.style.display = 'none';
+
+    const inputWrapper = document.createElement('div');
+    inputWrapper.id = 'input-crear-lista-wrapper';
+    inputWrapper.style.display = 'flex';
+    inputWrapper.style.gap = '8px';
+    inputWrapper.style.alignItems = 'center';
+
+    const inputNombre = document.createElement('input');
+    inputNombre.type = 'text';
+    inputNombre.placeholder = 'Nombre de la lista';
+    inputNombre.className = 'crear-lista-input';
+
+    const btnConfirmar = document.createElement('button');
+    btnConfirmar.textContent = 'Crear';
+    btnConfirmar.className = 'crear-lista-confirmar';
+
+    const btnCancelar = document.createElement('button');
+    btnCancelar.textContent = 'Cancelar';
+    btnCancelar.className = 'crear-lista-cancelar';
+
+    inputWrapper.append(inputNombre, btnConfirmar, btnCancelar);
+    botonCrear.parentNode.insertBefore(inputWrapper, botonCrear.nextSibling);
+
+    inputNombre.focus();
+
+    // Cancelar
+    function cerrarFormulario() {
+        inputWrapper.remove();
+        botonCrear.style.display = '';
+    }
+
+    btnCancelar.addEventListener('click', cerrarFormulario);
+
+    // Cerrar con Escape o clic fuera
+    function handleCerrar(e) {
+        if (e.key === 'Escape') cerrarFormulario();
+        if (!inputWrapper.contains(e.target) && e.target !== botonCrear) {
+            cerrarFormulario();
+            document.removeEventListener('click', handleCerrar);
+        }
+    }
+
+    setTimeout(() => document.addEventListener('click', handleCerrar)); // evitar cerrar por el mismo click
+
+    inputNombre.addEventListener('keydown', e => {
+        if (e.key === 'Enter') btnConfirmar.click();
     });
+
+    // Confirmar creación
+    btnConfirmar.addEventListener('click', async () => {
+        const nombre = inputNombre.value.trim();
+        if (!nombre) return showToast('⚠️ Escribe un nombre válido');
+
+        const nuevoId = await crearEstado(nombre, boardId);
+        if (nuevoId) {
+            showToast('✅ Lista creada');
+            cerrarFormulario();
+        }
+    });
+});
 
     const botonVolver = document.createElement('button');
     botonVolver.id = 'botonVolver';
@@ -60,50 +120,16 @@ export function BoardPage(boardId) {
 
     botonVolver.addEventListener('click', () => page('/myworkspaces'));
 
-    divConjuntoArriba.append(title, botonCrear, botonVolver);
+    divConjuntoArriba.append(title, botonVolver);
     const hrWorkspaces = document.createElement('hr');
     hrWorkspaces.id = 'hrMyWorkspaces';
 
-    // Formulario para nueva tarea
-    const form = document.createElement('form');
-    form.id = 'add-task-form';
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.id = 'task-summary';
-    input.placeholder = 'Descripción de la tarea';
-    input.required = true;
 
-    const button = document.createElement('button');
-    button.type = 'submit';
-    button.textContent = 'Agregar Tarea';
-
-    form.append(input, button);
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const summary = input.value.trim();
-        const newTask = { summary, status: 'To Do', boardId };
-
-        const response = await fetch('/api/tareas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newTask),
-        });
-
-        if (response.ok) {
-            input.value = '';
-            cargarTareas(boardId);
-        } else {
-            alert('Error al agregar la tarea');
-        }
-    });
 
     // Contenedor Kanban
     const kanbanContainer = document.createElement('div');
-    kanbanContainer.id = 'kanbanContainer';
-    kanbanContainer.style.display = 'flex';
-    kanbanContainer.style.gap = '16px';
-    kanbanContainer.style.overflowX = 'auto';
+    kanbanContainer.id = 'kanban-list';
+
 
     const columnas = ['To Do', 'In Progress', 'Done'];
     const columnasDOM = {};
@@ -122,16 +148,14 @@ export function BoardPage(boardId) {
 
         colDiv.append(colTitle, colContent);
         kanbanContainer.appendChild(colDiv);
+        kanbanContainer.appendChild(botonCrear);
         columnasDOM[col] = colContent;
     });
 
     async function cargarTareas(boardId) {
-        const response = await fetch(`/api/tareas/${boardId}`);
+        cargarTareasKanban();
         let tareas = [];
 
-        if (response.ok) {
-            tareas = await response.json();
-        }
 
         // Si no hay tareas, añadimos 3 de ejemplo para pruebas visuales
         if (tareas.length === 0) {
@@ -152,15 +176,20 @@ export function BoardPage(boardId) {
         });
     }
 
-    container.append(divConjuntoArriba, hrWorkspaces, form, kanbanContainer);
+    container.append(divConjuntoArriba, hrWorkspaces, kanbanContainer);
     contentDiv.appendChild(container);
 
     cargarTareas(boardId);
 
     // Activar drag and drop
-    setupSortable('kanbanContainer', '.workspace-draggable', (evt) => {
-        console.log('Tarea movida de', evt.oldIndex, 'a', evt.newIndex);
+    setupSortable('kanban-list', '.workspace-draggable', async (evt) => {
+        cargarTareasKanban();
+        if (!response.ok) {
+            showToast('Error al mover la tarea');
+            cargarTareas(boardId); // revertir cambios visuales si falla
+        }
     });
+
 
     scrollHorizontal(kanbanContainer);
 

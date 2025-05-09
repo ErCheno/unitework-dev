@@ -53,6 +53,9 @@ if ($stmt->execute()) {
         $stmt_update->execute();
         $stmt_update->close();
 
+        // Llamada a la función para crear las listas predeterminadas
+        crearListasPredeterminadas($conn, $usuarioId, $tablero_id);
+
         echo json_encode(['success' => true, 'message' => 'Tablero y miembro creados correctamente']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Tablero creado, pero error al añadir miembro']);
@@ -65,3 +68,25 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
+
+// Función para crear las listas predeterminadas
+function crearListasPredeterminadas($conn, $usuarioId, $tableroId) {
+    $listasPredeterminadas = ['Por hacer', 'En progreso', 'Hecho'];
+
+    foreach ($listasPredeterminadas as $nombreLista) {
+        // Verificar si la lista ya existe para este tablero
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM estados_tareas WHERE tablero_id = ? AND nombre = ?");
+        $stmt->bind_param("is", $tableroId, $nombreLista);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $count = $result->fetch_assoc()['COUNT(*)'];
+
+        // Si no existe, crear la lista
+        if ($count == 0) {
+            $stmt = $conn->prepare("INSERT INTO estados_tareas (nombre, creado_por, tablero_id) VALUES (?, ?, ?)");
+            $stmt->bind_param("ssi", $nombreLista, $usuarioId, $tableroId);
+            $stmt->execute();
+        }
+    }
+}
+?>

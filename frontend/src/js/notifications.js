@@ -38,7 +38,7 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
+        'Authorization': "Bearer " + token,
       },
       body: JSON.stringify({ email: gmail }),
     });

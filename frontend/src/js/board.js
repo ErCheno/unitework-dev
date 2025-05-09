@@ -79,6 +79,7 @@ export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
         }
     } catch (err) {
         showToast("Error de red o servidor: " + err.message, "error");
+        console.error("Error de red o servidor: " + err.message);
     }
 }
 
