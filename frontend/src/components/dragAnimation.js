@@ -179,10 +179,45 @@ export function setupSortableKanban(containerSelector, listSelector, onEndCallba
 
     lists.forEach(list => {
         Sortable.create(list, {
-            group: 'kanban', // clave: mismo grupo permite mover entre columnas
+            group: 'kanban',  // Permite mover tareas entre columnas, pero no insertarlas dentro de otra columna
+            animation: 150,  // Animación de desplazamiento
+            ghostClass: 'opacity-50',  // Clase de animación para las tareas arrastradas
+            onEnd: onEndCallback,  // Callback cuando se termine de mover
+            swap: false,  // No permite el intercambio entre elementos dentro de la misma lista
+            dropOnEmpty: false,  // Asegura que las tareas no puedan caer en columnas vacías
+            draggable: '.task-draggable'  // Solo las tareas son arrastrables
+        });
+    });
+}
+
+
+
+export function setupSortableList(containerSelector, listSelector, onEndCallback) {
+    const container = document.getElementById(containerSelector) || document.querySelector(containerSelector);
+    if (!container) return;
+
+    // Configuración de las columnas
+    Sortable.create(container, {
+        group: 'kanban',  // Las columnas pueden moverse entre sí, pero no pueden anidarse
+        animation: 200,
+        ghostClass: 'opacity-50',  // Clase para el efecto visual cuando movemos las columnas
+        draggable: '.kanban-column',  // Las columnas son arrastrables
+        handle: '.kanban-column', // La columna será arrastrada al hacer clic en su header
+        onEnd: onEndCallback,  // Llamada al callback cuando termine el movimiento
+        sort: false,  // No permitir que se inserten dentro de otras columnas
+    });
+
+    // Inicializar el orden de las tareas dentro de cada columna
+    const lists = container.querySelectorAll(listSelector);
+    lists.forEach(list => {
+        Sortable.create(list, {
+            group: 'kanban',  // Las tareas solo se pueden mover dentro de la misma columna
             animation: 150,
-            ghostClass: 'opacity-50',
-            onEnd: onEndCallback
+            ghostClass: 'opacity-50',  // Clase de animación para las tareas arrastradas
+            onEnd: onEndCallback,  // Callback cuando se termine de mover
+            swap: false,  // No permite el intercambio entre elementos dentro de la misma lista
+            dropOnEmpty: false,  // Asegura que las tareas no puedan caer en columnas vacías
+            draggable: '.task-draggable'  // Solo las tareas son arrastrables
         });
     });
 }

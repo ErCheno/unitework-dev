@@ -8,11 +8,13 @@
 }
 
 #kanban-list {
-    background-color: rgba(214, 214, 214, 0.35); /* blanco con 85% opacidad */
+    background-color: rgba(214, 214, 214, 0.35);
+    /* blanco con 85% opacidad */
     display: flex;
     flex-direction: row;
     margin: 50px;
     border-radius: 20px;
+    overflow-x: auto;
 
 
     display: grid;
@@ -41,6 +43,50 @@
     }
 }
 
+/* Asegúrate de que las columnas estén alineadas horizontalmente */
+#kanban-list {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Las columnas se alinearán verticalmente dentro de un contenedor flex */
+.kanban-column {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    /* Ajusta el tamaño de las columnas */
+}
+
+/* Asegúrate de que las tareas se alineen de manera ordenada en las listas */
+.kanban-column-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    padding: 10px;
+    //height: calc(100vh - auto);  /* Ajuste de la altura de las listas */
+}
+
+/* Cada tarea será un item dentro de las listas */
+.task-draggable {
+    margin-bottom: 10px;
+    cursor: move;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    transition: transform 0.2s ease;
+    z-index: 0;
+    /* Asegura que las tareas están encima de otros elementos */
+}
+
+.kanban-column-content {
+    min-height: 5px;
+}
+
 #crearLista {
     display: flex;
     height: 50px;
@@ -56,6 +102,62 @@
     #icoCrear {
         margin-right: 10px;
     }
+}
+
+.crear-lista-container {
+    position: relative; // Para que el popup se posicione relativo al botón
+}
+
+.listCreate-popup {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  top: 0;
+  left: 0;  /* Aquí se ajusta para pegarlo a la izquierda */
+  width: 300px;
+  opacity: 0;
+  transform: translateX(-10px);  /* Iniciar desplazado hacia la izquierda */
+  transition: opacity 0.5s ease, transform 0.3s ease, z-index 0s 0.5s;  /* Animación suave */
+}
+
+.fade-in {
+  opacity: 1 !important;
+  z-index: 10;
+  transform: translateX(0) !important;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+
+#divBotones {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: start;
+
+    button {
+        margin-right: 10px;
+    }
+}
+
+
+.popup-arrow-create-List {
+    position: absolute;
+    top: -8px;
+    /* Sale por arriba */
+    left: 20%;
+    /* Centrada horizontalmente */
+    transform: translateX(-50%) rotate(45deg);
+    /* Centrada y rotada para formar flecha */
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-left: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    z-index: -1;
 }
 
 #crearLista:hover {
@@ -80,10 +182,10 @@
     overflow-x: auto;
     padding: 20px 0;
     margin-bottom: 30px;
+
 }
 
 .kanban-column-content {
-    min-height: 150px;
     background: #ffffff;
     border-radius: 6px;
     padding: 8px;
@@ -102,6 +204,7 @@
     width: 250px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
+    height: auto;
 
 }
 
@@ -245,7 +348,8 @@
     cursor: pointer;
 }
 
-.add-task-confirm, .crear-lista-confirmar {
+.add-task-confirm,
+.crear-lista-confirmar {
     background: $third-color;
     color: white;
 
@@ -256,7 +360,8 @@
     }
 }
 
-.cancel-task, .crear-lista-cancelar {
+.cancel-task,
+.crear-lista-cancelar {
     background: $secondary-color;
     color: white;
 
@@ -271,7 +376,10 @@
     display: none;
 }
 
-#input-crear-lista-wrapper{
+#input-crear-lista-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
     margin-bottom: 200px;
 }
 

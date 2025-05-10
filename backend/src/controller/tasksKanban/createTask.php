@@ -46,13 +46,65 @@ if (!$usuario) {
 }
 $usuarioId = $usuario['id'];
 
+// Verificar que el usuario pertenece al tablero
+$stmt = $conn->prepare("SELECT 1 FROM miembros_tableros WHERE usuario_id = ? AND tablero_id = ?");
+$stmt->bind_param("si", $usuarioId, $tableroId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "No perteneces a este tablero"]);
+    exit();
+}
+
+// Obtener el estado_id y tablero_id desde la tabla estados_tareas
+// Verificar que el estado exista y obtener su tablero asociado
+$query = "SELECT tablero_id FROM estados_tareas WHERE id = ?";
+$stmtEstado = $conn->prepare($query);
+
+if (!$stmtEstado) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "message" => "Error al preparar la consulta de estado"]);
+    exit();
+}
+
+$stmtEstado->bind_param("i", $estadoId);
+$stmtEstado->execute();
+$stmtEstado->store_result();
+
+if ($stmtEstado->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "El estado de tarea no existe"]);
+    exit();
+}
+
+$stmtEstado->bind_result($estadoTableroId);
+$stmtEstado->fetch();
+$stmtEstado->close();
+
+// Convertir ambos valores a enteros por seguridad antes de comparar
+$estadoTableroId = (int)$estadoTableroId;
+$tableroId = (int)$tableroId;
+
+if ($estadoTableroId !== $tableroId) {
+    // Solo para depuración: imprime y detiene (no lo dejes en producción)
+    echo json_encode([
+        "success" => false,
+        "message" => "El estado de tarea no pertenece al tablero especificado",
+        "debug" => [
+            "estado_tablero_id" => $estadoTableroId,
+            "tablero_id_enviado" => $tableroId
+        ]
+    ]);
+    exit();
+}
+
 // Insertar la tarea
 $sql = "
     INSERT INTO tareas (
         titulo, descripcion, fecha_creacion, fecha_limite, orden,
-        prioridad, etiqueta, asignado_a, tablero_id, estado_id, creado_por
+        prioridad, etiqueta, asignado_a, estado_id
     )
-    VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?)
 ";
 
 $stmt = $conn->prepare($sql);
@@ -63,7 +115,7 @@ if (!$stmt) {
 }
 
 $stmt->bind_param(
-    "sssisssiiis",
+    "ssisssii",
     $titulo,
     $descripcion,
     $fechaLimite,
@@ -71,20 +123,34 @@ $stmt->bind_param(
     $prioridad,
     $etiqueta,
     $asignadoA,
-    $tableroId,
     $estadoId,
-    $usuarioId
 );
 
 if ($stmt->execute()) {
+    $tareaId = $stmt->insert_id;
+
+    // Obtener espacio_trabajo_id asociado al tablero
+    $stmtEspacio = $conn->prepare("SELECT espacio_trabajo_id FROM tableros WHERE id = ?");
+    $stmtEspacio->bind_param("i", $tableroId);
+    $stmtEspacio->execute();
+    $resultadoEspacio = $stmtEspacio->get_result();
+    $espacioTrabajoId = $resultadoEspacio->fetch_assoc()['espacio_trabajo_id'];
+    $stmtEspacio->close();
+
+    // Actualizar ultima_actividad del tablero
+    $conn->query("UPDATE tableros SET ultima_actividad = NOW() WHERE id = $tableroId");
+
+    // Actualizar ultima_actividad del espacio de trabajo
+    $conn->query("UPDATE espacios_trabajo SET ultima_actividad = NOW() WHERE id = $espacioTrabajoId");
+
     echo json_encode([
         "success" => true,
         "message" => "Tarea creada correctamente",
-        "id" => $stmt->insert_id
+        "task_id" => $tareaId
     ]);
 } else {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Error al crear la tarea", "error" => $stmt->error]);
+    echo json_encode(["success" => false, "message" => "Error al crear la tarea"]);
 }
 
 $stmt->close();

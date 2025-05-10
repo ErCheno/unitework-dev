@@ -50,7 +50,6 @@
   overflow-y: hidden;
   flex-wrap: nowrap;
 
-  cursor: grab;
   user-select: none;
 
   display: grid;
@@ -84,9 +83,9 @@
     background-color: rgba(214, 214, 214, 0.35); /* blanco con 85% opacidad */
 }
 
+.workspace-card:hover{
+  cursor: pointer;
 
-#workspace-list:active {
-  cursor: grabbing;
 }
 
 .workspace-draggable {
