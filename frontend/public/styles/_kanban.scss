@@ -58,7 +58,81 @@
     flex-direction: column;
     width: 250px;
     /* Ajusta el tamaño de las columnas */
+
+
+    .task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px;
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            #icoTask {
+                cursor: pointer;
+                padding: 4px;
+
+                &:hover {
+                    color: #333;
+                }
+            }
+
+
+        }
+    }
+
 }
+
+.task-menu {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    /* Aquí se ajusta para pegarlo a la izquierda */
+    background-color: white;
+    border: 1px solid #ccc;
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+    width: 250px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    li {
+        transition: background-color 0.3s ease;
+    }
+
+    #eliminarLi {
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: rgba(255, 0, 0, 0.15);
+        }
+    }
+}
+
+.task-menu li {
+    text-align: center;
+}
+
+.task-menu li {
+    padding: 8px 16px;
+    cursor: pointer;
+
+}
+
+.task-menu li:hover {
+    background-color: #f0f0f0;
+}
+
 
 /* Asegúrate de que las tareas se alineen de manera ordenada en las listas */
 .kanban-column-content {
@@ -66,6 +140,7 @@
     flex-direction: column;
     gap: 10px;
     overflow-y: auto;
+    max-height: 520px;
     padding: 10px;
     //height: calc(100vh - auto);  /* Ajuste de la altura de las listas */
 }
@@ -76,10 +151,11 @@
     cursor: move;
     background-color: #fff;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 15px;
     padding: 10px;
     transition: transform 0.2s ease;
     z-index: 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     /* Asegura que las tareas están encima de otros elementos */
 }
 
@@ -109,26 +185,29 @@
 }
 
 .listCreate-popup {
-  position: absolute;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  z-index: 1;
-  top: 0;
-  left: 0;  /* Aquí se ajusta para pegarlo a la izquierda */
-  width: 300px;
-  opacity: 0;
-  transform: translateX(-10px);  /* Iniciar desplazado hacia la izquierda */
-  transition: opacity 0.5s ease, transform 0.3s ease, z-index 0s 0.5s;  /* Animación suave */
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+    top: 0;
+    left: 0;
+    /* Aquí se ajusta para pegarlo a la izquierda */
+    width: 300px;
+    opacity: 0;
+    transform: translateX(-10px);
+    /* Iniciar desplazado hacia la izquierda */
+    transition: opacity 0.5s ease, transform 0.3s ease, z-index 0s 0.5s;
+    /* Animación suave */
 }
 
 .fade-in {
-  opacity: 1 !important;
-  z-index: 10;
-  transform: translateX(0) !important;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 1 !important;
+    z-index: 10;
+    transform: translateX(0) !important;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 
@@ -315,7 +394,8 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 8px;
+    left: 50px;
+    top: 50px;
     background: white;
     padding: 12px;
     border: 1px solid #d0d0d0;

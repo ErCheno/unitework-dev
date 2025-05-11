@@ -45,84 +45,14 @@ export function TaskCard(estado, boardId) {
     button.type = 'submit';
     button.textContent = 'Agregar Tarea';
 
-
-    const createBtn = document.createElement('button');
-    createBtn.classList.add('create-task-btn');
-
-    const icon = document.createElement('i');
-    icon.classList.add('fa-solid', 'fa-plus');
-
-    const btnText = document.createElement('span');
-    btnText.textContent = 'Crear tarea';
-
-    createBtn.appendChild(icon);
-    createBtn.appendChild(btnText);
-
-    // Crear contenedor de formulario
-    const floatingForm = document.createElement('div');
-    floatingForm.className = 'floating-task-form hidden';
-
-    const textarea = document.createElement('textarea');
-    textarea.placeholder = 'Escribe la descripción de la tarea...';
-
-    const actions = document.createElement('div');
-    actions.className = 'form-actions';
-
-    const addBtn = document.createElement('button');
-    addBtn.className = 'add-task-confirm';
-    addBtn.textContent = 'Crear';
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.className = 'cancel-task';
-    cancelBtn.textContent = 'Cancelar';
-
-    actions.append(addBtn, cancelBtn);
-    floatingForm.append(textarea, actions);
-
-    // Insertar en el contenedor principal
-
-    // Mostrar formulario
-    createBtn.addEventListener('click', () => {
-        createBtn.classList.add('hidden');
-        floatingForm.classList.remove('hidden');
-        textarea.focus();
-    });
-
-    // Cancelar creación
-    cancelBtn.addEventListener('click', () => {
-        textarea.value = '';
-        floatingForm.classList.add('hidden');
-        createBtn.classList.remove('hidden');
-    });
-
-    // Confirmar creación
-
-    addBtn.addEventListener('click', () => {
-        const summary = textarea.value.trim();
-        if (!summary) return showToast('Debes escribir un nombre');
-
-        // Llamamos a crearTarea con el estado.id y el nombre de la tarea
-        crearTarea(estado, summary, boardId);
-        fetchAndRenderTasks(estado, boardId);
-
-
-        textarea.value = '';
-        floatingForm.classList.add('hidden');
-        createBtn.classList.remove('hidden');
-
-    });
-
     //footer.appendChild(assigned);
     //footer.appendChild(editBtn);
 
     //task.appendChild(header);
     //task.appendChild(description);
-    console.log(boardId);
     fetchAndRenderTasks(estado, boardId);
 
     task.appendChild(footer);
-    task.appendChild(floatingForm);
-    task.appendChild(createBtn);
 
 
     return task;
@@ -130,10 +60,6 @@ export function TaskCard(estado, boardId) {
 
 export async function cargarTareas(estado) {
     try {
-        console.log(estado);
-        console.log(estado.id);
-        console.log(estado.tablero_id);
-
         const tareas = await getTareas(estado.id, estado.tablero_id); // Obtenemos las tareas del backend
         console.log(tareas);
         if (!tareas || tareas.length === 0) {

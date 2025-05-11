@@ -5,7 +5,7 @@ import { scrollHorizontal, setupSortable, setupSortableKanban, setupSortableList
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { cargarTareas, TaskCard } from '../components/taskCard.js';
-import { getTareas, crearEstado, getEstado } from '../js/task.js';
+import { getTareas, crearEstado, getEstado, crearTarea } from '../js/task.js';
 
 export function BoardPage(boardId) {
     cleanupView();
@@ -126,7 +126,7 @@ export async function fetchAndRenderList(boardId) {
         const estados = respuesta.listas || [];
 
         const grid = document.getElementById('kanban-list');
-        grid.textContent = '';  // ⚠️ Esto borra todo, incluyendo el botón
+        grid.textContent = '';
 
         if (estados.length === 0) {
             const noBoardsMsg = document.createElement('p');
@@ -139,7 +139,38 @@ export async function fetchAndRenderList(boardId) {
                 columna.classList.add("kanban-column", "column-draggable");
                 columna.dataset.estadoId = estado.id;
 
+                const divHeader = document.createElement('div');
+                divHeader.className = 'task-header';
+
+                const menuContainer = document.createElement('div');
                 const titulo = document.createElement("h3");
+                menuContainer.id = 'menu-container';
+
+                const icoTask = document.createElement('i');
+                icoTask.className = 'fa-solid fa-ellipsis';
+                icoTask.id = 'icoTask';
+
+                const menu = document.createElement('ul');
+                menu.className = 'task-menu hidden';
+
+                const detalle = document.createElement('li');
+                detalle.textContent = 'Ver detalles';
+
+                const invitar = document.createElement('li');
+                invitar.textContent = 'Invitar usuarios';
+
+                const salir = document.createElement('li');
+                salir.textContent = 'Salir del espacio';
+
+                const eliminar = document.createElement('li');
+                eliminar.textContent = 'Eliminar espacio';
+                eliminar.id = 'eliminarLi';
+
+                menu.appendChild(detalle);
+                menu.appendChild(salir);
+                menu.appendChild(invitar);
+                menu.appendChild(eliminar);
+
                 titulo.textContent = estado.nombre;
 
                 const listaTareas = document.createElement("div");
@@ -149,10 +180,118 @@ export async function fetchAndRenderList(boardId) {
                     fetchAndRenderTasks(estado);
                 }
 
-                columna.appendChild(titulo);
+                menuContainer.appendChild(menu);
+
+                menuContainer.appendChild(icoTask);
+
+                divHeader.appendChild(titulo);
+                divHeader.appendChild(menuContainer);
+                columna.appendChild(divHeader)
                 columna.appendChild(listaTareas);
                 listaTareas.appendChild(TaskCard(estado, boardId));
+
+
+                const createBtn = document.createElement('button');
+                createBtn.classList.add('create-task-btn');
+
+                const icon = document.createElement('i');
+                icon.classList.add('fa-solid', 'fa-plus');
+
+                const btnText = document.createElement('span');
+                btnText.textContent = 'Crear tarea';
+
+                createBtn.appendChild(icon);
+                createBtn.appendChild(btnText);
+
+
+                // Crear contenedor de formulario
+                const floatingForm = document.createElement('div');
+                floatingForm.className = 'floating-task-form hidden';
+
+                const textarea = document.createElement('textarea');
+                textarea.placeholder = 'Escribe la descripción de la tarea...';
+
+                const actions = document.createElement('div');
+                actions.className = 'form-actions';
+
+                const addBtn = document.createElement('button');
+                addBtn.className = 'add-task-confirm';
+                addBtn.textContent = 'Crear';
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-task';
+                cancelBtn.textContent = 'Cancelar';
+
+                actions.append(addBtn, cancelBtn);
+                floatingForm.append(textarea, actions);
+
+                // Insertar en el contenedor principal
+
+                // Mostrar formulario
+                createBtn.addEventListener('click', () => {
+                    createBtn.classList.add('hidden');
+                    floatingForm.classList.remove('hidden');
+                    textarea.focus();
+                });
+
+                // Cancelar creación
+                cancelBtn.addEventListener('click', () => {
+                    textarea.value = '';
+                    floatingForm.classList.add('hidden');
+                    createBtn.classList.remove('hidden');
+                });
+
+                // Confirmar creación
+
+                addBtn.addEventListener('click', () => {
+                    const summary = textarea.value.trim();
+                    if (!summary) return showToast('Debes escribir un nombre');
+
+                    // Llamamos a crearTarea con el estado.id y el nombre de la tarea
+                    crearTarea(estado, summary, boardId);
+                    fetchAndRenderTasks(estado, boardId);
+
+
+                    textarea.value = '';
+                    floatingForm.classList.add('hidden');
+                    createBtn.classList.remove('hidden');
+
+                });
+
+                columna.appendChild(createBtn);
+                columna.appendChild(floatingForm);
+
                 grid.appendChild(columna);
+
+
+                menuContainer.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    menu.classList.toggle('hidden');
+                });
+
+                // Cerrar menú al hacer clic fuera
+                document.addEventListener('click', () => {
+                    menu.classList.add('hidden');
+                });
+
+                // Posicionar el popup justo debajo del botón, alineado a la izquierda
+                const rect = menuContainer.getBoundingClientRect();
+                const popupWidth = 300; // mismo ancho que el CSS .board-popup
+
+                let left = rect.left + window.scrollX;
+                let top = rect.bottom + window.scrollY + 8; // espacio entre botón y popup
+
+                // Si el popup se desborda a la derecha, lo ajustamos
+                if (left + popupWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - popupWidth - 10;
+                }
+
+                menu.style.position = 'fixed';
+                menu.style.top = `${top}px`;
+                menu.style.left = `${left}px`;
+
+
+
             });
         }
 
@@ -172,9 +311,7 @@ export async function fetchAndRenderTasks(estado) {
 
         const columna = document.querySelector(`.kanban-column[data-estado-id="${estado.id}"]`);
         const listaTareas = columna.querySelector(".kanban-column-content");
-        const botonCrear = listaTareas.querySelector('.create-task-btn');
 
-        // ✅ Elimina solo las tareas previas, deja el botón
         listaTareas.querySelectorAll('.task-draggable').forEach(t => t.remove());
 
         tareas.forEach(tarea => {
@@ -182,7 +319,7 @@ export async function fetchAndRenderTasks(estado) {
             tareaElemento.classList.add("task-draggable");
             tareaElemento.dataset.tareaId = tarea.id;
 
-            const tareaTitulo = document.createElement("p");
+            const tareaTitulo = document.createElement("span");
             tareaTitulo.textContent = tarea.titulo;
             tareaElemento.appendChild(tareaTitulo);
             listaTareas.appendChild(tareaElemento); // fallback si no hay botón
@@ -191,9 +328,6 @@ export async function fetchAndRenderTasks(estado) {
             });
         });
 
-
-
-        // ✅ Inicializa solo si se renderizó alguna tarea
         setupSortableKanban('#kanban-list', '.kanban-column-content', async (evt) => {
             const tarea = evt.item;
             const tareaId = tarea.dataset.tareaId;
