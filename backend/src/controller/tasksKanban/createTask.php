@@ -30,12 +30,25 @@ foreach ($requeridos as $campo) {
 $titulo        = trim($input['titulo']);
 $descripcion   = $input['descripcion'] ?? null;
 $fechaLimite   = $input['fecha_limite'] ?? null;
-$orden         = $input['orden'] ?? 0;
 $prioridad     = $input['prioridad'] ?? 'media';
 $etiqueta      = $input['etiqueta'] ?? null;
 $asignadoA     = $input['asignado_a'] ?? null;
-$tableroId     = $input['tablero_id'];
-$estadoId      = $input['estado_id'];
+$tableroId     = (int)$input['tablero_id'];
+$estadoId      = (int)$input['estado_id'];
+
+// Calcular el siguiente orden dentro del estado si no se especifica
+if (isset($input['orden'])) {
+    $orden = (int)$input['orden'];
+} else {
+    $stmtOrden = $conn->prepare("SELECT MAX(orden) AS max_orden FROM tareas WHERE estado_id = ?");
+    $stmtOrden->bind_param("i", $estadoId);
+    $stmtOrden->execute();
+    $resultadoOrden = $stmtOrden->get_result();
+    $filaOrden = $resultadoOrden->fetch_assoc();
+    $orden = ($filaOrden['max_orden'] ?? 0) + 1;
+    $stmtOrden->close();
+}
+
 
 // Verificación del usuario autenticado
 $usuario = verificarToken($conn);

@@ -73,7 +73,7 @@ $conn->close();
 function crearListasPredeterminadas($conn, $usuarioId, $tableroId) {
     $listasPredeterminadas = ['Por hacer', 'En progreso', 'Hecho'];
 
-    foreach ($listasPredeterminadas as $nombreLista) {
+    foreach ($listasPredeterminadas as $index => $nombreLista) {
         // Verificar si la lista ya existe para este tablero
         $stmt = $conn->prepare("SELECT COUNT(*) FROM estados_tareas WHERE tablero_id = ? AND nombre = ?");
         $stmt->bind_param("is", $tableroId, $nombreLista);
@@ -81,12 +81,12 @@ function crearListasPredeterminadas($conn, $usuarioId, $tableroId) {
         $result = $stmt->get_result();
         $count = $result->fetch_assoc()['COUNT(*)'];
 
-        // Si no existe, crear la lista
+        // Si no existe, crear la lista con su orden
         if ($count == 0) {
-            $stmt = $conn->prepare("INSERT INTO estados_tareas (nombre, creado_por, tablero_id) VALUES (?, ?, ?)");
-            $stmt->bind_param("ssi", $nombreLista, $usuarioId, $tableroId);
+            $orden = $index + 1; // Comenzar en 1
+            $stmt = $conn->prepare("INSERT INTO estados_tareas (nombre, creado_por, tablero_id, posicionamiento) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssii", $nombreLista, $usuarioId, $tableroId, $orden);
             $stmt->execute();
         }
     }
 }
-?>

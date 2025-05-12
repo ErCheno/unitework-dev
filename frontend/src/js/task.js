@@ -157,3 +157,85 @@ export async function getEstado(tableroId) {
         showToast('⚠️ ' + error.message, 'error');
     }
 }
+
+export async function moverTareas(taskId, nuevoEstadoId, nuevaPosicion) {
+
+    const token = getToken();
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        page("/login");
+        return null;
+    }
+
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/moveTask.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                tarea_id: taskId,
+                estado_id: nuevoEstadoId,
+                posicion: nuevaPosicion
+            })
+        });
+        const data = await response.json();
+        if (!data.success) {
+            console.error('Error:', data.message);
+        }
+        if (!response.ok) {
+            throw new Error(data.message || 'Error desconocido al crear la lista');
+        }
+        //showToast('Tarea movida', 'success');
+
+        return data;
+
+    } catch (error) {
+        console.error('Error al mover las tareas:', error.message);
+        showToast('⚠️ ' + error.message, 'error');
+    }
+}
+
+
+export async function moverLista(tableroId, nuevaPosicion) {
+
+    const token = getToken();
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        page("/login");
+        return null;
+    }
+
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/moveList.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                tablero_id: tableroId,
+                posicion: nuevaPosicion
+            })
+        });
+        const data = await response.json();
+        if (data.success) {
+            console.log('Orden actualizado con éxito');
+        } else {
+            console.error('Error:', data.message);
+        }
+        if (!response.ok) {
+            throw new Error(data.message || 'Error desconocido al crear la lista');
+        }
+        //showToast('Tarea movida', 'success');
+
+        return data;
+
+    } catch (error) {
+        console.error('Error al mover las tareas:', error.message);
+        showToast('⚠️ ' + error.message, 'error');
+    }
+}

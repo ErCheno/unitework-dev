@@ -5,7 +5,7 @@ import { scrollHorizontal, setupSortable, setupSortableKanban, setupSortableList
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { cargarTareas, TaskCard } from '../components/taskCard.js';
-import { getTareas, crearEstado, getEstado, crearTarea } from '../js/task.js';
+import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista } from '../js/task.js';
 
 export function BoardPage(boardId) {
     cleanupView();
@@ -82,33 +82,55 @@ export function BoardPage(boardId) {
     const kanbanContainer = document.createElement('div');
     kanbanContainer.id = 'kanban-list';
 
-
     (async () => {
+        // Renderizar la lista inicialmente
         await fetchAndRenderList(boardId);
 
-
-
-
         // Reordenar columnas (listas)
-        setupSortableList('#kanban-list', '.kanban-column', async (evt) => {
+        setupSortableList('#kanban-list', async (evt) => {
+
+            // Recolectar las columnas en el orden actualizado
             const columnas = Array.from(document.querySelectorAll('.kanban-column'));
             const nuevoOrden = columnas.map((col, index) => ({
-                id: col.dataset.estadoId,
-                orden: index
+                listaId: parseInt(col.dataset.estadoId),
+                posicionamiento: index
             }));
 
+            console.log(columnas);
+            console.log(nuevoOrden.map(item => item.listaId));
+
+            // Actualizar el orden en la base de datos
             try {
-                await fetch('/api/ordenar-listas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orden: nuevoOrden })
-                });
-            } catch (err) {
-                console.error('Error al reordenar columnas:', err);
-                showToast('No se pudo guardar el nuevo orden');
+                const response = await moverLista(boardId, nuevoOrden);
+                if (response && response.success) {
+                    console.log('Orden actualizado correctamente en el backend');
+
+                    // Reordenar las columnas visualmente en el DOM después de la actualización
+                    const parent = document.querySelector('#kanban-list');
+                    const columnasOrdenadas = nuevoOrden.map(item =>
+                        document.querySelector(`[data-estado-id="${item.listaId}"]`)
+                    );
+
+                    columnasOrdenadas.forEach(columna => {
+                        if (columna) {
+                            parent.appendChild(columna); // Mueve las columnas al nuevo orden
+                        }
+                    });
+
+
+                    // Volver a renderizar la lista después de mover las columnas
+                } else {
+                    console.error('Error al mover las columnas', response.message);
+                    showToast('Error al mover columnas. Intenta nuevamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Error al actualizar el orden en la base de datos', error);
+                showToast('Error al mover columnas. Intenta nuevamente.', 'error');
             }
         });
+
     })();
+
 
 
     scrollHorizontal(kanbanContainer);
@@ -126,7 +148,6 @@ export async function fetchAndRenderList(boardId) {
         const estados = respuesta.listas || [];
 
         const grid = document.getElementById('kanban-list');
-        grid.textContent = '';
 
         if (estados.length === 0) {
             const noBoardsMsg = document.createElement('p');
@@ -193,6 +214,7 @@ export async function fetchAndRenderList(boardId) {
 
                 const createBtn = document.createElement('button');
                 createBtn.classList.add('create-task-btn');
+
 
                 const icon = document.createElement('i');
                 icon.classList.add('fa-solid', 'fa-plus');
@@ -312,7 +334,7 @@ export async function fetchAndRenderTasks(estado) {
         const columna = document.querySelector(`.kanban-column[data-estado-id="${estado.id}"]`);
         const listaTareas = columna.querySelector(".kanban-column-content");
 
-        listaTareas.querySelectorAll('.task-draggable').forEach(t => t.remove());
+        //listaTareas.querySelectorAll('.task-draggable').forEach(t => t.remove());
 
         tareas.forEach(tarea => {
             const tareaElemento = document.createElement("div");
@@ -331,31 +353,49 @@ export async function fetchAndRenderTasks(estado) {
         setupSortableKanban('#kanban-list', '.kanban-column-content', async (evt) => {
             const tarea = evt.item;
             const tareaId = tarea.dataset.tareaId;
+            const nuevaColumna = tarea.closest('.kanban-column');
+            const nuevoEstadoId = nuevaColumna.dataset.estadoId;
+
+            if (!tareaId || !nuevoEstadoId) {
+                console.error('Faltan datos para mover la tarea');
+                return;
+            }
 
             const columnas = Array.from(document.querySelectorAll('.kanban-column-content'));
-            const nuevoOrden = columnas.map(col => ({
-                id: col.dataset.estadoId,
-                orden: Array.from(col.querySelectorAll('.task-draggable')).map((task, idx) => ({
-                    tareaId: task.dataset.tareaId,
-                    orden: idx
-                }))
-            }));
+            const nuevoOrden = columnas.map(col => {
+                const estadoId = col.closest('.kanban-column')?.dataset.estadoId; // sube al padre con el ID
+                return {
+                    id: estadoId,
+                    orden: Array.from(col.querySelectorAll('.task-draggable')).map((task, idx) => ({
+                        tareaId: task.dataset.tareaId,
+                        orden: idx
+                    }))
+                };
+            });
 
+            // Llamada a la función para mover las tareas (actualiza en el backend)
             try {
-                const response = await fetch('/api/mover-tarea', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tareaId, nuevoOrden })
-                });
+                await moverTareas(tareaId, nuevoEstadoId, nuevoOrden);
+                console.log('Tareas actualizadas correctamente en la base de datos');
 
-                if (!response.ok) {
-                    showToast('Error al mover la tarea');
-                }
-            } catch (err) {
-                console.error(err);
-                showToast('Error de red');
+                // Después de actualizar en el backend, reorganiza las tareas visualmente en el front
+                nuevoOrden.forEach(estado => {
+                    const columna = document.querySelector(`[data-estado-id="${estado.id}"] .kanban-column-content`);
+                    if (columna) {
+                        estado.orden.forEach((task, index) => {
+                            const taskElement = document.querySelector(`[data-tarea-id="${task.tareaId}"]`);
+                            if (taskElement) {
+                                columna.appendChild(taskElement);  // Vuelve a mover la tarea a su nueva posición
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error al mover las tareas:', error);
             }
         });
+
+
 
     } catch (error) {
         console.error("Error al cargar las tareas:", error);

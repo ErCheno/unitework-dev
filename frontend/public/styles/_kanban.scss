@@ -72,20 +72,22 @@
             margin: 0;
         }
 
-        .menu-container {
+        #menu-container {
             position: relative;
             display: flex;
             align-items: center;
 
             #icoTask {
-                cursor: pointer;
                 padding: 4px;
 
                 &:hover {
-                    color: #333;
+                    color: $seventh-color;
                 }
             }
 
+            &:hover {
+                cursor: pointer;
+            }
 
         }
     }

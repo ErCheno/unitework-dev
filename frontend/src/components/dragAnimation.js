@@ -171,54 +171,41 @@ export function setupSortable(containerId, handleClass, onEndCallback) {
     });
 }
 
+// setupSortableKanban → mover tareas dentro y entre columnas
 export function setupSortableKanban(containerSelector, listSelector, onEndCallback) {
-    const container = document.getElementById(containerSelector) || document.querySelector(containerSelector);
+    const container = document.querySelector(containerSelector);
     if (!container) return;
 
     const lists = container.querySelectorAll(listSelector);
-
     lists.forEach(list => {
         Sortable.create(list, {
-            group: 'kanban',  // Permite mover tareas entre columnas, pero no insertarlas dentro de otra columna
-            animation: 150,  // Animación de desplazamiento
-            ghostClass: 'opacity-50',  // Clase de animación para las tareas arrastradas
-            onEnd: onEndCallback,  // Callback cuando se termine de mover
-            swap: false,  // No permite el intercambio entre elementos dentro de la misma lista
-            dropOnEmpty: false,  // Asegura que las tareas no puedan caer en columnas vacías
-            draggable: '.task-draggable'  // Solo las tareas son arrastrables
+            group: 'kanban-tasks', // grupo exclusivo para tareas
+            animation: 150,
+            ghostClass: 'opacity-50',
+            draggable: '.task-draggable',
+            filter: '.no-drag',
+            preventOnFilter: false,
+            onMove: evt => !evt.related.classList.contains('no-drag'),
+            onEnd: onEndCallback
         });
     });
 }
 
 
 
-export function setupSortableList(containerSelector, listSelector, onEndCallback) {
-    const container = document.getElementById(containerSelector) || document.querySelector(containerSelector);
+
+// setupSortableList → mover columnas solamente
+export function setupSortableList(containerSelector, onEndCallback) {
+    const container = document.querySelector(containerSelector);
     if (!container) return;
 
-    // Configuración de las columnas
     Sortable.create(container, {
-        group: 'kanban',  // Las columnas pueden moverse entre sí, pero no pueden anidarse
+        group: 'kanban-columns',  // grupo exclusivo para columnas
         animation: 200,
-        ghostClass: 'opacity-50',  // Clase para el efecto visual cuando movemos las columnas
-        draggable: '.kanban-column',  // Las columnas son arrastrables
-        handle: '.kanban-column', // La columna será arrastrada al hacer clic en su header
-        onEnd: onEndCallback,  // Llamada al callback cuando termine el movimiento
-        sort: false,  // No permitir que se inserten dentro de otras columnas
-    });
-
-    // Inicializar el orden de las tareas dentro de cada columna
-    const lists = container.querySelectorAll(listSelector);
-    lists.forEach(list => {
-        Sortable.create(list, {
-            group: 'kanban',  // Las tareas solo se pueden mover dentro de la misma columna
-            animation: 150,
-            ghostClass: 'opacity-50',  // Clase de animación para las tareas arrastradas
-            onEnd: onEndCallback,  // Callback cuando se termine de mover
-            swap: false,  // No permite el intercambio entre elementos dentro de la misma lista
-            dropOnEmpty: false,  // Asegura que las tareas no puedan caer en columnas vacías
-            draggable: '.task-draggable'  // Solo las tareas son arrastrables
-        });
+        ghostClass: 'opacity-50',
+        draggable: '.kanban-column', // mueve columnas
+        handle: '.kanban-column', // o cualquier parte fija si usas handle
+        onEnd: onEndCallback,
     });
 }
 
