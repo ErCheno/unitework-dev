@@ -35,8 +35,13 @@ if ($result->num_rows === 0) {
 }
 $stmt->close();
 
-// Obtener las listas (estados)
-$stmt = $conn->prepare("SELECT id, nombre, creado_por, tablero_id FROM estados_tareas WHERE tablero_id = ?");
+// Obtener las listas (estados) con su respectivo posicionamiento y ordenadas por posicionamiento
+$stmt = $conn->prepare("
+    SELECT id, nombre, creado_por, tablero_id, posicionamiento 
+    FROM estados_tareas 
+    WHERE tablero_id = ? 
+    ORDER BY posicionamiento ASC
+");
 $stmt->bind_param("i", $tableroId);
 $stmt->execute();
 $result = $stmt->get_result();

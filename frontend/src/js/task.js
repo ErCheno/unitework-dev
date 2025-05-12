@@ -45,20 +45,6 @@ export async function crearTarea(estado, titulo, boardId) {
     }
 
     try {
-        const dataToSend = {
-            tablero_id: boardId,
-            estado_id: estado.id,
-            titulo: titulo,
-            descripcion: null,  // Puedes incluir la descripción aquí si es necesario
-            fecha_limite: null,  // Lo mismo para fecha_limite
-            orden: null,  // El orden se calculará en el backend
-            prioridad: 'media',  // O cualquier valor por defecto
-            etiqueta: null,  // Lo mismo para etiqueta
-            asignado_a: null  // O el ID del usuario asignado
-        };
-
-        console.log('Datos a enviar:', dataToSend);
-
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/createTask.php', {
             method: 'POST',
             headers: {
