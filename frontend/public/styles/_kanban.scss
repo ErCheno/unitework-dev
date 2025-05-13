@@ -150,7 +150,7 @@
 /* Cada tarea será un item dentro de las listas */
 .task-draggable {
     margin-bottom: 10px;
-    cursor: move;
+    cursor: pointer;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 15px;
@@ -479,6 +479,125 @@
     cursor: pointer;
 }
 
+
+// POPUP EDITAR TAREA
+#popupEditarTarea {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4); // fondo semi-transparente
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+
+
+    .taskEdit-content {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        width: 400px;
+        height: 600px;
+        animation: fadeIn 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        position: relative;
+        z-index: 99999;
+
+        #inputLabel {
+            color: $primary-color;
+            font-weight: bold;
+            margin: 0px;
+        }
+
+        #listaSituada {
+            color: $secondary-color;
+            font-size: 12px;
+        }
+
+        #hrEditarTarea {
+            margin: 0px;
+            background-color: $secondary-color;
+        }
+
+        #divDescrip {
+            display: flex;
+            flex-direction: row;
+            i {
+                margin-right: 10px;
+
+            }
+        }
+    }
+
+    .taskEdit-content h3 {
+        margin-top: 0;
+        margin-bottom: 0;
+        color: #1e2a39;
+    }
+
+    .taskEdit-content label {
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .taskEdit-content input,
+    .taskEdit-content textarea {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .taskEdit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .taskEdit-actions button {
+        padding: 0.5rem 1.2rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .taskEdit-cancelar {
+        background-color: $secondary-color;
+        color: $white-button-color;
+        transition: background-color 0.10s ease-in;
+
+        &:hover {
+            background-color: $primary-color;
+        }
+    }
+
+    .taskEdit-confirmar {
+        background-color: #4cb5ae;
+        color: white;
+        transition: background-color 0.10s ease-in;
+
+        &:hover {
+            background-color: $fourth-color;
+        }
+    }
+
+    #taskEdit-cerrar {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        font-size: 1.1rem;
+        cursor: pointer;
+        color: #888;
+    }
+
+}
 
 
 

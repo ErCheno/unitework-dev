@@ -173,7 +173,7 @@ export async function fetchAndRenderList(boardId) {
         if (!grid) return;
 
         grid.textContent = ''; // Limpiar tarjetas anteriores
-        
+
         if (estados.length === 0) {
             const noBoardsMsg = document.createElement('p');
             noBoardsMsg.textContent = '¡Empieza creando un proyecto!';
@@ -369,10 +369,12 @@ export async function fetchAndRenderTasks(estado) {
             const tareaTitulo = document.createElement("span");
             tareaTitulo.textContent = tarea.titulo;
             tareaElemento.appendChild(tareaTitulo);
-            listaTareas.appendChild(tareaElemento); // fallback si no hay botón
             tareaElemento.addEventListener('click', () => {
                 console.log('Tarea clickeada:', tarea);
+                popupEditarTarea(tarea, estado.id, estado.tablero_id);
             });
+            listaTareas.appendChild(tareaElemento); // fallback si no hay botón
+
         });
 
         setupSortableKanban('#kanban-list', '.kanban-column-content', async (evt) => {
@@ -534,4 +536,81 @@ function popupCrearLista(botonCrear, boardId) {
             console.error(err);
         }
     });
+}
+
+
+export function popupEditarTarea(tarea, estadoId, boardId) {
+    // Eliminar cualquier popup anterior
+    const existingPopup = document.getElementById('popupEditarTarea');
+    if (existingPopup) existingPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'popupEditarTarea';
+    popup.className = 'popup-editar-tarea';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+
+    const content = document.createElement('div');
+    content.className = 'taskEdit-content';
+
+    const titulo = document.createElement('h3');
+    titulo.textContent = tarea.titulo;
+
+    const hr = document.createElement('hr');
+    hr.id = 'hrEditarTarea';
+
+    const listaSituada = document.createElement('span');
+    listaSituada.id = 'listaSituada';
+    // Limpia el contenido previo
+    listaSituada.textContent = 'Tarea situada en la lista: ';
+
+    // Crea un span para la parte en negrita
+    const estadoSpan = document.createElement('span');
+    estadoSpan.textContent = tarea.estado;
+    estadoSpan.style.fontWeight = 'bolder';
+
+    // Añade el span al nodo principal
+    listaSituada.appendChild(estadoSpan);
+
+    const divDescrip = document.createElement('div');
+    divDescrip.id = 'divDescrip';
+
+    const icoDescrip = document.createElement('i');
+    icoDescrip.className = 'fa-regular fa-file-alt';
+    icoDescrip.id = 'icoDescrip';
+
+    const inputLabelDescrip = document.createElement('label');
+    inputLabelDescrip.id = 'inputLabel';
+    inputLabelDescrip.textContent = 'Descripción';
+
+    divDescrip.appendChild(icoDescrip);
+    divDescrip.appendChild(inputLabelDescrip);
+
+    const inputDescrip = document.createElement('textarea');
+    inputDescrip.value = tarea.descripcion || '';
+    inputDescrip.placeholder = 'Nueva descripción';
+
+    const acciones = document.createElement('div');
+    acciones.className = 'taskEdit-actions';
+
+    const guardar = document.createElement('button');
+    guardar.textContent = 'Guardar';
+    guardar.className = 'taskEdit-confirmar';
+
+    const cancelar = document.createElement('button');
+    cancelar.textContent = 'Cancelar';
+    cancelar.className = 'taskEdit-cancelar';
+
+    acciones.append(guardar, cancelar);
+    content.append(titulo, listaSituada, hr, divDescrip, inputDescrip, acciones);
+    popup.append(overlay, content);
+    document.body.appendChild(popup);
+
+    // Cerrar popup
+    cancelar.addEventListener('click', () => popup.remove());
+    overlay.addEventListener('click', () => popup.remove());
+
+
+
 }
