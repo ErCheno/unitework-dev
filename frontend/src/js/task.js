@@ -59,7 +59,7 @@ export async function crearTarea(estado, titulo, boardId) {
                 fecha_limite: null,  // Lo mismo para fecha_limite
                 orden: null,  // El orden se calculará en el backend
                 prioridad: 'media',  // O cualquier valor por defecto
-                etiqueta: null,  // Lo mismo para etiqueta
+                color: null,  // Lo mismo para etiqueta
                 asignado_a: null  // O el ID del usuario asignado
             })
         });
@@ -217,6 +217,48 @@ export async function moverLista(tableroId, nuevaPosicion) {
             throw new Error(data.message || 'Error desconocido al crear la lista');
         }
         //showToast('Tarea movida', 'success');
+
+        return data;
+
+    } catch (error) {
+        console.error('Error al mover las tareas:', error.message);
+        showToast('⚠️ ' + error.message, 'error');
+    }
+}
+
+
+export async function modificarTarea(tarea, inputDescrip, inputColor) {
+
+    const token = getToken();
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        page("/login");
+        return null;
+    }
+
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/putTask.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                id: tarea.id,
+                titulo: tarea.titulo,
+                descripcion: inputDescrip.value,
+                color: inputColor.value,
+            })
+        });
+        const data = await response.json();
+        if (!data.success) {
+            console.error('Error:', data.message);
+        }
+        if (!response.ok) {
+            throw new Error(data.message || 'Error desconocido al modificar la tarea');
+        }
+        showToast('Tarea modificada', 'success');
 
         return data;
 

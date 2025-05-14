@@ -31,7 +31,7 @@ $titulo        = trim($input['titulo']);
 $descripcion   = $input['descripcion'] ?? null;
 $fechaLimite   = $input['fecha_limite'] ?? null;
 $prioridad     = $input['prioridad'] ?? 'media';
-$etiqueta      = $input['etiqueta'] ?? null;
+$color      = $input['color'] ?? null;
 $asignadoA     = $input['asignado_a'] ?? null;
 $tableroId     = (int)$input['tablero_id'];
 $estadoId      = (int)$input['estado_id'];
@@ -115,7 +115,7 @@ if ($estadoTableroId !== $tableroId) {
 $sql = "
     INSERT INTO tareas (
         titulo, descripcion, fecha_creacion, fecha_limite, orden,
-        prioridad, etiqueta, asignado_a, estado_id
+        prioridad, color, asignado_a, estado_id
     )
     VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?)
 ";
@@ -134,7 +134,7 @@ $stmt->bind_param(
     $fechaLimite,
     $orden,
     $prioridad,
-    $etiqueta,
+    $color,
     $asignadoA,
     $estadoId,
 );

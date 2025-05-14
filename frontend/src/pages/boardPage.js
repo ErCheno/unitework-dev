@@ -5,9 +5,10 @@ import { scrollHorizontal, setupSortable, setupSortableKanban, setupSortableList
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { cargarTareas, TaskCard } from '../components/taskCard.js';
-import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista } from '../js/task.js';
+import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea } from '../js/task.js';
+import { fetchBoards, selectBoard } from '../js/board.js';
 
-export function BoardPage(boardId) {
+export async function BoardPage(boardId) {
     cleanupView();
 
     let contentDiv = document.getElementById('content');
@@ -27,13 +28,15 @@ export function BoardPage(boardId) {
     container.appendChild(navbar);
     container.appendChild(topbar);
 
+    const board = await selectBoard(boardId);
+
     // Sección superior
     const divConjuntoArriba = document.createElement('div');
     divConjuntoArriba.id = 'divConjuntoArriba';
 
     const title = document.createElement('h1');
+    title.textContent = board.nombre;
     title.id = 'tituloKanban';
-    title.textContent = 'Tareas';
 
     const botonCrear = document.createElement('button');
     botonCrear.id = 'crearLista';
@@ -49,9 +52,6 @@ export function BoardPage(boardId) {
         popupCrearLista(botonCrear, boardId);
 
     });
-
-
-
 
     const botonVolver = document.createElement('button');
     botonVolver.id = 'botonVolver';
@@ -82,7 +82,10 @@ export function BoardPage(boardId) {
     const kanbanContainer = document.createElement('div');
     kanbanContainer.id = 'kanban-list';
 
+
     (async () => {
+        
+
         // Renderizar la lista inicialmente
         await fetchAndRenderList(boardId);
 
@@ -353,11 +356,15 @@ export async function fetchAndRenderList(boardId) {
 // Función para renderizar las tareas dentro de cada columna (estado)
 export async function fetchAndRenderTasks(estado) {
     try {
+
+
         const response = await getTareas(estado, estado.tablero_id);
         const tareas = response.tasks;
 
         const columna = document.querySelector(`.kanban-column[data-estado-id="${estado.id}"]`);
         const listaTareas = columna.querySelector(".kanban-column-content");
+
+
 
         listaTareas.querySelectorAll('.task-draggable').forEach(t => t.remove());
 
@@ -366,12 +373,14 @@ export async function fetchAndRenderTasks(estado) {
             tareaElemento.classList.add("task-draggable");
             tareaElemento.dataset.tareaId = tarea.id;
 
+            tareaElemento.style.borderLeft = `8px solid ${tarea.color}`;
+
             const tareaTitulo = document.createElement("span");
             tareaTitulo.textContent = tarea.titulo;
             tareaElemento.appendChild(tareaTitulo);
             tareaElemento.addEventListener('click', () => {
                 console.log('Tarea clickeada:', tarea);
-                popupEditarTarea(tarea, estado.id, estado.tablero_id);
+                popupEditarTarea(tarea, estado);
             });
             listaTareas.appendChild(tareaElemento); // fallback si no hay botón
 
@@ -539,7 +548,7 @@ function popupCrearLista(botonCrear, boardId) {
 }
 
 
-export function popupEditarTarea(tarea, estadoId, boardId) {
+export function popupEditarTarea(tarea, estado) {
     // Eliminar cualquier popup anterior
     const existingPopup = document.getElementById('popupEditarTarea');
     if (existingPopup) existingPopup.remove();
@@ -554,8 +563,53 @@ export function popupEditarTarea(tarea, estadoId, boardId) {
     const content = document.createElement('div');
     content.className = 'taskEdit-content';
 
+    const tituloContainer = document.createElement('div');
+    tituloContainer.id = 'tituloContainer';
+
     const titulo = document.createElement('h3');
     titulo.textContent = tarea.titulo;
+    titulo.style.margin = 0;
+
+    const inputTitulo = document.createElement('input');
+    inputTitulo.type = 'text';
+    inputTitulo.style.display = 'none';
+    inputTitulo.value = tarea.titulo;
+    inputTitulo.className = 'input-editar-titulo';
+
+    const iconoLapiz = document.createElement('i');
+    iconoLapiz.className = 'fa-solid fa-pen';
+    iconoLapiz.style.cursor = 'pointer';
+
+    // Al hacer clic en el ícono, mostrar el input
+    iconoLapiz.addEventListener('click', () => {
+        titulo.style.display = 'none';
+        iconoLapiz.style.display = 'none';
+        inputTitulo.style.display = 'inline-block';
+        inputTitulo.focus();
+    });
+
+    // Al salir del input (blur) o presionar Enter, guardar el nuevo título
+    inputTitulo.addEventListener('blur', () => finalizarEdicion());
+    inputTitulo.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finalizarEdicion();
+        }
+    });
+
+    function finalizarEdicion() {
+        const nuevoTitulo = inputTitulo.value.trim();
+        if (nuevoTitulo && nuevoTitulo !== tarea.titulo) {
+            tarea.titulo = nuevoTitulo;
+            titulo.textContent = nuevoTitulo;
+        }
+        titulo.style.display = 'block';
+        iconoLapiz.style.display = 'inline-block';
+        inputTitulo.style.display = 'none';
+    }
+
+    tituloContainer.append(titulo, inputTitulo, iconoLapiz);
+
 
     const hr = document.createElement('hr');
     hr.id = 'hrEditarTarea';
@@ -572,7 +626,7 @@ export function popupEditarTarea(tarea, estadoId, boardId) {
 
     // Añade el span al nodo principal
     listaSituada.appendChild(estadoSpan);
-
+    ////
     const divDescrip = document.createElement('div');
     divDescrip.id = 'divDescrip';
 
@@ -591,6 +645,42 @@ export function popupEditarTarea(tarea, estadoId, boardId) {
     inputDescrip.value = tarea.descripcion || '';
     inputDescrip.placeholder = 'Nueva descripción';
 
+    // Crear el contenedor del color
+    const divColor = document.createElement('div');
+    divColor.id = 'divColor';
+
+    // Icono de paleta
+    const icoColor = document.createElement('i');
+    icoColor.className = 'fa-regular fas fa-palette';
+    icoColor.id = 'icoColor';
+
+    // Label
+    const inputLabelColor = document.createElement('label');
+    inputLabelColor.id = 'inputLabel';
+    inputLabelColor.textContent = ' Color';
+    inputLabelColor.setAttribute('for', 'inputColor');
+
+    // Selector de color
+    const inputColor = document.createElement('input');
+    inputColor.type = 'color';
+    inputColor.id = 'inputColor';
+    inputColor.name = 'color';
+    inputColor.value = '#3498db'; // Valor inicial
+
+
+    // Evento para cambiar el color dinámicamente
+    inputColor.addEventListener('input', () => {
+        tarea.color = inputColor.value;
+        content.style.borderLeft = '8px solid ' + inputColor.value;
+
+
+    });
+
+    // Agregar al DOM
+    divColor.appendChild(icoColor);
+    divColor.appendChild(inputLabelColor);
+    divColor.appendChild(inputColor);
+
     const acciones = document.createElement('div');
     acciones.className = 'taskEdit-actions';
 
@@ -598,17 +688,24 @@ export function popupEditarTarea(tarea, estadoId, boardId) {
     guardar.textContent = 'Guardar';
     guardar.className = 'taskEdit-confirmar';
 
+    guardar.addEventListener('click', async () => {
+        await modificarTarea(tarea, inputDescrip, inputColor);
+        fetchAndRenderTasks(estado);
+
+    });
+
     const cancelar = document.createElement('button');
     cancelar.textContent = 'Cancelar';
     cancelar.className = 'taskEdit-cancelar';
 
     acciones.append(guardar, cancelar);
-    content.append(titulo, listaSituada, hr, divDescrip, inputDescrip, acciones);
+    content.append(tituloContainer, listaSituada, hr, divDescrip, inputDescrip, divColor, inputColor, acciones);
     popup.append(overlay, content);
     document.body.appendChild(popup);
 
     // Cerrar popup
     cancelar.addEventListener('click', () => popup.remove());
+    guardar.addEventListener('click', () => popup.remove());
     overlay.addEventListener('click', () => popup.remove());
 
 

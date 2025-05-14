@@ -90,8 +90,8 @@ export async function workspacePage(workspaceId) {
     grid.id = 'board-list';
 
     try {
-        const usuarioId = localStorage.getItem('usuario_id');
-        const workspaces = await fetchWorkspaces(usuarioId);
+        //const usuarioId = localStorage.getItem('usuario_id');
+        const workspaces = await fetchWorkspaces();
 
         const workspace = workspaces.find(ws => ws.id === parseInt(workspaceId));
         console.log('Todos los IDs disponibles:', workspaces.map(ws => ws.id));

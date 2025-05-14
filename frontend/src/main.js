@@ -59,11 +59,18 @@ page('/workspace/:workspaceId', authGuard, (context) => {
 // Ruta para el tablero específico (desactivar polling si no es necesario)
 page('/board/:boardId', authGuard, (context) => {
     const boardId = context.params.boardId;
+    BoardPage(boardId); 
+});
+
+/*
+page('/board/:boardId', authGuard, (context) => {
+    const boardId = context.params.boardId;
     const boardPageContent = BoardPage(boardId); 
     const root = document.getElementById('content');
     root.textContent = '';
     root.appendChild(boardPageContent);
 });
+*/
 
 // Ruta de login
 page('/login', LoginPage);

@@ -2,9 +2,10 @@
 @use 'sass:color';
 
 #tituloKanban {
+    align-self: center;
+    margin: 0px;
     font-size: 2rem;
-    font-weight: bold;
-    color: #333;
+    color: $primary-color;
 }
 
 #kanban-list {
@@ -493,6 +494,21 @@
     align-items: center;
     z-index: 999;
 
+    #tituloContainer {
+        display: flex;
+        align-items: center;
+
+        i {
+            margin-left: 10px;
+
+        }
+
+        .input-editar-titulo{
+
+        }
+
+    }
+
 
     .taskEdit-content {
         background-color: #fff;
@@ -526,11 +542,28 @@
         #divDescrip {
             display: flex;
             flex-direction: row;
+
             i {
                 margin-right: 10px;
+                color: $primary-color;
 
             }
         }
+
+        #divColor {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+
+            #icoColor {
+                color: $primary-color;
+                margin-right: 10px;
+
+            }
+
+        }
+
+
     }
 
     .taskEdit-content h3 {

@@ -15,13 +15,15 @@
     margin-right: 50px;
 
     #tituloMyWorkspaces {
+      align-self: center;
+      margin: 0px;
       width: 50%;
       text-align: left;
       font-weight: bolder;
     }
 
 
-   
+
 
 
   }
@@ -80,10 +82,11 @@
 }
 
 #workspace-list {
-    background-color: rgba(214, 214, 214, 0.35); /* blanco con 85% opacidad */
+  background-color: rgba(214, 214, 214, 0.35);
+  /* blanco con 85% opacidad */
 }
 
-.workspace-card:hover{
+.workspace-card:hover {
   cursor: pointer;
 
 }
@@ -592,16 +595,20 @@
 // WORKSPACE
 
 #tituloWorkspace {
+  align-self: center;
+  margin: 0px;
   font-size: 36px;
   color: $primary-color;
 }
 
-#divBotonesArriba{
+#divBotonesArriba {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
 
-  #botonCrear, #botonRecarga, #botonVolver{
+  #botonCrear,
+  #botonRecarga,
+  #botonVolver {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -615,15 +622,15 @@
     border-radius: 0.5rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-  
+
     &:hover {
       transform: translateY(-2px);
     }
-  
+
     &:active {
       transform: translateY(0);
     }
-  
+
     &:focus {
       outline: 2px solid #c7d2fe;
       outline-offset: 2px;
@@ -639,7 +646,8 @@
     height: 50px;
     border-radius: 15px;
 
-    #icoCrear, #icoRecarga {
+    #icoCrear,
+    #icoRecarga {
       color: $primary-color;
       font-size: 30px;
       margin-right: 5px;
@@ -655,11 +663,11 @@
 
   }
 
-  #botonRecarga{
+  #botonRecarga {
     width: 20% !important;
   }
 
-  button{
+  button {
     margin: 10px;
 
   }
@@ -687,12 +695,12 @@
   max-height: 150px;
   width: 60%;
   overflow-y: auto;
-  
+
   background: #fff;
   padding: 2rem;
   border-radius: 1rem;
   max-width: 600px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   text-align: center;
   animation: popup-fade-in 0.3s ease-out;
   position: relative;
@@ -756,7 +764,7 @@
     padding: 6px 10px;
     cursor: pointer;
   }
-  
+
   span {
     padding: 5px 10px;
     border-radius: 20px;

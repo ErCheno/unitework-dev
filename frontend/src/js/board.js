@@ -169,3 +169,38 @@ export async function getUsuariosDisponibles(tableroId, filtro = "") {
         return [];
     }
 }
+
+export async function selectBoard(boardId) {
+    try {
+
+        const token = getToken();
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
+        const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/selectBoard.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+            },
+            body: JSON.stringify({
+                tableroId: boardId,
+            })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Error desconocido al obtener los tableros');
+        }
+
+        return data.tablero;
+
+    } catch (err) {
+        console.error(err);
+        throw new Error('Error al cargar tableros: ' + err.message);
+    }
+}

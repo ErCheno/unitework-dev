@@ -49,7 +49,7 @@ $query = "
         t.fecha_limite, 
         t.orden, 
         t.prioridad, 
-        t.etiqueta, 
+        t.color, 
         e.nombre AS estado
     FROM tareas t
     LEFT JOIN estados_tareas et ON t.estado_id = et.id
