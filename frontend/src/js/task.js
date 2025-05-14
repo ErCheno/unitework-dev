@@ -267,3 +267,34 @@ export async function modificarTarea(tarea, inputDescrip, inputColor) {
         showToast('⚠️ ' + error.message, 'error');
     }
 }
+
+export async function deleteTask(tareaId) {
+    const token = getToken();
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        page("/login");
+        return null;
+    }
+
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/deleteTask.php', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ tarea_id: tareaId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast('Tarea eliminada correctamente');
+        } else {
+            console.error('Error al eliminar la tarea:', data.message);
+        }
+    } catch (error) {
+        console.error('Error en la solicitud:', error);
+    }
+}

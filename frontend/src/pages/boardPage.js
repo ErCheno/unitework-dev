@@ -5,8 +5,8 @@ import { scrollHorizontal, setupSortable, setupSortableKanban, setupSortableList
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { cargarTareas, TaskCard } from '../components/taskCard.js';
-import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea } from '../js/task.js';
-import { fetchBoards, selectBoard } from '../js/board.js';
+import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea, deleteTask } from '../js/task.js';
+import { fetchBoards, putBoard, selectBoard } from '../js/board.js';
 
 export async function BoardPage(boardId) {
     cleanupView();
@@ -34,9 +34,58 @@ export async function BoardPage(boardId) {
     const divConjuntoArriba = document.createElement('div');
     divConjuntoArriba.id = 'divConjuntoArriba';
 
-    const title = document.createElement('h1');
+
+
+    const titleContainer = document.createElement('div');
+    titleContainer.id = 'tittleContainer';
+
+    const title = document.createElement('h3');
     title.textContent = board.nombre;
     title.id = 'tituloKanban';
+    title.style.margin = 0;
+
+    const inputTitle = document.createElement('input');
+    inputTitle.type = 'text';
+    inputTitle.style.display = 'none';
+    inputTitle.className = 'input-editar-titulo';
+
+    const iconoLapiz = document.createElement('i');
+    iconoLapiz.className = 'fa-solid fa-pen';
+    iconoLapiz.style.cursor = 'pointer';
+
+    // Al hacer clic en el ícono, mostrar el input
+    iconoLapiz.addEventListener('click', () => {
+        inputTitle.value = title.textContent; // ✅ sincronizar el input con el título actual
+        title.style.display = 'none';
+        iconoLapiz.style.display = 'none';
+        inputTitle.style.display = 'inline-block';
+        inputTitle.focus();
+    });
+
+
+    // Al salir del input (blur) o presionar Enter, guardar el nuevo título
+    inputTitle.addEventListener('blur', () => finalizarEdicion());
+    inputTitle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finalizarEdicion();
+        }
+    });
+
+    async function finalizarEdicion() {
+        const nuevoTitulo = inputTitle.value.trim();
+
+        title.style.display = 'block';
+        iconoLapiz.style.display = 'inline-block';
+        inputTitle.style.display = 'none';
+        console.log(board);
+        console.log(board.id);
+        await putBoard(board.id, nuevoTitulo);
+        title.textContent = nuevoTitulo;
+    }
+
+    titleContainer.append(title, inputTitle, iconoLapiz);
+
 
     const botonCrear = document.createElement('button');
     botonCrear.id = 'crearLista';
@@ -72,7 +121,7 @@ export async function BoardPage(boardId) {
     divBotonesArriba.appendChild(botonCrear);
     divBotonesArriba.appendChild(botonVolver);
 
-    divConjuntoArriba.append(title, divBotonesArriba);
+    divConjuntoArriba.append(titleContainer, divBotonesArriba);
     const hrWorkspaces = document.createElement('hr');
     hrWorkspaces.id = 'hrMyWorkspaces';
 
@@ -84,7 +133,7 @@ export async function BoardPage(boardId) {
 
 
     (async () => {
-        
+
 
         // Renderizar la lista inicialmente
         await fetchAndRenderList(boardId);
@@ -228,6 +277,7 @@ export async function fetchAndRenderList(boardId) {
                 /*if (estado.tareas && estado.tareas.length > 0) {
                     fetchAndRenderTasks(estado);
                 }*/
+               
 
                 menuContainer.appendChild(menu);
 
@@ -608,8 +658,25 @@ export function popupEditarTarea(tarea, estado) {
         inputTitulo.style.display = 'none';
     }
 
+    const divTop = document.createElement('div');
+    divTop.id = 'divTop';
+
+    const borrarButton = document.createElement('div');
+    borrarButton.id = 'borrarButton';
+    borrarButton.title = 'Haz clic para eliminar la tarea';
+
+    const spanBorrar = document.createElement('span');
+    spanBorrar.id = 'spanBorrar';
+
+    spanBorrar.className = 'fa-solid fa-trash';
+
+    borrarButton.appendChild(spanBorrar);
+    
+
     tituloContainer.append(titulo, inputTitulo, iconoLapiz);
 
+    divTop.appendChild(tituloContainer);
+    divTop.appendChild(borrarButton);
 
     const hr = document.createElement('hr');
     hr.id = 'hrEditarTarea';
@@ -694,18 +761,25 @@ export function popupEditarTarea(tarea, estado) {
 
     });
 
+    borrarButton.addEventListener('click', async () => {
+        await deleteTask(tarea.id);
+        fetchAndRenderTasks(estado);
+
+    });
+
     const cancelar = document.createElement('button');
     cancelar.textContent = 'Cancelar';
     cancelar.className = 'taskEdit-cancelar';
 
     acciones.append(guardar, cancelar);
-    content.append(tituloContainer, listaSituada, hr, divDescrip, inputDescrip, divColor, inputColor, acciones);
+    content.append(divTop, listaSituada, hr, divDescrip, inputDescrip, divColor, inputColor, acciones);
     popup.append(overlay, content);
     document.body.appendChild(popup);
 
     // Cerrar popup
     cancelar.addEventListener('click', () => popup.remove());
     guardar.addEventListener('click', () => popup.remove());
+    borrarButton.addEventListener('click', () => popup.remove());
     overlay.addEventListener('click', () => popup.remove());
 
 

@@ -599,6 +599,16 @@
   margin: 0px;
   font-size: 36px;
   color: $primary-color;
+  text-align: left;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // Se quería un difuminado al final del texto y se ha buscado por internet esta opción.
+  mask-image: linear-gradient(to right, $primary-color 80%, transparent 100%); // https://lenguajecss.com/css/mascaras-y-recortes/mask-image/
+  width: 50%;
+
 }
 
 #divBotonesArriba {

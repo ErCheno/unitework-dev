@@ -53,11 +53,6 @@ if ($row['rol'] !== 'admin') {
     exit();
 }
 
-// Eliminar tareas asociadas al tablero
-$stmt = $conn->prepare("DELETE FROM tareas WHERE tablero_id = ?");
-$stmt->bind_param("i", $tableroId);
-$stmt->execute();
-
 // Eliminar el tablero
 $stmt = $conn->prepare("DELETE FROM tableros WHERE id = ?");
 $stmt->bind_param("i", $tableroId);
