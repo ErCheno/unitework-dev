@@ -1031,9 +1031,9 @@ export function popupEditarLista(estado) {
 
 
 }
-
 export async function abrirPopupGestionUsuarios(boardId) {
     const usuarios = await getUsuariosDelTablero(boardId);
+    const emailUsuario = localStorage.getItem('email'); // o de donde lo saques
 
     const overlay = document.createElement('div');
     overlay.className = 'popup-overlay';
@@ -1066,30 +1066,45 @@ export async function abrirPopupGestionUsuarios(boardId) {
         email.textContent = usuario.email;
 
         info.appendChild(nombre);
-        info.appendChild(document.createElement('br'));
         info.appendChild(email);
 
-        const select = document.createElement('select');
-        const optMiembro = document.createElement('option');
-        optMiembro.value = 'miembro';
-        optMiembro.textContent = 'Miembro';
-        if (usuario.rol === 'miembro') optMiembro.selected = true;
+        const selectContainer = document.createElement('div');
+        selectContainer.className = 'select-container';
 
-        const optAdmin = document.createElement('option');
-        optAdmin.value = 'admin';
-        optAdmin.textContent = 'Administrador';
-        if (usuario.rol === 'admin') optAdmin.selected = true;
+        if (usuario.email === emailUsuario) {
+            // Mostrar "Tú" deshabilitado
+            const tuLabel = document.createElement('span');
+            tuLabel.className = 'label-tu';
+            tuLabel.textContent = 'Tú';
+            selectContainer.appendChild(tuLabel);
+        } else {
+            // Crear el <select> normal
+            const select = document.createElement('select');
+            select.className = 'select-rol';
 
-        select.appendChild(optMiembro);
-        select.appendChild(optAdmin);
+            const optMiembro = document.createElement('option');
+            optMiembro.value = 'miembro';
+            optMiembro.textContent = 'Miembro';
+            if (usuario.rol === 'miembro') optMiembro.selected = true;
 
-        select.addEventListener('change', async () => {
-            await cambiarRolUsuario(boardId, usuario.id, select.value);
-        });
+            const optAdmin = document.createElement('option');
+            optAdmin.value = 'admin';
+            optAdmin.textContent = 'Administrador';
+            if (usuario.rol === 'admin') optAdmin.selected = true;
+
+            select.appendChild(optMiembro);
+            select.appendChild(optAdmin);
+
+            select.addEventListener('change', async () => {
+                await cambiarRolUsuario(boardId, usuario.id, select.value);
+            });
+
+            selectContainer.appendChild(select);
+        }
 
         userRow.appendChild(avatar);
         userRow.appendChild(info);
-        userRow.appendChild(select);
+        userRow.appendChild(selectContainer);
 
         content.appendChild(userRow);
     });

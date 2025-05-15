@@ -194,7 +194,7 @@ export async function getUsuariosDelTablero(tableroId) {
 export async function cambiarRolUsuario(tableroId, nuevoRol) {
     try {
         const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/updateUserRoleBoard.php", {
-            method: "POST",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json"
             },

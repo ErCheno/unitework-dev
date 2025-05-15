@@ -42,7 +42,7 @@ if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
 
 // Opcional: verificar que el usuario que intenta hacer el cambio sea admin del tablero
 $stmt = $conn->prepare("SELECT rol FROM miembros_tableros WHERE tablero_id = ? AND usuario_id = ?");
-$stmt->bind_param("ii", $tablero_id, $usuario['id']);
+$stmt->bind_param("is", $tablero_id, $usuario['id']);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows === 0) {
