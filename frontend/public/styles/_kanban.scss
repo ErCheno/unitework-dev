@@ -106,7 +106,7 @@
     list-style: none;
     padding: 8px 0;
     margin: 0;
-    width: 250px;
+    width: 150px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
     li {
@@ -187,7 +187,8 @@
     position: relative; // Para que el popup se posicione relativo al botón
 }
 
-.listCreate-popup {
+.listCreate-popup,
+.modal-content {
     position: absolute;
     background-color: #fff;
     border: 1px solid #ddd;
@@ -204,6 +205,7 @@
     /* Iniciar desplazado hacia la izquierda */
     transition: opacity 0.5s ease, transform 0.3s ease, z-index 0s 0.5s;
     /* Animación suave */
+
 }
 
 .fade-in {
@@ -484,7 +486,7 @@
     display: flex;
     align-items: center;
     flex-direction: row;
-    width: 60%;
+    width: 40%;
 
     .input-editar-titulo {
         font-size: 24px;
@@ -497,6 +499,8 @@
     }
 
     h3 {
+        font-size: 24px;
+
         text-align: left;
         margin: 0;
         white-space: nowrap;
@@ -509,9 +513,20 @@
     }
 }
 
+#hrBoard {
+    width: 35%;
+    margin: 0px;
+
+    margin-left: 75px;
+    background-color: $primary-color;
+}
+
+
+
 
 // POPUP EDITAR TAREA
-#popupEditarTarea {
+#popupEditarTarea,
+#popupEditarLista {
     position: fixed;
     top: 0;
     left: 0;
@@ -569,15 +584,21 @@
         }
     }
 
+    .listEdit-content {
+        width: 35% !important;
+        height: 40% !important;
+    }
 
 
+    .taskEdit-content,
+    .listEdit-content {
+        height: 100%;
 
-    .taskEdit-content {
         background-color: #fff;
         padding: 2rem;
         border-radius: 12px;
         width: 400px;
-        height: 600px;
+        height: 500px;
         animation: fadeIn 0.3s ease;
         display: flex;
         flex-direction: column;
@@ -623,6 +644,38 @@
 
             }
 
+
+
+        }
+
+        .selector-colores {
+            padding: 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            outline: none;
+            transition: transform 0.2s, border 0.2s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .color-btn.active {
+            border: 2px solid $white-button-color; // o tu color primario
         }
 
 
@@ -649,10 +702,15 @@
     }
 
     .taskEdit-actions {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+
         display: flex;
         justify-content: flex-end;
         gap: 1rem;
-        margin-top: 1rem;
+        margin: 15px;
+
     }
 
     .taskEdit-actions button {
@@ -696,27 +754,6 @@
 
 
 
-/* Ajustes para pantallas pequeñas */
-@media (max-width: 768px) {
-    #tituloKanban {
-        font-size: 1.8rem;
-    }
-
-    #add-task-form {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .kanban-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .kanban-column {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-}
 
 /* Estilos adicionales para el grid de tareas */
 #tasks-list {
@@ -763,4 +800,90 @@
 
 .task-card button:hover {
     background-color: #45a049;
+}
+
+
+
+// MIEMBROS en el kanban
+.avatar-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-left: auto;
+    padding-right: 20px;
+
+}
+
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid white;
+    object-fit: cover;
+    margin-left: -10px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+    background-color: #fff;
+}
+
+.avatar-circle:first-child {
+    margin-left: 0;
+}
+
+.avatar-circle:hover {
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.popup-close {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.user-info {
+    flex-grow: 1;
+}
+
+
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+    #tituloKanban {
+        font-size: 1.8rem;
+    }
+
+    #add-task-form {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .kanban-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .kanban-column {
+        width: 100%;
+        margin-bottom: 20px;
+    }
 }

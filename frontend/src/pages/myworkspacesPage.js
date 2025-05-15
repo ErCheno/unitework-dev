@@ -55,9 +55,8 @@ export async function myWorkspacesPage() {
     botonCrear.appendChild(parrafoCrear);
 
     botonCrear.addEventListener('click', () => {
-        const modal = CreateWorkspaceModal();
+        const modal = CreateWorkspaceModal(botonCrear);
         document.body.appendChild(modal);
-        modal.show();
     });
 
     const botonVolver = document.createElement('button');

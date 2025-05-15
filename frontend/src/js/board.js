@@ -119,7 +119,7 @@ export async function deleteBoards(tableroId) {
             }
 
         }
-        
+
     } catch (error) {
         console.error('Error al eliminar el espacio:', error);
         alert('Error en la petición');
@@ -131,21 +131,21 @@ export async function uploadAvatar(usuarioId) {
     const formData = new FormData();
     formData.append("usuario_id", usuarioId);
     formData.append("avatar", archivo);
-  
+
     try {
-      const response = await fetch("http://localhost/backend/usuarios/subir_avatar.php", {
-        method: "POST",
-        body: formData,
-      });
-  
-      const data = await response.json();
-      if (data.success) {
-        console.log("Avatar subido con éxito:", data.avatar);
-      } else {
-        console.error("Error:", data.message);
-      }
+        const response = await fetch("http://localhost/backend/usuarios/subir_avatar.php", {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            console.log("Avatar subido con éxito:", data.avatar);
+        } else {
+            console.error("Error:", data.message);
+        }
     } catch (error) {
-      console.error("Error en la petición:", error);
+        console.error("Error en la petición:", error);
     }
 }
 
@@ -157,6 +157,51 @@ export async function getUsuariosDisponibles(tableroId, filtro = "") {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({ tablero_id: tableroId, filtro })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
+    }
+}
+
+export async function getUsuariosDelTablero(tableroId) {
+    try {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsersBoard.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ tablero_id: tableroId })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
+    }
+}
+
+export async function cambiarRolUsuario(tableroId, nuevoRol) {
+    try {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/updateUserRoleBoard.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                tablero_id: tableroId,
+                nuevo_rol: nuevoRol
+            })
         });
 
         if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);

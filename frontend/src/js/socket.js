@@ -31,7 +31,7 @@ export function connectSocket() {
     });
 
     socket.on('nueva-invitacion', async (data) => {
-        console.log('ENTREEEEE')
+      //console.log('ENTREEEEE')
       console.log('📨 Invitación recibida:', data);
       showToast(`📨 Nueva invitación de ${data.nombre || 'alguien'}`, "info");
 

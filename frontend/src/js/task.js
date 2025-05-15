@@ -227,8 +227,7 @@ export async function moverLista(tableroId, nuevaPosicion) {
 }
 
 
-export async function modificarTarea(tarea, inputDescrip, inputColor) {
-
+export async function modificarTarea(tarea, inputDescrip = null, inputColor = null) {
     const token = getToken();
 
     if (!token) {
@@ -237,6 +236,14 @@ export async function modificarTarea(tarea, inputDescrip, inputColor) {
         return null;
     }
 
+    const body = {
+        id: tarea.id,
+        titulo: tarea.titulo,
+    };
+
+    if (inputDescrip) body.descripcion = inputDescrip.value;
+    if (inputColor) body.color = inputColor.value;
+
     try {
         const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/putTask.php', {
             method: 'PUT',
@@ -244,22 +251,20 @@ export async function modificarTarea(tarea, inputDescrip, inputColor) {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({
-                id: tarea.id,
-                titulo: tarea.titulo,
-                descripcion: inputDescrip.value,
-                color: inputColor.value,
-            })
+            body: JSON.stringify(body)
         });
+
         const data = await response.json();
+
         if (!data.success) {
             console.error('Error:', data.message);
         }
+
         if (!response.ok) {
             throw new Error(data.message || 'Error desconocido al modificar la tarea');
         }
-        showToast('Tarea modificada', 'success');
 
+        //showToast('Tarea modificada', 'success');
         return data;
 
     } catch (error) {
@@ -267,6 +272,9 @@ export async function modificarTarea(tarea, inputDescrip, inputColor) {
         showToast('⚠️ ' + error.message, 'error');
     }
 }
+
+
+
 
 export async function deleteTask(tareaId) {
     const token = getToken();
@@ -296,5 +304,83 @@ export async function deleteTask(tareaId) {
         }
     } catch (error) {
         console.error('Error en la solicitud:', error);
+    }
+}
+
+
+export async function modificarLista(estadoId, nombre, color) {
+    const token = getToken();
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        page("/login");
+        return null;
+    }
+
+    // Construimos el body de forma dinámica, solo con los campos que existan
+    const body = { id: estadoId };
+    if (nombre !== undefined) body.nombre = nombre;
+    if (color !== undefined) body.color = color;
+
+    try {
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/putList.php', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast('Lista modificada correctamente', 'success');
+        } else {
+            console.error('Error al modificar la lista:', data.message);
+        }
+        return data;
+
+    } catch (error) {
+        console.error('Error en la solicitud:', error);
+        showToast('Error en la solicitud: ' + error.message, 'error');
+    }
+}
+
+export async function deleteList(estadoId, tableroId) {
+    const token = getToken(); // Asegúrate de tener esta función definida
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        page("/login");
+        return null;
+    }
+
+    try {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/tasksKanban/deleteList.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+                estado_id: estadoId,
+                tablero_id: tableroId
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showToast("Lista eliminada correctamente", "success");
+            return true;
+        } else {
+            showToast("Error: " + data.message, "error");
+            return false;
+        }
+    } catch (error) {
+        console.error("Error al eliminar la lista:", error);
+        showToast("Error de red al eliminar la lista", "error");
+        return false;
     }
 }

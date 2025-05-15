@@ -55,9 +55,10 @@ $stmtMaxPos->close();
 
 // Paso 2: Si no hay listas en el tablero, el valor máximo será NULL, entonces asignamos 1 como el primer valor
 $nextPosicionamiento = $maxPosicionamiento ? $maxPosicionamiento + 1 : 1;
+$color = null;  // valor NULL que quieres pasar
 
 // Paso 3: Insertar la nueva lista con el posicionamiento calculado
-$sql = "INSERT INTO estados_tareas (nombre, creado_por, tablero_id, posicionamiento) VALUES (?, ?, ?, ?)";
+$sql = "INSERT INTO estados_tareas (nombre, creado_por, tablero_id, posicionamiento, color) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
@@ -66,7 +67,7 @@ if (!$stmt) {
     exit();
 }
 
-$stmt->bind_param("ssii", $nombre, $creadoPor, $tableroId, $nextPosicionamiento);
+$stmt->bind_param("ssiis", $nombre, $creadoPor, $tableroId, $nextPosicionamiento, $color);
 
 if ($stmt->execute()) {
     echo json_encode([

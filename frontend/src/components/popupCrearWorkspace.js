@@ -4,146 +4,122 @@ import { myWorkspacesPage } from '../pages/myworkspacesPage.js';
 import { createWorkspaces } from '../js/workspaces.js';
 import { socket } from '../js/socket.js';
 
-export function CreateWorkspaceModal() {
-    // Crear elementos base
-    const modal = document.createElement('div');
-    modal.id = 'modal-crear';
-    modal.className = 'modal';
-    modal.style.display = 'none';
+export function CreateWorkspaceModal(botonCrear) {
+    // Eliminar popup previo si existe
+    const popupPrevio = document.getElementById('popupCrearWorkspace');
+    if (popupPrevio) popupPrevio.remove();
 
-    const content = document.createElement('div');
-    content.className = 'modal-content';
+    const popup = document.createElement('div');
+    popup.className = 'workspace-popup';
+    popup.id = 'popupCrearWorkspace';
 
-    const cerrar = document.createElement('i');
-    cerrar.className = 'fas fa-times';
-    cerrar.id = 'cerrar'
+    popup.classList.add('mostrar');
+    popup.classList.remove('ocultar');
 
-    const tituloHeader = document.createElement('h2');
-    tituloHeader.textContent = 'Nuevo espacio de trabajo';
+
+    setTimeout(() => {
+        popup.classList.add('animate-popup');
+    }, 50);
+
+    
+    const arrow = document.createElement('div');
+    arrow.className = 'popup-arrow-create-workspace';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Crear nuevo espacio de trabajo';
 
     const labelTitulo = document.createElement('label');
-    labelTitulo.setAttribute('for', 'titulo');
     labelTitulo.textContent = 'Título *';
 
     const inputTitulo = document.createElement('input');
-    inputTitulo.id = 'titulo';
     inputTitulo.placeholder = 'Ej. Proyecto Alfa';
 
     const labelDescripcion = document.createElement('label');
-    labelDescripcion.setAttribute('for', 'descripcion');
     labelDescripcion.textContent = 'Descripción (opcional)';
 
     const inputDescripcion = document.createElement('textarea');
-    inputDescripcion.id = 'descripcion';
-    inputDescripcion.rows = 3;
+    inputDescripcion.rows = 2;
     inputDescripcion.placeholder = 'Descripción del espacio...';
 
-    // Crear el contenedor para los tableros y su selector
-    const contenedorTableros = document.createElement('div');
-    contenedorTableros.id = 'tableros-container';
-    contenedorTableros.style.display = 'none'; // Se ocultará hasta que se ingrese un correo
-
-    // Crear un botón para mostrar los tableros
-    const botonMostrarTableros = document.createElement('button');
-    botonMostrarTableros.textContent = 'Seleccionar Tableros';
-
-    // Crear la ventana de selección de tableros (ventana emergente)
-    const ventanaTableros = document.createElement('div');
-    ventanaTableros.id = 'ventana-tableros';
-    ventanaTableros.style.position = 'absolute';
-    ventanaTableros.style.top = '50px'; // Ajustar según necesidad
-    ventanaTableros.style.right = '0';
-    ventanaTableros.style.background = 'white';
-    ventanaTableros.style.border = '1px solid #ccc';
-    ventanaTableros.style.padding = '10px';
-    ventanaTableros.style.display = 'none'; // Se mostrará cuando se seleccione el correo
-
-
-    // Agregar la ventana de tableros al DOM
-
-
-    // Mostrar la ventana emergente de tableros cuando se haga click en el botón
-    botonMostrarTableros.addEventListener('click', () => {
-        ventanaTableros.style.display = 'block';
-    });
-
-
-    const actions = document.createElement('div');
-    actions.className = 'modal-actions';
-
-    const btnCancelar = document.createElement('button');
-    btnCancelar.className = 'cancelar';
-    btnCancelar.textContent = 'Cancelar';
+    const acciones = document.createElement('div');
+    acciones.className = 'acciones-popup';
 
     const btnCrear = document.createElement('button');
-    btnCrear.className = 'confirmar';
     btnCrear.textContent = 'Crear';
+    btnCrear.className = 'crear-lista-confirmar';
 
-    // Armar estructura
-    actions.appendChild(btnCancelar);
-    actions.appendChild(btnCrear);
+    const btnCancelar = document.createElement('button');
+    btnCancelar.textContent = 'Cancelar';
+    btnCancelar.className = 'crear-lista-cancelar';
 
-    content.appendChild(cerrar);
-    content.appendChild(tituloHeader);
-    content.appendChild(labelTitulo);
-    content.appendChild(inputTitulo);
-    content.appendChild(labelDescripcion);
-    content.appendChild(inputDescripcion);
-    content.appendChild(actions);
+    acciones.appendChild(btnCrear);
+    acciones.appendChild(btnCancelar);
 
-    modal.appendChild(content);
+    popup.append(arrow, title, labelTitulo, inputTitulo, labelDescripcion, inputDescripcion, acciones);
+    document.body.appendChild(popup);
 
-    // Eventos
-    cerrar.addEventListener('click', () => {
-        modal.style.display = 'none';
+
+    // Posicionar debajo del botón
+    const rect = botonCrear.getBoundingClientRect();
+    const popupWidth = 450;
+    let left = rect.left + window.scrollX;
+    let top = rect.bottom + window.scrollY + 8;
+
+    if (left + popupWidth > window.innerWidth - 10) {
+        left = window.innerWidth - popupWidth - 10;
+    }
+
+    popup.style.position = 'fixed';
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+
+    inputTitulo.focus();
+
+    // Cierre
+    function cerrarPopup() {
+        popup.classList.remove('animate-popup');
+        popup.classList.add('fade-out');
+            // Ocultar popup con fade-out y luego remover del DOM si quieres
+    popup.classList.remove('mostrar');
+    popup.classList.add('ocultar');
+        popup.addEventListener('animationend', () => {
+            popup.remove();
+        }, { once: true });
+        document.removeEventListener('click', handleCerrar);
+    }
+
+
+    btnCancelar.addEventListener('click', cerrarPopup);
+
+    function handleCerrar(e) {
+        if (e.key === 'Escape') cerrarPopup();
+        if (!popup.contains(e.target) && e.target !== botonCrear) cerrarPopup();
+    }
+
+    setTimeout(() => document.addEventListener('click', handleCerrar));
+    inputDescripcion.addEventListener('keydown', e => {
+        if (e.key === 'Enter') btnCrear.click();
     });
 
-    btnCancelar.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-    // Acción principal
-    async function handleCreateWorkspace() {
+    btnCrear.addEventListener('click', async () => {
         const nombre = inputTitulo.value.trim();
         const descripcion = inputDescripcion.value.trim();
 
-        console.log(nombre);
-        console.log(descripcion);
-
         if (!nombre) {
-            alert('El título es obligatorio');
+            showToast('⚠️ Escribe un título válido');
             return;
         }
 
-        createWorkspaces(nombre, descripcion, modal);
-        socket?.emit('nuevoWorkspace', { nombre, descripcion }); // 🔥 Emite el evento a los demás
-          
-        
-    }
-
-    // Al hacer clic en el botón
-    btnCrear.addEventListener('click', handleCreateWorkspace);
-
-    // Al presionar Enter en el input de título o descripción
-    [inputTitulo, inputDescripcion].forEach(input => {
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Evita comportamiento por defecto como enviar un formulario
-                handleCreateWorkspace();
-            }
-        });
+        try {
+            await createWorkspaces(nombre, descripcion, popup);
+            socket?.emit('nuevoWorkspace', { nombre, descripcion });
+            cerrarPopup();
+        } catch (err) {
+            console.error(err);
+            showToast('❌ Error al crear espacio', 'error');
+        }
     });
 
+    return popup;
 
-    // Método para mostrar
-    modal.show = () => {
-        modal.style.display = 'flex';
-    };
-
-    return modal;
 }

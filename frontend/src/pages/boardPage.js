@@ -5,8 +5,9 @@ import { scrollHorizontal, setupSortable, setupSortableKanban, setupSortableList
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { cargarTareas, TaskCard } from '../components/taskCard.js';
-import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea, deleteTask } from '../js/task.js';
-import { fetchBoards, putBoard, selectBoard } from '../js/board.js';
+import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea, deleteTask, modificarLista, deleteList } from '../js/task.js';
+import { cambiarRolUsuario, fetchBoards, getUsuariosDelTablero, getUsuariosDisponibles, putBoard, selectBoard } from '../js/board.js';
+import { mostrarPopupConfirmacion } from '../components/workspaceCard.js';
 
 export async function BoardPage(boardId) {
     cleanupView();
@@ -34,7 +35,9 @@ export async function BoardPage(boardId) {
     const divConjuntoArriba = document.createElement('div');
     divConjuntoArriba.id = 'divConjuntoArriba';
 
-
+    // Contenedor de miembros (avatares)
+    const miembrosContainer = document.createElement('div');
+    miembrosContainer.id = 'avatar-container';
 
     const titleContainer = document.createElement('div');
     titleContainer.id = 'tittleContainer';
@@ -84,6 +87,8 @@ export async function BoardPage(boardId) {
         title.textContent = nuevoTitulo;
     }
 
+
+
     titleContainer.append(title, inputTitle, iconoLapiz);
 
 
@@ -118,12 +123,19 @@ export async function BoardPage(boardId) {
     const divBotonesArriba = document.createElement('div');
     divBotonesArriba.id = 'divBotonesArriba';
 
+
+
     divBotonesArriba.appendChild(botonCrear);
     divBotonesArriba.appendChild(botonVolver);
 
-    divConjuntoArriba.append(titleContainer, divBotonesArriba);
+
+    // Obtener y mostrar los miembros
+    const usuarios = await getUsuariosDelTablero(boardId);
+    const avatarGroup = renderAvatarGroup(usuarios, boardId);
+
+    divConjuntoArriba.append(titleContainer, avatarGroup, divBotonesArriba);
     const hrWorkspaces = document.createElement('hr');
-    hrWorkspaces.id = 'hrMyWorkspaces';
+    hrWorkspaces.id = 'hrBoard';
 
 
 
@@ -209,11 +221,39 @@ export async function BoardPage(boardId) {
 
     scrollHorizontal(kanbanContainer);
 
+
+
+
+
     container.append(divConjuntoArriba, hrWorkspaces, kanbanContainer);
     contentDiv.appendChild(container);
 
     return container;
 }
+
+function renderAvatarGroup(usuarios, boardId) {
+    const container = document.createElement('div');
+    container.className = 'avatar-group';
+    console.log(usuarios);
+
+    usuarios.forEach(usuario => {
+        const avatar = document.createElement('img');
+        avatar.className = 'avatar-circle';
+        avatar.src = usuario.avatar_url;
+        avatar.title = usuario.email;
+        avatar.alt = usuario.email;
+        container.appendChild(avatar);
+    });
+
+    container.addEventListener('click', () => {
+        abrirPopupGestionUsuarios(boardId);
+
+    });
+
+
+    return container;
+}
+
 
 
 export async function fetchAndRenderList(boardId) {
@@ -237,6 +277,8 @@ export async function fetchAndRenderList(boardId) {
                 columna.classList.add("kanban-column", "column-draggable");
                 columna.dataset.estadoId = estado.id;
 
+                columna.style.background = estado.color;
+
                 const divHeader = document.createElement('div');
                 divHeader.className = 'task-header';
 
@@ -250,36 +292,29 @@ export async function fetchAndRenderList(boardId) {
 
                 const menu = document.createElement('ul');
                 menu.className = 'task-menu hidden';
-
                 const detalle = document.createElement('li');
-                detalle.textContent = 'Ver detalles';
-
-                const invitar = document.createElement('li');
-                invitar.textContent = 'Invitar usuarios';
-
-                const salir = document.createElement('li');
-                salir.textContent = 'Salir del espacio';
+                detalle.textContent = 'Editar lista';
 
                 const eliminar = document.createElement('li');
                 eliminar.textContent = 'Eliminar espacio';
                 eliminar.id = 'eliminarLi';
 
                 menu.appendChild(detalle);
-                menu.appendChild(salir);
-                menu.appendChild(invitar);
                 menu.appendChild(eliminar);
 
                 titulo.textContent = estado.nombre;
 
                 const listaTareas = document.createElement("div");
                 listaTareas.classList.add("kanban-column-content");
+                listaTareas.style.background = estado.color;
 
                 /*if (estado.tareas && estado.tareas.length > 0) {
                     fetchAndRenderTasks(estado);
                 }*/
-               
+
 
                 menuContainer.appendChild(menu);
+                menuContainer.title = 'Haz clic para abrir el menú de lista';
 
                 menuContainer.appendChild(icoTask);
 
@@ -341,6 +376,23 @@ export async function fetchAndRenderList(boardId) {
                     createBtn.classList.remove('hidden');
                 });
 
+                eliminar.addEventListener('click', async () => {
+                    const confirmado = await mostrarPopupConfirmacion();
+                    if (!confirmado) return;
+
+                    try {
+                        await deleteList(estado.id, estado.tablero_id);
+                        fetchAndRenderList(estado.tablero_id);
+                    } catch (error) {
+                        console.error("Error al eliminar el tablero:", error);
+                    }
+                });
+
+                detalle.addEventListener('click', () => {
+                    console.log(estado);
+                    popupEditarLista(estado);
+                });
+
                 // Confirmar creación
 
                 addBtn.addEventListener('click', async () => {
@@ -366,31 +418,30 @@ export async function fetchAndRenderList(boardId) {
 
                 menuContainer.addEventListener('click', (e) => {
                     e.stopPropagation();
+
+                    // Calcular posición justo al hacer clic
+                    const rect = menuContainer.getBoundingClientRect();
+                    const popupWidth = 150; // coincide con .task-menu
+
+                    let left = rect.left + window.scrollX;
+                    let top = rect.bottom + window.scrollY + 8;
+
+                    if (left + popupWidth > window.innerWidth - 10) {
+                        left = window.innerWidth - popupWidth - 10;
+                    }
+
+                    menu.style.position = 'fixed';
+                    menu.style.top = `${top}px`;
+                    menu.style.left = `${left}px`;
+
                     menu.classList.toggle('hidden');
                 });
+
 
                 // Cerrar menú al hacer clic fuera
                 document.addEventListener('click', () => {
                     menu.classList.add('hidden');
                 });
-
-                // Posicionar el popup justo debajo del botón, alineado a la izquierda
-                const rect = menuContainer.getBoundingClientRect();
-                const popupWidth = 300; // mismo ancho que el CSS .board-popup
-
-                let left = rect.left + window.scrollX;
-                let top = rect.bottom + window.scrollY + 8; // espacio entre botón y popup
-
-                // Si el popup se desborda a la derecha, lo ajustamos
-                if (left + popupWidth > window.innerWidth - 10) {
-                    left = window.innerWidth - popupWidth - 10;
-                }
-
-                menu.style.position = 'fixed';
-                menu.style.top = `${top}px`;
-                menu.style.left = `${left}px`;
-
-
 
             });
         }
@@ -421,6 +472,7 @@ export async function fetchAndRenderTasks(estado) {
         tareas.forEach(tarea => {
             const tareaElemento = document.createElement("div");
             tareaElemento.classList.add("task-draggable");
+            tareaElemento.title = 'Haz clic para abrir el menú de tareas';
             tareaElemento.dataset.tareaId = tarea.id;
 
             tareaElemento.style.borderLeft = `8px solid ${tarea.color}`;
@@ -647,11 +699,13 @@ export function popupEditarTarea(tarea, estado) {
         }
     });
 
-    function finalizarEdicion() {
+    async function finalizarEdicion() {
         const nuevoTitulo = inputTitulo.value.trim();
         if (nuevoTitulo && nuevoTitulo !== tarea.titulo) {
             tarea.titulo = nuevoTitulo;
             titulo.textContent = nuevoTitulo;
+            await modificarTarea(tarea);
+            fetchAndRenderTasks(estado);
         }
         titulo.style.display = 'block';
         iconoLapiz.style.display = 'inline-block';
@@ -671,7 +725,7 @@ export function popupEditarTarea(tarea, estado) {
     spanBorrar.className = 'fa-solid fa-trash';
 
     borrarButton.appendChild(spanBorrar);
-    
+
 
     tituloContainer.append(titulo, inputTitulo, iconoLapiz);
 
@@ -784,4 +838,262 @@ export function popupEditarTarea(tarea, estado) {
 
 
 
+}
+
+
+
+/////
+
+
+
+export function popupEditarLista(estado) {
+    // Eliminar cualquier popup anterior
+    const existingPopup = document.getElementById('popupEditarLista');
+    if (existingPopup) existingPopup.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'popupEditarLista';
+    popup.className = 'popup-editar-lista';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+
+    const content = document.createElement('div');
+    content.className = 'listEdit-content';
+
+    const tituloContainer = document.createElement('div');
+    tituloContainer.id = 'tituloContainer';
+
+    const titulo = document.createElement('h3');
+    titulo.textContent = estado.nombre;
+    titulo.style.margin = 0;
+
+    const inputTitulo = document.createElement('input');
+    inputTitulo.type = 'text';
+    inputTitulo.style.display = 'none';
+    inputTitulo.value = estado.nombre;
+    inputTitulo.className = 'input-editar-titulo';
+
+    const iconoLapiz = document.createElement('i');
+    iconoLapiz.className = 'fa-solid fa-pen';
+    iconoLapiz.style.cursor = 'pointer';
+
+    // Al hacer clic en el ícono, mostrar el input
+    iconoLapiz.addEventListener('click', () => {
+        titulo.style.display = 'none';
+        iconoLapiz.style.display = 'none';
+        inputTitulo.style.display = 'inline-block';
+        inputTitulo.focus();
+    });
+
+    // Al salir del input (blur) o presionar Enter, guardar el nuevo título
+    inputTitulo.addEventListener('blur', () => finalizarEdicion());
+    inputTitulo.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finalizarEdicion();
+        }
+    });
+
+    async function finalizarEdicion() {
+        const nuevoTitulo = inputTitulo.value.trim();
+        if (nuevoTitulo && nuevoTitulo !== estado.nombre) {
+            estado.nombre = nuevoTitulo;
+            titulo.textContent = nuevoTitulo;
+            await modificarLista(estado.id, nuevoTitulo);
+            fetchAndRenderList(estado.tablero_id);
+
+        }
+        titulo.style.display = 'block';
+        iconoLapiz.style.display = 'inline-block';
+        inputTitulo.style.display = 'none';
+    }
+
+
+    const divTop = document.createElement('div');
+    divTop.id = 'divTop';
+
+    const borrarButton = document.createElement('div');
+    borrarButton.id = 'borrarButton';
+    borrarButton.title = 'Haz clic para eliminar la lista';
+
+    const spanBorrar = document.createElement('span');
+    spanBorrar.id = 'spanBorrar';
+
+    spanBorrar.className = 'fa-solid fa-trash';
+
+    borrarButton.appendChild(spanBorrar);
+
+
+    tituloContainer.append(titulo, inputTitulo, iconoLapiz);
+
+    divTop.appendChild(tituloContainer);
+    divTop.appendChild(borrarButton);
+
+    const hr = document.createElement('hr');
+    hr.id = 'hrEditarTarea';
+
+    ////
+    const divColor = document.createElement('div');
+    divColor.id = 'divColor';
+
+    const icoColor = document.createElement('i');
+    icoColor.className = 'fa-regular fas fa-brush';
+    icoColor.id = 'icoColor';
+
+    const inputLabelColor = document.createElement('label');
+    inputLabelColor.id = 'inputLabel';
+    inputLabelColor.textContent = ' Escoge un color para la lista:';
+    inputLabelColor.setAttribute('for', 'inputColor');
+
+    const coloresPastel = [
+        '#ABE2A5', '#E2C5A5', '#C5A5E2', '#95a9df', '#8fc7e0',
+        '#8dd5dd', '#F0E795', '#F0B795', '#E2A5A5', '#E2A5B2', '#E2A5DF', '#FAFAFA'
+    ];
+
+    const contenedorColores = document.createElement('div');
+    contenedorColores.className = 'selector-colores';
+
+
+    // Si estado.color ya existe, aplicamos el fondo desde el principio
+    if (estado.color) {
+        content.style.background = estado.color;
+    }
+
+    coloresPastel.forEach(color => {
+        const colorBtn = document.createElement('button');
+        colorBtn.className = 'color-btn';
+        colorBtn.style.backgroundColor = color;
+        colorBtn.title = color;
+
+        // Marcar el color activo si coincide con el actual
+        if (estado.color && color.toLowerCase() === estado.color.toLowerCase()) {
+            colorBtn.classList.add('active');
+        }
+
+        colorBtn.addEventListener('click', () => {
+            estado.color = color;
+            content.style.background = color;
+
+            // Opcional: marcar el color activo visualmente
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            colorBtn.classList.add('active');
+        });
+
+
+        contenedorColores.appendChild(colorBtn);
+    });
+
+    divColor.appendChild(icoColor);
+    divColor.appendChild(inputLabelColor);
+
+
+    const acciones = document.createElement('div');
+    acciones.className = 'taskEdit-actions';
+
+    const guardar = document.createElement('button');
+    guardar.textContent = 'Guardar';
+    guardar.className = 'taskEdit-confirmar';
+
+    guardar.addEventListener('click', async () => {
+        await modificarLista(estado.id, inputTitulo.value, estado.color);
+        fetchAndRenderList(estado.tablero_id);
+
+    });
+
+    borrarButton.addEventListener('click', async () => {
+        const confirmado = await mostrarPopupConfirmacion();
+        if (!confirmado) return;
+
+        try {
+            await deleteList(estado.id, estado.tablero_id);
+            fetchAndRenderList(estado.tablero_id);
+        } catch (error) {
+            console.error("Error al eliminar el tablero:", error);
+        }
+    });
+
+    const cancelar = document.createElement('button');
+    cancelar.textContent = 'Cancelar';
+    cancelar.className = 'taskEdit-cancelar';
+
+    acciones.append(guardar, cancelar);
+    content.append(divTop, hr, divColor, contenedorColores, acciones);
+    popup.append(overlay, content);
+    document.body.appendChild(popup);
+
+    // Cerrar popup
+    cancelar.addEventListener('click', () => popup.remove());
+    guardar.addEventListener('click', () => popup.remove());
+    borrarButton.addEventListener('click', () => popup.remove());
+    overlay.addEventListener('click', () => popup.remove());
+
+
+
+}
+
+export async function abrirPopupGestionUsuarios(boardId) {
+    const usuarios = await getUsuariosDelTablero(boardId);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+
+    const content = document.createElement('div');
+    content.className = 'popup-content';
+
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'popup-close';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', () => overlay.remove());
+    content.appendChild(closeBtn);
+
+    usuarios.forEach(usuario => {
+        const userRow = document.createElement('div');
+        userRow.className = 'user-row';
+
+        const avatar = document.createElement('img');
+        avatar.className = 'avatar-circle';
+        avatar.src = usuario.avatar_url;
+        avatar.alt = usuario.nombre;
+
+        const info = document.createElement('div');
+        info.className = 'user-info';
+
+        const nombre = document.createElement('strong');
+        nombre.textContent = usuario.nombre;
+
+        const email = document.createElement('div');
+        email.textContent = usuario.email;
+
+        info.appendChild(nombre);
+        info.appendChild(document.createElement('br'));
+        info.appendChild(email);
+
+        const select = document.createElement('select');
+        const optMiembro = document.createElement('option');
+        optMiembro.value = 'miembro';
+        optMiembro.textContent = 'Miembro';
+        if (usuario.rol === 'miembro') optMiembro.selected = true;
+
+        const optAdmin = document.createElement('option');
+        optAdmin.value = 'admin';
+        optAdmin.textContent = 'Administrador';
+        if (usuario.rol === 'admin') optAdmin.selected = true;
+
+        select.appendChild(optMiembro);
+        select.appendChild(optAdmin);
+
+        select.addEventListener('change', async () => {
+            await cambiarRolUsuario(boardId, usuario.id, select.value);
+        });
+
+        userRow.appendChild(avatar);
+        userRow.appendChild(info);
+        userRow.appendChild(select);
+
+        content.appendChild(userRow);
+    });
+
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
 }

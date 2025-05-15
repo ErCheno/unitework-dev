@@ -14,14 +14,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-if (!$input || empty($input['tablero_id'])) {
-    echo json_encode(["success" => false, "message" => "Falta el ID del tablero"]);
+if (!$input || empty($input['estado_id']) || empty($input['tablero_id'])) {
+    echo json_encode(["success" => false, "message" => "Faltan datos requeridos"]);
     exit();
 }
 
+$estadoId = $input['estado_id'];
+$tableroId = $input['tablero_id'];
+
+// Verificar autenticación
 $usuario = verificarToken($conn);
 $usuarioId = $usuario['id'];
-$tableroId = $input['tablero_id'];
 
 // Verificar que el usuario pertenece al tablero
 $stmt = $conn->prepare("SELECT 1 FROM miembros_tableros WHERE usuario_id = ? AND tablero_id = ?");
@@ -35,26 +38,15 @@ if ($result->num_rows === 0) {
 }
 $stmt->close();
 
-// Obtener las listas (estados) con su respectivo posicionamiento y ordenadas por posicionamiento
-$stmt = $conn->prepare("
-    SELECT id, nombre, creado_por, tablero_id, posicionamiento, color
-    FROM estados_tareas 
-    WHERE tablero_id = ? 
-    ORDER BY posicionamiento ASC
-");
-$stmt->bind_param("i", $tableroId);
-$stmt->execute();
-$result = $stmt->get_result();
+// Eliminar la lista (estado)
+$stmt = $conn->prepare("DELETE FROM estados_tareas WHERE id = ? AND tablero_id = ?");
+$stmt->bind_param("ii", $estadoId, $tableroId);
 
-$listas = [];
-while ($row = $result->fetch_assoc()) {
-    $listas[] = $row;
+if ($stmt->execute()) {
+    echo json_encode(["success" => true, "message" => "Lista eliminada correctamente"]);
+} else {
+    echo json_encode(["success" => false, "message" => "Error al eliminar la lista"]);
 }
-
-echo json_encode([
-    "success" => true,
-    "listas" => $listas
-]);
 
 $stmt->close();
 $conn->close();
