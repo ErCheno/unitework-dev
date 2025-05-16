@@ -70,6 +70,27 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('mover-tarea', (data) => {
+    socket.broadcast.emit('mover-tarea', data);
+  });
+  socket.on('mover-lista', (data) => {
+    socket.broadcast.emit('mover-lista', data);
+  });
+
+  socket.on('crear-lista', (data) => {
+    socket.broadcast.emit('crear-lista', data);
+  });
+
+  socket.on('eliminar-lista', (data) => {
+    socket.broadcast.emit('eliminar-lista', data);
+  });
+  socket.on('modificar-lista', (data) => {
+    console.log('📢 Retransmitiendo modificación de lista a otros usuarios:', data);
+    socket.broadcast.emit('modificar-lista', data);
+  });
+
+
+
   socket.on('customDisconnect', () => {
     socket.disconnect();
   });

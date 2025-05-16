@@ -23,13 +23,12 @@ if (!$input || empty($input['tablero_id'])) {
     exit();
 }
 
-$tablero_id = $input['tablero_id'];
-
+$tablero_id = intval($input['tablero_id']);
 $baseAvatarUrl = "http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/";
 
-// Obtener usuarios que ya están en el tablero
+// Obtener usuarios que ya están en el tablero con su rol
 $query = "
-    SELECT u.id, u.nombre, u.email, u.avatar_url
+    SELECT u.id, u.nombre, u.email, u.avatar_url, mt.rol
     FROM usuarios u
     INNER JOIN miembros_tableros mt ON u.id = mt.usuario_id
     WHERE mt.tablero_id = ?
@@ -49,6 +48,7 @@ while ($row = $result->fetch_assoc()) {
         'avatar_url' => $row['avatar_url']
             ? $baseAvatarUrl . $row['avatar_url']
             : $baseAvatarUrl . 'default-avatar.png',
+        'rol' => $row['rol'], // Incluimos el rol
     ];
 }
 

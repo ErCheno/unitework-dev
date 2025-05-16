@@ -4,6 +4,7 @@ import { getToken } from "./auth.js";
 import { socketGetInvitations, socketGetWorkspaces } from "./socketsEvents.js";
 import { showToast } from "../../public/js/validator/regex.js";
 import { cargarInvitaciones } from "../components/topbar.js";
+import { fetchAndRenderList, fetchAndRenderTasks } from "../pages/boardPage.js";
 
 export let socket;
 
@@ -24,6 +25,7 @@ export function connectSocket() {
       console.log('✅ Conectado al WebSocket:', socket.id);
       socketGetWorkspaces();
       socketGetInvitations();
+
     });
 
     socket.on('disconnect', () => {
@@ -41,6 +43,43 @@ export function connectSocket() {
         await cargarInvitaciones(list, badge);
       }
     });
+    socket.on('mover-tarea', (data) => {
+      console.log('📨 Tarea movida por otro usuario:', data);
+
+      data.nuevoOrden.forEach(({ id }) => {
+        // Crear el objeto estado con tablero_id y id
+        const estadoActualizado = {
+          id: parseInt(id),
+          tablero_id: data.estado.tablero_id,
+          // Puedes pasar color y nombre también si los necesitas más adelante
+          color: data.estado.color,
+          nombre: data.estado.nombre
+        };
+
+        // Renderizamos la columna que ha cambiado
+        fetchAndRenderTasks(estadoActualizado);
+      });
+    });
+    socket.on('crear-lista', (boardId) => {
+      fetchAndRenderList(boardId);
+    });
+    socket.on('eliminar-lista', (boardId) => {
+      fetchAndRenderList(boardId);
+    });
+
+    socket.on('modificar-lista', (data) => {
+      const estadoActualizado = {
+        id: parseInt(data.estado.id),
+        tablero_id: parseInt(data.estado.tablero_id),
+        color: data.estado.color,
+        nombre: data.estado.nombre
+      };
+
+      console.log('📝 Lista modificada por otro usuario:', estadoActualizado);
+
+      fetchAndRenderList(estadoActualizado); // Puedes adaptar esto si necesitas refrescar solo una columna
+    });
+
   }
 }
 

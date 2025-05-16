@@ -8,6 +8,8 @@ import { cargarTareas, TaskCard } from '../components/taskCard.js';
 import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea, deleteTask, modificarLista, deleteList } from '../js/task.js';
 import { cambiarRolUsuario, fetchBoards, getUsuariosDelTablero, getUsuariosDisponibles, putBoard, selectBoard } from '../js/board.js';
 import { mostrarPopupConfirmacion } from '../components/workspaceCard.js';
+import { socketMoveList, socketPutList } from '../js/socketsEvents.js';
+import { socket } from '../js/socket.js';
 
 export async function BoardPage(boardId) {
     cleanupView();
@@ -58,7 +60,7 @@ export async function BoardPage(boardId) {
 
     // Al hacer clic en el ícono, mostrar el input
     iconoLapiz.addEventListener('click', () => {
-        inputTitle.value = title.textContent; // ✅ sincronizar el input con el título actual
+        inputTitle.value = title.textContent;
         title.style.display = 'none';
         iconoLapiz.style.display = 'none';
         inputTitle.style.display = 'inline-block';
@@ -142,7 +144,7 @@ export async function BoardPage(boardId) {
     // Contenedor Kanban
     const kanbanContainer = document.createElement('div');
     kanbanContainer.id = 'kanban-list';
-
+    //socketPutList(boardId);
 
     (async () => {
 
@@ -150,6 +152,7 @@ export async function BoardPage(boardId) {
         // Renderizar la lista inicialmente
         await fetchAndRenderList(boardId);
 
+        socketMoveList(boardId);
         // Reordenar columnas (listas)
         setupSortableList('#kanban-list', async (evt) => {
             const listaMovida = evt.item;
@@ -179,6 +182,8 @@ export async function BoardPage(boardId) {
 
             try {
                 const response = await moverLista(boardId, nuevoOrden);
+                socket.emit('mover-lista', { boardId, nuevoOrden });
+
                 if (response && response.success) {
                     console.log('Orden actualizado correctamente en el backend');
 
@@ -383,6 +388,9 @@ export async function fetchAndRenderList(boardId) {
                     try {
                         await deleteList(estado.id, estado.tablero_id);
                         fetchAndRenderList(estado.tablero_id);
+                        socket.emit('eliminar-lista', boardId); // Lo envía al resto
+
+
                     } catch (error) {
                         console.error("Error al eliminar el tablero:", error);
                     }
@@ -444,6 +452,7 @@ export async function fetchAndRenderList(boardId) {
                 });
 
             });
+
         }
 
 
@@ -514,6 +523,16 @@ export async function fetchAndRenderTasks(estado) {
             // Llamada a la función para mover las tareas (actualiza en el backend)
             try {
                 await moverTareas(tareaId, nuevoEstadoId, nuevoOrden);
+
+                // 🔁 Emitir a través del socket para que otros clientes reactualicen el tablero
+                socket.emit("mover-tarea", {
+                    tareaId: tareaId,
+                    estado: {
+                        id: parseInt(nuevoEstadoId), tablero_id: parseInt(estado.tablero_id), color: estado.color, nombre: estado.nombre,
+                    },
+                    nuevoOrden: nuevoOrden
+                });
+
                 console.log('Tareas actualizadas correctamente en la base de datos');
 
                 // Después de actualizar en el backend, reorganiza las tareas visualmente en el front
@@ -528,6 +547,8 @@ export async function fetchAndRenderTasks(estado) {
                         });
                     }
                 });
+
+
             } catch (error) {
                 console.error('Error al mover las tareas:', error);
             }
@@ -641,6 +662,8 @@ function popupCrearLista(botonCrear, boardId) {
             if (nuevoId) {
                 showToast('✅ Lista creada');
                 fetchAndRenderList(boardId);
+                socket.emit('crear-lista', boardId); // Lo envía al resto
+
                 cerrarPopup();
             }
         } catch (err) {
@@ -902,6 +925,15 @@ export function popupEditarLista(estado) {
             titulo.textContent = nuevoTitulo;
             await modificarLista(estado.id, nuevoTitulo);
             fetchAndRenderList(estado.tablero_id);
+            //console.log(estado);
+            socket.emit('modificar-lista', {
+                estado: {
+                    id: parseInt(estado.id),
+                    tablero_id: parseInt(estado.tablero_id),
+                    color: estado.color,
+                    nombre: estado.nombre
+                }
+            });
 
         }
         titulo.style.display = 'block';
@@ -1033,7 +1065,7 @@ export function popupEditarLista(estado) {
 }
 export async function abrirPopupGestionUsuarios(boardId) {
     const usuarios = await getUsuariosDelTablero(boardId);
-    const emailUsuario = localStorage.getItem('email'); // o de donde lo saques
+    const emailUsuario = localStorage.getItem('email');
 
     const overlay = document.createElement('div');
     overlay.className = 'popup-overlay';
@@ -1046,6 +1078,7 @@ export async function abrirPopupGestionUsuarios(boardId) {
     closeBtn.textContent = '×';
     closeBtn.addEventListener('click', () => overlay.remove());
     content.appendChild(closeBtn);
+
 
     usuarios.forEach(usuario => {
         const userRow = document.createElement('div');
@@ -1072,31 +1105,39 @@ export async function abrirPopupGestionUsuarios(boardId) {
         selectContainer.className = 'select-container';
 
         if (usuario.email === emailUsuario) {
-            // Mostrar "Tú" deshabilitado
             const tuLabel = document.createElement('span');
             tuLabel.className = 'label-tu';
             tuLabel.textContent = 'Tú';
             selectContainer.appendChild(tuLabel);
         } else {
-            // Crear el <select> normal
             const select = document.createElement('select');
             select.className = 'select-rol';
 
             const optMiembro = document.createElement('option');
             optMiembro.value = 'miembro';
             optMiembro.textContent = 'Miembro';
-            if (usuario.rol === 'miembro') optMiembro.selected = true;
 
             const optAdmin = document.createElement('option');
             optAdmin.value = 'admin';
             optAdmin.textContent = 'Administrador';
-            if (usuario.rol === 'admin') optAdmin.selected = true;
 
             select.appendChild(optMiembro);
             select.appendChild(optAdmin);
 
+            // Set value según el rol actual
+            select.value = usuario.rol;
+
             select.addEventListener('change', async () => {
-                await cambiarRolUsuario(boardId, usuario.id, select.value);
+                const nuevoRol = select.value;
+                const result = await cambiarRolUsuario(boardId, usuario.id, nuevoRol);
+                if (!result.success) {
+                    // Si falla, restauramos el valor anterior
+                    select.value = usuario.rol;
+                    alert("Error al actualizar el rol");
+                } else {
+                    // Si va bien, actualizamos el rol en el objeto local (opcional)
+                    usuario.rol = nuevoRol;
+                }
             });
 
             selectContainer.appendChild(select);

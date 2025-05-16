@@ -53,11 +53,10 @@ $stmtMaxPos->bind_result($maxPosicionamiento);
 $stmtMaxPos->fetch();
 $stmtMaxPos->close();
 
-// Paso 2: Si no hay listas en el tablero, el valor máximo será NULL, entonces asignamos 1 como el primer valor
 $nextPosicionamiento = $maxPosicionamiento ? $maxPosicionamiento + 1 : 1;
-$color = null;  // valor NULL que quieres pasar
+$color = null;
 
-// Paso 3: Insertar la nueva lista con el posicionamiento calculado
+// Paso 2: Insertar la nueva lista
 $sql = "INSERT INTO estados_tareas (nombre, creado_por, tablero_id, posicionamiento, color) VALUES (?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 
@@ -70,16 +69,36 @@ if (!$stmt) {
 $stmt->bind_param("ssiis", $nombre, $creadoPor, $tableroId, $nextPosicionamiento, $color);
 
 if ($stmt->execute()) {
+    $nuevoEstadoId = $stmt->insert_id;
+    $stmt->close();
+
+    // Paso 3: Obtener los datos completos del nuevo estado
+    $sqlEstado = "SELECT id, nombre, creado_por, tablero_id, posicionamiento, color FROM estados_tareas WHERE id = ?";
+    $stmtEstado = $conn->prepare($sqlEstado);
+
+    if (!$stmtEstado) {
+        http_response_code(500);
+        echo json_encode(["success" => false, "message" => "Error al preparar la consulta para obtener la lista creada"]);
+        exit();
+    }
+
+    $stmtEstado->bind_param("i", $nuevoEstadoId);
+    $stmtEstado->execute();
+    $resultado = $stmtEstado->get_result();
+    $estado = $resultado->fetch_assoc();
+
     echo json_encode([
         "success" => true,
         "message" => "Lista creada correctamente",
-        "id" => $stmt->insert_id
+        "estado" => $estado
     ]);
+
+    $stmtEstado->close();
 } else {
     http_response_code(500);
     echo json_encode(["success" => false, "message" => "Error al crear la lista", "error" => $stmt->error]);
+    $stmt->close();
 }
 
-$stmt->close();
 $conn->close();
 ?>

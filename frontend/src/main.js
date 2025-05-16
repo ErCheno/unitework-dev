@@ -15,7 +15,7 @@ window.addEventListener('load', () => {
     connectSocket();  // Llamamos a connectSocket en la carga de la página
     // Aquí luego puedes hacer otras acciones relacionadas con el socket
 });
-//connectSocket();
+connectSocket();
 
 // Función de guardia para rutas protegidas
 function authGuard(ctx, next) {

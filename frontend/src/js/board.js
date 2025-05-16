@@ -126,35 +126,22 @@ export async function deleteBoards(tableroId) {
     }
 }
 
-
-export async function uploadAvatar(usuarioId) {
-    const formData = new FormData();
-    formData.append("usuario_id", usuarioId);
-    formData.append("avatar", archivo);
-
-    try {
-        const response = await fetch("http://localhost/backend/usuarios/subir_avatar.php", {
-            method: "POST",
-            body: formData,
-        });
-
-        const data = await response.json();
-        if (data.success) {
-            console.log("Avatar subido con éxito:", data.avatar);
-        } else {
-            console.error("Error:", data.message);
-        }
-    } catch (error) {
-        console.error("Error en la petición:", error);
-    }
-}
-
 export async function getUsuariosDisponibles(tableroId, filtro = "") {
     try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
         const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsers.php", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+
             },
             body: JSON.stringify({ tablero_id: tableroId, filtro })
         });
@@ -172,10 +159,21 @@ export async function getUsuariosDisponibles(tableroId, filtro = "") {
 
 export async function getUsuariosDelTablero(tableroId) {
     try {
+
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
         const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsersBoard.php", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+
             },
             body: JSON.stringify({ tablero_id: tableroId })
         });
@@ -191,15 +189,28 @@ export async function getUsuariosDelTablero(tableroId) {
     }
 }
 
-export async function cambiarRolUsuario(tableroId, nuevoRol) {
+export async function cambiarRolUsuario(tableroId, usuarioId, nuevoRol) {
     try {
+        const token = getToken();
+
+        console.log(tableroId);
+        console.log(nuevoRol);
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
         const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/updateUserRoleBoard.php", {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+
             },
             body: JSON.stringify({
                 tablero_id: tableroId,
+                usuario_id: usuarioId,
                 nuevo_rol: nuevoRol
             })
         });

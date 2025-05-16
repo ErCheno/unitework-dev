@@ -26,6 +26,8 @@ export async function getTareas(estado, boardId) {
             throw new Error(data.message || 'Error al mover tarea');
         }
 
+
+
         // Mostrar un mensaje de éxito
         return data;
     } catch (err) {

@@ -3,12 +3,18 @@ require_once "../../config/db.php";
 require_once "../auth/tokenUtils.php";
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Methods: PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Método no permitido. Usa PUT.']);
     exit();
 }
 
@@ -31,8 +37,8 @@ if (empty($input['tablero_id']) || empty($input['usuario_id']) || empty($input['
     exit();
 }
 
-$tablero_id = intval($input['tablero_id']);
-$usuario_id = intval($input['usuario_id']);
+$tablero_id = $conn->real_escape_string($input['tablero_id']);
+$usuario_id = $conn->real_escape_string($input['usuario_id']);
 $nuevo_rol = $conn->real_escape_string($input['nuevo_rol']);
 
 if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
@@ -40,15 +46,17 @@ if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
     exit();
 }
 
-// Opcional: verificar que el usuario que intenta hacer el cambio sea admin del tablero
+// Verificar que el usuario autenticado sea admin del tablero
 $stmt = $conn->prepare("SELECT rol FROM miembros_tableros WHERE tablero_id = ? AND usuario_id = ?");
-$stmt->bind_param("is", $tablero_id, $usuario['id']);
+$stmt->bind_param("ss", $tablero_id, $usuario['id']);
 $stmt->execute();
 $result = $stmt->get_result();
+
 if ($result->num_rows === 0) {
     echo json_encode(['success' => false, 'message' => 'No tienes permisos en este tablero']);
     exit();
 }
+
 $rolActual = $result->fetch_assoc()['rol'];
 $stmt->close();
 
@@ -57,9 +65,9 @@ if ($rolActual !== 'admin') {
     exit();
 }
 
-// Actualizar rol del usuario en el tablero
+// Actualizar el rol
 $stmt = $conn->prepare("UPDATE miembros_tableros SET rol = ? WHERE tablero_id = ? AND usuario_id = ?");
-$stmt->bind_param("sis", $nuevo_rol, $tablero_id, $usuario_id);
+$stmt->bind_param("sss", $nuevo_rol, $tablero_id, $usuario_id);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Rol actualizado correctamente']);

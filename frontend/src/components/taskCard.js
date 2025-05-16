@@ -1,7 +1,7 @@
 import { showToast } from '../../public/js/validator/regex.js';
 import { crearTarea, getTareas } from '../js/task.js';
 import { fetchAndRenderList, fetchAndRenderTasks } from '../pages/boardPage.js';
-
+import { socket } from '../js/socket.js';
 export function TaskCard(estado, boardId) {
     const task = document.createElement('div');
     task.className = 'kanban-task';
