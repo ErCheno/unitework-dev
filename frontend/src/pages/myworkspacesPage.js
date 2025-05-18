@@ -112,7 +112,6 @@ export async function myWorkspacesPage() {
     contentDiv.appendChild(container);
 
     setupSortable('workspace-list', '.workspace-draggable', (evt) => {
-        console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
     });
     
     socketGetWorkspaces();

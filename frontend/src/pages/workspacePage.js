@@ -16,6 +16,8 @@ import { createBoards } from '../js/board.js';
 import { BoardCard } from '../components/boardCard.js';
 
 import { scrollHorizontal, setupSortable } from '../components/dragAnimation.js';
+import { fetchMindMaps } from '../js/mindMap.js';
+import { MindMapCard } from '../components/mindMapCard.js';
 
 export async function workspacePage(workspaceId) {
     cleanupView();
@@ -111,15 +113,15 @@ export async function workspacePage(workspaceId) {
                     cardCrear.appendChild(text);
                     cardCrear.setAttribute('aria-label', 'Crear un nuevo tablero');
                     grid.appendChild(cardCrear);  // Aquí es donde aseguramos que esté al principio
-                
+
                     cardCrear.addEventListener('click', () => {
                         const existing = document.querySelector('.board-popup');
                         if (existing) existing.remove();
-                
+
                         CreateBoardPopup(workspaceId).then(popup => {
                             document.body.appendChild(popup);
                             requestAnimationFrame(() => popup.classList.remove('hidden'));
-                
+
                             setTimeout(() => {
                                 const rect = cardCrear.getBoundingClientRect();
                                 popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
@@ -130,7 +132,7 @@ export async function workspacePage(workspaceId) {
                         });
                     });
                 }
-                
+
 
                 if (boards.length === 0) {
                     const noBoardsMsg = document.createElement('p');
@@ -149,25 +151,6 @@ export async function workspacePage(workspaceId) {
             } catch (error) {
                 console.error('Error al cargar los tableros: ' + error, 'error');
             }
-
-            /*mostrarDetallesWorkspace(workspace);
- 
-             const card = WorkspaceCard(workspace);
-             card.setAttribute('draggable', true);
-             card.id = `workspace-${workspace.id}`;
-             card.classList.add('workspace-draggable');
- 
-             grid.appendChild(card);
- 
-             const workspaceTitle = document.createElement('h2');
-             workspaceTitle.textContent = workspace.nombre;
-             grid.appendChild(workspaceTitle);
- 
-             const workspaceDescription = document.createElement('p');
-             workspaceDescription.textContent = workspace.descripcion;
-             grid.appendChild(workspaceDescription);*/
-
-
 
         } else {
             const noWorkspaceMsg = document.createElement('p');
@@ -194,6 +177,7 @@ export async function workspacePage(workspaceId) {
     setupSortable('board-list', '.board-draggable', (evt) => {
         console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
     });
+    renderMindMapView(workspaceId);
 
 
 }
@@ -204,7 +188,7 @@ export async function CreateBoardPopup(workspaceId) {
     popup.classList.add('board-popup');
     setTimeout(() => {
         popup.classList.add('animate-popup');
-      }, 50);
+    }, 50);
     const flecha = document.createElement('div');
     flecha.classList.add('popup-arrow');
     popup.appendChild(flecha);
@@ -270,12 +254,12 @@ export async function CreateBoardPopup(workspaceId) {
     function closePopup() {
         popup.classList.remove('animate-popup');
         popup.classList.add('fade-out');
-        
+
         popup.addEventListener('animationend', () => {
             console.log("Entre")
             popup.remove();
         }, { once: true });
-            document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('mousedown', handleClickOutside);
         document.removeEventListener('keydown', handleEscape);
     }
 
@@ -292,40 +276,41 @@ export async function CreateBoardPopup(workspaceId) {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-    
+
         const nombre = inputTitulo.value.trim();
         const descripcion = inputDescrip.value.trim();
-    
+
         if (!nombre) {
             showToast("El nombre del tablero es obligatorio", "error");
             return;
         }
-    
+
         if (!workspaceId) {
             showToast("ID del espacio de trabajo no disponible", "error");
             return;
         }
-    
+
         try {
             // Crear el tablero
             await createBoards(nombre, descripcion, workspaceId);
-    
+
             // Refrescar las tarjetas del tablero
             await fetchAndRenderBoards(workspaceId);
-    
+
             // Cerrar el popup después de crear el tablero
             closePopup();
-    
+
         } catch (error) {
             // Manejar cualquier error
             showToast("Error al crear el tablero: " + error.message, "error");
         }
     });
-    
+
+
 
 
     return popup;
-    
+
 }
 
 
@@ -390,10 +375,232 @@ async function fetchAndRenderBoards(workspaceId) {
         }
 
 
-        
+
 
     } catch (err) {
         console.error('Error al recargar los tableros:', err);
     }
 }
 
+// Renderizado principal de la vista mapas mentales
+export async function renderMindMapView(workspaceId) {
+    const contentDiv = document.getElementById('content') || document.body.appendChild(
+        Object.assign(document.createElement('div'), { id: 'content' })
+    );
+
+    const container = document.createElement('div');
+    container.id = 'container';
+
+    const mapaContainer = document.createElement('div');
+    mapaContainer.id = 'mind-list';
+    container.appendChild(mapaContainer);
+    contentDiv.appendChild(container);
+
+    try {
+        // Si tienes función fetchWorkspaces para obtener workspace y verificar rol, úsala
+        const workspaces = await fetchWorkspaces();
+        const workspace = workspaces.find(ws => ws.id === parseInt(workspaceId));
+
+        if (!workspace) {
+            const noWorkspaceMsg = document.createElement('p');
+            noWorkspaceMsg.textContent = 'Este espacio de trabajo no existe o ha sido eliminado.';
+            mapaContainer.appendChild(noWorkspaceMsg);
+            return;
+        }
+
+        document.title = workspace.nombre;
+
+        // Fetch mapas mentales
+        const mapasMentales = await fetchMindMaps(workspaceId);
+        console.log(mapasMentales);
+
+        // Botón para crear nuevo mapa solo para admins
+        if (workspace.rol === 'admin') {
+            const cardCrear = document.createElement('div');
+            cardCrear.classList.add('mindmap-card', 'create-map-card');
+            cardCrear.setAttribute('aria-label', 'Crear un nuevo mapa mental');
+            cardCrear.textContent = '+ Crear un mapa mental';
+
+            cardCrear.addEventListener('click', () => {
+                const existing = document.querySelector('.mentalmap-popup');
+                if (existing) existing.remove();
+
+                CreateMindmapPopup(workspaceId).then(popup => {
+                    document.body.appendChild(popup);
+                    requestAnimationFrame(() => popup.classList.remove('hidden'));
+
+                    setTimeout(() => {
+                        const rect = cardCrear.getBoundingClientRect();
+                        popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
+                        popup.style.left = `${rect.left + 240 + window.scrollX}px`;
+                    }, 50);
+                }).catch(console.error);
+            });
+
+            mapaContainer.appendChild(cardCrear);
+        }
+
+        if (mapasMentales.length === 0) {
+            const noMapsMsg = document.createElement('p');
+            noMapsMsg.textContent = '¡Empieza creando un mapa mental!';
+            noMapsMsg.classList.add('no-workspaces-msg');
+            mapaContainer.appendChild(noMapsMsg);
+        } else {
+            mapasMentales.forEach(mapa => {
+                const card = MindMapCard(mapa);
+                card.setAttribute('draggable', true);
+                card.classList.add('mindmap-draggable');
+                mapaContainer.appendChild(card);
+            });
+        }
+
+    } catch (error) {
+        console.error('Error al cargar los mapas mentales:', error);
+        showToast('Error al cargar el espacio de trabajo: ' + error.message, 'error');
+    }
+}
+
+// Creación de la tarjeta para cada mapa mental
+export function mindMapCard(mindMap) {
+    const { id, titulo, descripcion, fecha_creacion } = mindMap;
+
+    const card = document.createElement('div');
+    card.classList.add('mindmap-card', 'rounded', 'shadow', 'p-3');
+    card.id = `mindmap-${id}`;
+
+    const title = document.createElement('h3');
+    title.classList.add('mindmap-title');
+    title.textContent = titulo || 'Mapa sin título';
+
+    const desc = document.createElement('p');
+    desc.classList.add('mindmap-desc');
+    desc.textContent = descripcion ? descripcion.substring(0, 100) : 'Sin descripción';
+
+    const date = document.createElement('span');
+    date.classList.add('mindmap-date');
+    date.textContent = fecha_creacion ? `Creado el ${new Date(fecha_creacion).toLocaleDateString()}` : '';
+
+    const openBtn = document.createElement('button');
+    openBtn.classList.add('open-mindmap-btn');
+    openBtn.textContent = 'Abrir mapa';
+    openBtn.addEventListener('click', () => {
+        window.location.href = `/mentalmap/${id}`;
+    });
+
+    card.appendChild(title);
+    card.appendChild(desc);
+    card.appendChild(date);
+    card.appendChild(openBtn);
+
+    return card;
+}
+
+export async function CreateMindmapPopup(workspaceId) {
+    const popup = document.createElement('div');
+    popup.classList.add('mindmap-popup'); // puedes usar otra clase como 'mindmap-popup' si lo prefieres
+    setTimeout(() => {
+        popup.classList.add('animate-popup');
+    }, 50);
+
+    const flecha = document.createElement('div');
+    flecha.classList.add('popup-arrow');
+    popup.appendChild(flecha);
+
+    const form = document.createElement('form');
+
+    const imgMindmap = document.createElement('img');
+    imgMindmap.id = 'mindmapImgExample';
+    imgMindmap.src = '../../../img/mindmaplogo.png'; // cambia por tu imagen de ejemplo
+
+    const title = document.createElement('h3');
+    title.textContent = 'Crear Mapa Mental';
+    title.id = 'tittle-new-mindmap';
+
+    const tituloGroup = document.createElement('div');
+    tituloGroup.classList.add('input-group');
+
+    const labelTitulo = document.createElement('label');
+    labelTitulo.textContent = 'Título del mapa';
+
+    const inputTitulo = document.createElement('input');
+    inputTitulo.type = 'text';
+    inputTitulo.placeholder = 'Ej: Mapa de ideas para proyecto';
+    inputTitulo.setAttribute('aria-label', 'Pon un título para el mapa mental');
+
+    tituloGroup.appendChild(labelTitulo);
+    tituloGroup.appendChild(inputTitulo);
+
+    const descripGroup = document.createElement('div');
+    descripGroup.classList.add('input-group');
+
+    const labelDescrip = document.createElement('label');
+    labelDescrip.textContent = 'Descripción (opcional)';
+
+    const inputDescrip = document.createElement('textarea');
+    inputDescrip.placeholder = 'Ej: Estructura de contenidos del curso...';
+    inputDescrip.setAttribute('aria-label', 'Pon una descripción clara para el mapa');
+
+    descripGroup.appendChild(labelDescrip);
+    descripGroup.appendChild(inputDescrip);
+
+    const botonCrear = document.createElement('button');
+    botonCrear.type = 'submit';
+    botonCrear.id = 'botonCrearMindmap';
+    botonCrear.textContent = 'Crear';
+    botonCrear.title = 'Haz clic para crear el mapa mental';
+
+    form.appendChild(title);
+    form.appendChild(imgMindmap);
+    form.appendChild(tituloGroup);
+    form.appendChild(descripGroup);
+    form.appendChild(botonCrear);
+    popup.appendChild(form);
+
+    function closePopup() {
+        popup.classList.remove('animate-popup');
+        popup.classList.add('fade-out');
+        popup.addEventListener('animationend', () => {
+            popup.remove();
+        }, { once: true });
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleEscape);
+    }
+
+    function handleClickOutside(e) {
+        if (!popup.contains(e.target)) closePopup();
+    }
+
+    function handleEscape(e) {
+        if (e.key === 'Escape') closePopup();
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nombre = inputTitulo.value.trim();
+        const descripcion = inputDescrip.value.trim();
+
+        if (!nombre) {
+            showToast("El nombre del mapa mental es obligatorio", "error");
+            return;
+        }
+
+        if (!workspaceId) {
+            showToast("ID del espacio de trabajo no disponible", "error");
+            return;
+        }
+
+        try {
+            await createMindmap(nombre, descripcion, workspaceId);
+            await fetchAndRenderMindmaps(workspaceId);
+            closePopup();
+        } catch (error) {
+            showToast("Error al crear el mapa mental: " + error.message, "error");
+        }
+    });
+
+    return popup;
+}

@@ -81,8 +81,15 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('crear-lista', data);
   });
 
+  socket.on('crear-tarea', (data) => {
+    socket.broadcast.emit('crear-tarea', data);
+  });
+
   socket.on('eliminar-lista', (data) => {
     socket.broadcast.emit('eliminar-lista', data);
+  });
+  socket.on('eliminar-tarea', (data) => {
+    socket.broadcast.emit('eliminar-tarea', data);
   });
   socket.on('modificar-lista', (data) => {
     console.log('📢 Retransmitiendo modificación de lista a otros usuarios:', data);

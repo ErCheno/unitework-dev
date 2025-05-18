@@ -63,8 +63,14 @@ export function connectSocket() {
     socket.on('crear-lista', (boardId) => {
       fetchAndRenderList(boardId);
     });
+    socket.on('crear-tarea', (estado) => {
+      fetchAndRenderTasks(estado);
+    });
     socket.on('eliminar-lista', (boardId) => {
       fetchAndRenderList(boardId);
+    });
+        socket.on('eliminar-tarea', (estado) => {
+      fetchAndRenderTasks(estado);
     });
 
     socket.on('modificar-lista', (data) => {

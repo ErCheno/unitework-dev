@@ -42,7 +42,7 @@
 //WORKSPACE CARDS
 
 #workspace-list,
-#board-list {
+#board-list, #mind-list {
   margin: 50px;
 
   position: relative;
@@ -939,6 +939,37 @@
   padding: 5px;
   font-size: 14px;
 }
+
+// MAPAS MENTALES
+
+#mindmap-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.mindmap-node {
+    background: #f5f7fa;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin: 10px;
+    position: relative;
+    min-width: 120px;
+    text-align: center;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+}
+
+.mindmap-node > .mindmap-node {
+    margin-left: 40px;
+}
+
+.add-subidea {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
 
 
 @keyframes fadeIn {

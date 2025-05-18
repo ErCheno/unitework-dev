@@ -4,9 +4,116 @@
 * {}
 
 
+.mindmap-card {
+  border: 4px solid transparent;
+  border-radius: 100px !important;
+  min-height: 125px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease;
+  padding: 1.5rem !important;
+
+
+  .mindmap-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+
+    .mindmap-title {
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      // Se quería un difuminado al final del texto y se ha buscado por internet esta opción.
+      //mask-image: linear-gradient(to right, $primary-color 80%, transparent 100%); // https://lenguajecss.com/css/mascaras-y-recortes/mask-image/
+
+      width: 75%;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+
+
+}
+
+#mindmapImgExample {
+  max-width: 80%;
+  border: 1px solid $secondary-color;
+  border-radius: 5px;
+
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.mindmap-color-1 {
+  border-color: $kanban-color-1;
+  background-color: lighten($kanban-color-1, 20%);
+}
+
+.mindmap-color-2 {
+  border-color: $kanban-color-2;
+  background-color: lighten($kanban-color-2, 20%);
+
+}
+
+.mindmap-color-3 {
+  border-color: $kanban-color-3;
+  background-color: lighten($kanban-color-3, 20%);
+
+}
+
+.mindmap-color-4 {
+  border-color: $kanban-color-4;
+  background-color: lighten($kanban-color-4, 20%);
+
+}
+
+.mindmap-color-5 {
+  background-color: lighten($kanban-color-5, 20%);
+  border-color: $kanban-color-5;
+}
+
+.mindmap-color-6 {
+  background-color: lighten($kanban-color-6, 20%);
+  border-color: $kanban-color-6;
+}
+
+.mindmap-color-7 {
+  background-color: lighten($kanban-color-7, 20%);
+  border-color: $kanban-color-7;
+}
+
+.mindmap-color-8 {
+  background-color: lighten($kanban-color-8, 20%);
+  border-color: $kanban-color-8;
+}
+
+.mindmap-color-9 {
+  background-color: lighten($kanban-color-9, 20%);
+  border-color: $kanban-color-9;
+}
+
+.mindmap-color-10 {
+  background-color: lighten($kanban-color-10, 20%);
+  border-color: $kanban-color-10;
+}
+
+.mindmap-color-11 {
+  background-color: lighten($kanban-color-11, 20%);
+  border-color: $kanban-color-11;
+}
+
+.mindmap-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
 
 // Tarjeta base
-.board-card {
+.board-card,
+.mindmap-card {
   width: 260px;
   min-height: 100px;
   max-height: 100px;
@@ -100,33 +207,34 @@
 
 }
 
-#board-list {
+#board-list,
+#mind-list {
   background-color: rgba(214, 214, 214, 0.35);
   /* blanco con 85% opacidad */
 }
 
-#board-list:active {
-  cursor: grabbing;
-}
-
-.board-draggable {
+.board-draggable,
+.mindmap-draggable {
   transition: transform 300ms ease;
   will-change: transform;
 }
 
-.board-draggable.dragging {
+.board-draggable.dragging,
+.mindmap-draggable.dragging {
   opacity: 0.5;
   transform: scale(0.95);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.board-draggable.drop-preview {
+.board-draggable.drop-preview,
+.mindmap-draggable.drop-preview {
   transition: margin 0.2s ease;
   margin-right: 30px; // efecto visual donde va a entrar
 }
 
 // Tarjeta para crear un nuevo tablero
-.create-board-card {
+.create-board-card,
+.mindmap-card {
   /*@extend .board-card;*/
   background-color: #e2e4e6;
   color: $primary-color;
@@ -143,7 +251,8 @@
 //BOTÓN CREAR TABLERO
 
 /* Popup */
-.board-popup {
+.board-popup,
+.mindmap-popup {
   position: absolute;
   background-color: #fff;
   border: 1px solid #ddd;
@@ -222,7 +331,8 @@
   background-color: #fff;
 }
 
-#tittle-new-board {
+#tittle-new-board,
+#tittle-new-mindmap {
   text-align: center;
   font-size: 20px;
 }
@@ -278,7 +388,8 @@
   margin-top: 20px;
 }
 
-#botonCrear {
+#botonCrear,
+#botonCrearMindmap {
   width: 100%;
   padding: 0.75rem 1rem;
   background-color: $third-color;
@@ -568,12 +679,12 @@
 }
 
 .label-tu {
-    padding: 6px 10px;
-    background: #e0e0e0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    color: #555;
-    font-weight: bold;
+  padding: 6px 10px;
+  background: #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #555;
+  font-weight: bold;
 }
 
 

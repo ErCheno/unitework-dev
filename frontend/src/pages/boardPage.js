@@ -151,8 +151,8 @@ export async function BoardPage(boardId) {
 
         // Renderizar la lista inicialmente
         await fetchAndRenderList(boardId);
-
         socketMoveList(boardId);
+        socketPutList(boardId);
         // Reordenar columnas (listas)
         setupSortableList('#kanban-list', async (evt) => {
             const listaMovida = evt.item;
@@ -410,7 +410,7 @@ export async function fetchAndRenderList(boardId) {
                     // Llamamos a crearTarea con el estado.id y el nombre de la tarea
                     await crearTarea(estado, summary, boardId);
                     await fetchAndRenderTasks(estado, boardId);
-
+                    socket.emit('crear-tarea', estado);
 
                     textarea.value = '';
                     floatingForm.classList.add('hidden');
@@ -841,6 +841,7 @@ export function popupEditarTarea(tarea, estado) {
     borrarButton.addEventListener('click', async () => {
         await deleteTask(tarea.id);
         fetchAndRenderTasks(estado);
+        socket.emit('eliminar-tarea', estado);
 
     });
 
