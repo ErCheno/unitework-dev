@@ -83,6 +83,7 @@ export function BoardCard(board) {
 
   card.addEventListener('click', () => {
     page(`/board/${board.id}`); // Redirige a la página del workspace con el ID del workspace
+    //sessionStorage.setItem('idWorkspace', board.espacio_trabajo_id)
   });
 
 

@@ -166,7 +166,7 @@
     min-height: 5px;
 }
 
-#crearLista {
+#crearLista, #crearNodo {
     display: flex;
     height: 50px;
     align-items: center;
@@ -181,6 +181,10 @@
     #icoCrear {
         margin-right: 10px;
     }
+}
+
+#crearNodo{
+    background-color: $third-color !important;
 }
 
 .crear-lista-container {
@@ -244,7 +248,7 @@
     z-index: -1;
 }
 
-#crearLista:hover {
+#crearLista:hover, #crearNodo:hover {
     background-color: lighten($primary-color, 10%);
 }
 

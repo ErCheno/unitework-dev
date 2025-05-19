@@ -119,7 +119,7 @@ export async function BoardPage(boardId) {
     parrafoVolver.textContent = 'Volver';
     botonVolver.append(icoVolver, parrafoVolver);
 
-    botonVolver.addEventListener('click', () => page('/myworkspaces'));
+    botonVolver.addEventListener('click', () => page('/workspace/'+board.espacio_trabajo_id));
     //botonVolver.addEventListener('click', () => page(`/workspace/${workspace.id}`));
 
     const divBotonesArriba = document.createElement('div');

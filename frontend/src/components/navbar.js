@@ -12,6 +12,7 @@ export function Navbar() {
   const toggleBtn = document.createElement('button');
   toggleBtn.id = 'toggleBtn';
   toggleBtn.className = 'toggle-button';
+  toggleBtn.title = 'Haz clic para abrir el menú';
 
   // Icono del toggle (hamburguesa o cruz)
   const icon = document.createElement('i');
@@ -103,7 +104,9 @@ export function Navbar() {
 
   iDashboardKanban.className = 'fa-solid fa-columns';
   dashboardLinkKanban.href = '/kanban';
-  spanKanban.textContent = ' Tablero Kanban';
+  spanKanban.textContent = 'Tablero Kanban';
+  iDashboardKanban.title = 'Tablero Kanban';
+
   dashboardLinkKanban.appendChild(iDashboardKanban);
   dashboardLinkKanban.appendChild(spanKanban);
   dashboardLiKanban.appendChild(dashboardLinkKanban);
@@ -116,7 +119,9 @@ export function Navbar() {
 
   iDashboardMindMap.className = 'fa-solid fa-diagram-project';
   dashboardLinkMindMap.href = '/mindmap';
-  spanMindMap.textContent = ' Mapa mental';
+  spanMindMap.textContent = 'Mapa mental';
+  iDashboardMindMap.title = 'Mapa mental';
+
   dashboardLinkMindMap.appendChild(iDashboardMindMap);
   dashboardLinkMindMap.appendChild(spanMindMap);
   dashboardLiMindMap.appendChild(dashboardLinkMindMap);

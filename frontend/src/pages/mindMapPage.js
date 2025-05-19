@@ -107,7 +107,7 @@ export async function MindMapPage(mapId) {
     parrafoVolver.textContent = 'Volver';
     botonVolver.append(icoVolver, parrafoVolver);
 
-    botonVolver.addEventListener('click', () => page('/myworkspaces'));
+    botonVolver.addEventListener('click', () => page('/workspace/'+mapa.espacio_trabajo_id));
 
     const divBotonesArriba = document.createElement('div');
     divBotonesArriba.id = 'divBotonesArriba';
