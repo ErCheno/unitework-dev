@@ -11,6 +11,7 @@ import { mostrarPopupConfirmacion } from '../components/workspaceCard.js';
 import { socketMoveList, socketPutList } from '../js/socketsEvents.js';
 import { socket } from '../js/socket.js';
 import { fetchMindMaps, selectMindMap } from '../js/mindMap.js';
+import { initMindMap } from '../components/mindMapView.js';
 
 export async function MindMapPage(mapId) {
     cleanupView();
@@ -107,7 +108,7 @@ export async function MindMapPage(mapId) {
     parrafoVolver.textContent = 'Volver';
     botonVolver.append(icoVolver, parrafoVolver);
 
-    botonVolver.addEventListener('click', () => page('/workspace/'+mapa.espacio_trabajo_id));
+    botonVolver.addEventListener('click', () => page('/workspace/' + mapa.espacio_trabajo_id));
 
     const divBotonesArriba = document.createElement('div');
     divBotonesArriba.id = 'divBotonesArriba';
@@ -130,7 +131,20 @@ export async function MindMapPage(mapId) {
     contentDiv.appendChild(container);
 
     // Aquí puedes llamar a la función para renderizar los nodos del mapa
-    // renderMindMap(mindmapId, mindmapContainer);
+
+    const ejemploJson = {
+        id: 'root',
+        topic: 'Mi Mapa Mental de prueba',
+        children: [
+            { id: 'node1', topic: 'Nodo 1', children: [] },
+            { id: 'node2', topic: 'Nodo 2', children: [] }
+        ]
+    };
+    let mindInstance; // variable global o accesible desde fuera
+
+    setTimeout(() => {
+        mindInstance = initMindMap(mindmapContainer, ejemploJson);
+    }, 100);
 
     return container;
 }
