@@ -10,6 +10,7 @@ import { BoardPage } from './pages/boardPage.js';
 import { fetchWorkspaces } from './js/workspaces.js';
 import { fetchBoards } from './js/board.js';
 import { connectSocket } from './js/socket.js';
+import { MindMapPage } from './pages/mindMapPage.js';
 
 window.addEventListener('load', () => {
     connectSocket();  // Llamamos a connectSocket en la carga de la página
@@ -60,6 +61,12 @@ page('/workspace/:workspaceId', authGuard, (context) => {
 page('/board/:boardId', authGuard, (context) => {
     const boardId = context.params.boardId;
     BoardPage(boardId); 
+});
+
+
+page('/mindmap/:mindmapId', authGuard, (context) => {
+    const mindmapId = context.params.mindmapId;
+    MindMapPage(mindmapId); 
 });
 
 /*

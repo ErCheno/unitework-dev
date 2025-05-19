@@ -1,3 +1,6 @@
+import { deleteMindMap } from "../js/mindMap";
+import { mostrarPopupConfirmacion } from "./workspaceCard";
+import page from "page";
 export function MindMapCard(map) {
   const card = document.createElement('div');
   card.className = 'mindmap-card'; // Puedes cambiar a 'mindmap-card' si quieres un estilo diferente
@@ -35,7 +38,8 @@ export function MindMapCard(map) {
   menuContainer.appendChild(menu);
 
   mapHeader.appendChild(title);
-  mapHeader.appendChild(icoMap);
+  menuContainer.appendChild(icoMap);
+  mapHeader.appendChild(menuContainer);
 
   const divIconosDebajo = document.createElement('div');
   divIconosDebajo.id = 'divIconosDebajo';
@@ -50,9 +54,7 @@ export function MindMapCard(map) {
 
   divIconosDebajo.appendChild(icoMiembros);
   divIconosDebajo.appendChild(icoStar);
-
   card.appendChild(mapHeader);
-  card.appendChild(menuContainer);
   card.appendChild(divIconosDebajo);
 
   card.addEventListener('click', () => {

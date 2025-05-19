@@ -16,7 +16,7 @@ import { createBoards } from '../js/board.js';
 import { BoardCard } from '../components/boardCard.js';
 
 import { scrollHorizontal, setupSortable } from '../components/dragAnimation.js';
-import { fetchMindMaps } from '../js/mindMap.js';
+import { createMindMap, fetchMindMaps } from '../js/mindMap.js';
 import { MindMapCard } from '../components/mindMapCard.js';
 
 export async function workspacePage(workspaceId) {
@@ -124,7 +124,7 @@ export async function workspacePage(workspaceId) {
 
                             setTimeout(() => {
                                 const rect = cardCrear.getBoundingClientRect();
-                                popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
+                                popup.style.top = `${rect.bottom - 75 + window.scrollY}px`;
                                 popup.style.left = `${rect.left + 240 + window.scrollX}px`;
                             }, 50);
                         }).catch(error => {
@@ -136,7 +136,7 @@ export async function workspacePage(workspaceId) {
 
                 if (boards.length === 0) {
                     const noBoardsMsg = document.createElement('p');
-                    noBoardsMsg.textContent = '¡Empieza creando un proyecto!';
+                    noBoardsMsg.textContent = '¡Empieza creando un tablero kanban!';
                     noBoardsMsg.classList.add('no-workspaces-msg');
                     grid.appendChild(noBoardsMsg);
                 } else {
@@ -177,7 +177,9 @@ export async function workspacePage(workspaceId) {
     setupSortable('board-list', '.board-draggable', (evt) => {
         console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
     });
+
     renderMindMapView(workspaceId);
+
 
 
 }
@@ -349,7 +351,7 @@ async function fetchAndRenderBoards(workspaceId) {
 
                 setTimeout(() => {
                     const rect = cardCrear.getBoundingClientRect();
-                    popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
+                    popup.style.top = `${rect.bottom - 75 + window.scrollY}px`;
                     popup.style.left = `${rect.left + 240 + window.scrollX}px`;
                 }, 50);  // Retardo pequeño para asegurarse de que el popup esté en el DOM
             }).catch(error => {
@@ -360,7 +362,7 @@ async function fetchAndRenderBoards(workspaceId) {
 
         if (boards.length === 0) {
             const noBoardsMsg = document.createElement('p');
-            noBoardsMsg.textContent = '¡Empieza creando un proyecto!';
+            noBoardsMsg.textContent = '¡Empieza creando un tablero kanban!';
             noBoardsMsg.classList.add('no-workspaces-msg');
             grid.appendChild(noBoardsMsg);
         } else {
@@ -384,61 +386,43 @@ async function fetchAndRenderBoards(workspaceId) {
 
 // Renderizado principal de la vista mapas mentales
 export async function renderMindMapView(workspaceId) {
-    const contentDiv = document.getElementById('content') || document.body.appendChild(
-        Object.assign(document.createElement('div'), { id: 'content' })
-    );
-
-    const container = document.createElement('div');
-    container.id = 'container';
-
-    const mapaContainer = document.createElement('div');
-    mapaContainer.id = 'mind-list';
-    container.appendChild(mapaContainer);
-    contentDiv.appendChild(container);
-
     try {
-        // Si tienes función fetchWorkspaces para obtener workspace y verificar rol, úsala
-        const workspaces = await fetchWorkspaces();
-        const workspace = workspaces.find(ws => ws.id === parseInt(workspaceId));
-
-        if (!workspace) {
-            const noWorkspaceMsg = document.createElement('p');
-            noWorkspaceMsg.textContent = 'Este espacio de trabajo no existe o ha sido eliminado.';
-            mapaContainer.appendChild(noWorkspaceMsg);
-            return;
-        }
-
-        document.title = workspace.nombre;
-
-        // Fetch mapas mentales
+        // Obtener mapas mentales del workspace
         const mapasMentales = await fetchMindMaps(workspaceId);
-        console.log(mapasMentales);
 
-        // Botón para crear nuevo mapa solo para admins
-        if (workspace.rol === 'admin') {
-            const cardCrear = document.createElement('div');
-            cardCrear.classList.add('mindmap-card', 'create-map-card');
-            cardCrear.setAttribute('aria-label', 'Crear un nuevo mapa mental');
-            cardCrear.textContent = '+ Crear un mapa mental';
+        // Contenedor principal donde van los mapas
+        const mapaContainer = document.getElementById('mind-list') || (() => {
+            const container = document.createElement('div');
+            container.id = 'mind-list';
+            document.getElementById('content')?.appendChild(container) || document.body.appendChild(container);
+            return container;
+        })();
 
-            cardCrear.addEventListener('click', () => {
-                const existing = document.querySelector('.mentalmap-popup');
-                if (existing) existing.remove();
+        mapaContainer.textContent = ''; // Limpiar mapas mentales previos
 
-                CreateMindmapPopup(workspaceId).then(popup => {
-                    document.body.appendChild(popup);
-                    requestAnimationFrame(() => popup.classList.remove('hidden'));
+        // Botón para crear mapa mental
+        const cardCrear = document.createElement('div');
+        cardCrear.classList.add('mindmap-card', 'create-map-card');
+        cardCrear.setAttribute('aria-label', 'Crear un nuevo mapa mental');
+        cardCrear.textContent = '+ Crear un mapa mental';
 
-                    setTimeout(() => {
-                        const rect = cardCrear.getBoundingClientRect();
-                        popup.style.top = `${rect.bottom - 60 + window.scrollY}px`;
-                        popup.style.left = `${rect.left + 240 + window.scrollX}px`;
-                    }, 50);
-                }).catch(console.error);
-            });
+        // Listener para mostrar popup creación mapa
+        cardCrear.addEventListener('click', () => {
+            const existing = document.querySelector('.mentalmap-popup');
+            if (existing) existing.remove();
 
-            mapaContainer.appendChild(cardCrear);
-        }
+            CreateMindmapPopup(workspaceId).then(popup => {
+                document.body.appendChild(popup);
+
+                setTimeout(() => {
+                    const rect = cardCrear.getBoundingClientRect();
+                    popup.style.top = `${rect.bottom - 90 + window.scrollY}px`;
+                    popup.style.left = `${rect.left + 240 + window.scrollX}px`;
+                }, 50);
+            }).catch(console.error);
+        });
+
+        mapaContainer.appendChild(cardCrear);
 
         if (mapasMentales.length === 0) {
             const noMapsMsg = document.createElement('p');
@@ -454,9 +438,12 @@ export async function renderMindMapView(workspaceId) {
             });
         }
 
+        setupSortable('mind-list', '.mindmap-draggable', (evt) => {
+            console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
+        });
     } catch (error) {
         console.error('Error al cargar los mapas mentales:', error);
-        showToast('Error al cargar el espacio de trabajo: ' + error.message, 'error');
+        showToast('Error al cargar los mapas mentales: ' + error.message, 'error');
     }
 }
 
@@ -594,8 +581,8 @@ export async function CreateMindmapPopup(workspaceId) {
         }
 
         try {
-            await createMindmap(nombre, descripcion, workspaceId);
-            await fetchAndRenderMindmaps(workspaceId);
+            await createMindMap(nombre, descripcion, workspaceId);
+            await renderMindMapView(workspaceId);
             closePopup();
         } catch (error) {
             showToast("Error al crear el mapa mental: " + error.message, "error");

@@ -67,26 +67,104 @@ $kanban-color-9: #E2A5A5;
 $kanban-color-10: #E2A5B2;
 $kanban-color-11: #E2A5DF;
 
-.kanban-color-1 { background-color: $kanban-color-1; }
-.kanban-color-2 { background-color: $kanban-color-2; }
-.kanban-color-3 { background-color: $kanban-color-3; }
-.kanban-color-4 { background-color: $kanban-color-4; }
-.kanban-color-5 { background-color: $kanban-color-5; }
-.kanban-color-6 { background-color: $kanban-color-6; }
-.kanban-color-7 { background-color: $kanban-color-7; }
-.kanban-color-8 { background-color: $kanban-color-8; }
-.kanban-color-9 { background-color: $kanban-color-9; }
-.kanban-color-10 { background-color: $kanban-color-10; }
-.kanban-color-11 { background-color: $kanban-color-11; }
+.kanban-color-1 {
+    background-color: $kanban-color-1;
+}
 
-.mindmap-color-1 { border-color: $kanban-color-1; }
-.mindmap-color-2 { border-color: $kanban-color-2; }
-.mindmap-color-3 { border-color: $kanban-color-3; }
-.mindmap-color-4 { border-color: $kanban-color-4; }
-.mindmap-color-5 { border-color: $kanban-color-5; }
-.mindmap-color-6 { border-color: $kanban-color-6; }
-.mindmap-color-7 { border-color: $kanban-color-7; }
-.mindmap-color-8 { border-color: $kanban-color-8; }
-.mindmap-color-9 { border-color: $kanban-color-9; }
-.mindmap-color-10 { border-color: $kanban-color-10; }
-.mindmap-color-11 { border-color: $kanban-color-11; }
+.kanban-color-2 {
+    background-color: $kanban-color-2;
+}
+
+.kanban-color-3 {
+    background-color: $kanban-color-3;
+}
+
+.kanban-color-4 {
+    background-color: $kanban-color-4;
+}
+
+.kanban-color-5 {
+    background-color: $kanban-color-5;
+}
+
+.kanban-color-6 {
+    background-color: $kanban-color-6;
+}
+
+.kanban-color-7 {
+    background-color: $kanban-color-7;
+}
+
+.kanban-color-8 {
+    background-color: $kanban-color-8;
+}
+
+.kanban-color-9 {
+    background-color: $kanban-color-9;
+}
+
+.kanban-color-10 {
+    background-color: $kanban-color-10;
+}
+
+.kanban-color-11 {
+    background-color: $kanban-color-11;
+}
+
+.mindmap-color-1 {
+  border-color: $kanban-color-1;
+  background-color: lighten($kanban-color-1, 20%);
+}
+
+.mindmap-color-2 {
+  border-color: $kanban-color-2;
+  background-color: lighten($kanban-color-2, 20%);
+
+}
+
+.mindmap-color-3 {
+  border-color: $kanban-color-3;
+  background-color: lighten($kanban-color-3, 20%);
+
+}
+
+.mindmap-color-4 {
+  border-color: $kanban-color-4;
+  background-color: lighten($kanban-color-4, 20%);
+
+}
+
+.mindmap-color-5 {
+  background-color: lighten($kanban-color-5, 20%);
+  border-color: $kanban-color-5;
+}
+
+.mindmap-color-6 {
+  background-color: lighten($kanban-color-6, 20%);
+  border-color: $kanban-color-6;
+}
+
+.mindmap-color-7 {
+  background-color: lighten($kanban-color-7, 20%);
+  border-color: $kanban-color-7;
+}
+
+.mindmap-color-8 {
+  background-color: lighten($kanban-color-8, 20%);
+  border-color: $kanban-color-8;
+}
+
+.mindmap-color-9 {
+  background-color: lighten($kanban-color-9, 20%);
+  border-color: $kanban-color-9;
+}
+
+.mindmap-color-10 {
+  background-color: lighten($kanban-color-10, 20%);
+  border-color: $kanban-color-10;
+}
+
+.mindmap-color-11 {
+  background-color: lighten($kanban-color-11, 20%);
+  border-color: $kanban-color-11;
+}

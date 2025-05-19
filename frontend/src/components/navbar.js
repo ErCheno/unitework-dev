@@ -109,6 +109,17 @@ export function Navbar() {
   dashboardLiKanban.appendChild(dashboardLinkKanban);
 
 
+  const dashboardLiMindMap = document.createElement('li');
+  const dashboardLinkMindMap = document.createElement('a');
+  const iDashboardMindMap = document.createElement('i');
+  const spanMindMap = document.createElement('span');
+
+  iDashboardMindMap.className = 'fa-solid fa-diagram-project';
+  dashboardLinkMindMap.href = '/mindmap';
+  spanMindMap.textContent = ' Mapa mental';
+  dashboardLinkMindMap.appendChild(iDashboardMindMap);
+  dashboardLinkMindMap.appendChild(spanMindMap);
+  dashboardLiMindMap.appendChild(dashboardLinkMindMap);
 
   // Logout
   const divDebajo = document.createElement('div');
@@ -132,6 +143,7 @@ export function Navbar() {
   ul.appendChild(dashboardLiNovedades);
   ul.appendChild(dashboardLiEspaciosTrabajo);
   ul.appendChild(dashboardLiKanban);
+  ul.appendChild(dashboardLiMindMap);
 
   // Montamos el nav
   nav.appendChild(hr1);

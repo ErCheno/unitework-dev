@@ -273,7 +273,7 @@ export async function fetchAndRenderList(boardId) {
 
         if (estados.length === 0) {
             const noBoardsMsg = document.createElement('p');
-            noBoardsMsg.textContent = '¡Empieza creando un proyecto!';
+            noBoardsMsg.textContent = '¡Empieza creando un tablero kanban!';
             noBoardsMsg.classList.add('no-workspaces-msg');
             grid.appendChild(noBoardsMsg);
         } else {

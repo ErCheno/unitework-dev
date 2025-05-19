@@ -5,9 +5,9 @@
 
 
 .mindmap-card {
-  border: 4px solid transparent;
+  border: 1px solid transparent;
   border-radius: 100px !important;
-  min-height: 125px !important;
+  min-height: 100px !important;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s ease;
   padding: 1.5rem !important;
@@ -48,61 +48,62 @@
   margin-top: 20px;
 }
 
+
 .mindmap-color-1 {
   border-color: $kanban-color-1;
-  background-color: lighten($kanban-color-1, 20%);
+  background-color: lighten($kanban-color-1, 10%);
 }
 
 .mindmap-color-2 {
   border-color: $kanban-color-2;
-  background-color: lighten($kanban-color-2, 20%);
+  background-color: lighten($kanban-color-2, 10%);
 
 }
 
 .mindmap-color-3 {
   border-color: $kanban-color-3;
-  background-color: lighten($kanban-color-3, 20%);
+  background-color: lighten($kanban-color-3, 10%);
 
 }
 
 .mindmap-color-4 {
   border-color: $kanban-color-4;
-  background-color: lighten($kanban-color-4, 20%);
+  background-color: lighten($kanban-color-4, 10%);
 
 }
 
 .mindmap-color-5 {
-  background-color: lighten($kanban-color-5, 20%);
+  background-color: lighten($kanban-color-5, 10%);
   border-color: $kanban-color-5;
 }
 
 .mindmap-color-6 {
-  background-color: lighten($kanban-color-6, 20%);
+  background-color: lighten($kanban-color-6, 10%);
   border-color: $kanban-color-6;
 }
 
 .mindmap-color-7 {
-  background-color: lighten($kanban-color-7, 20%);
+  background-color: lighten($kanban-color-7, 10%);
   border-color: $kanban-color-7;
 }
 
 .mindmap-color-8 {
-  background-color: lighten($kanban-color-8, 20%);
+  background-color: lighten($kanban-color-8, 10%);
   border-color: $kanban-color-8;
 }
 
 .mindmap-color-9 {
-  background-color: lighten($kanban-color-9, 20%);
+  background-color: lighten($kanban-color-9, 10%);
   border-color: $kanban-color-9;
 }
 
 .mindmap-color-10 {
-  background-color: lighten($kanban-color-10, 20%);
+  background-color: lighten($kanban-color-10, 10%);
   border-color: $kanban-color-10;
 }
 
 .mindmap-color-11 {
-  background-color: lighten($kanban-color-11, 20%);
+  background-color: lighten($kanban-color-11, 10%);
   border-color: $kanban-color-11;
 }
 
@@ -233,8 +234,7 @@
 }
 
 // Tarjeta para crear un nuevo tablero
-.create-board-card,
-.mindmap-card {
+.create-board-card, .create-map-card {
   /*@extend .board-card;*/
   background-color: #e2e4e6;
   color: $primary-color;
@@ -246,7 +246,17 @@
     background-color: $sixth-color;
   }
 }
+.mindmap-card {
+  /*@extend .board-card;*/
+  color: $primary-color;
+  font-weight: bold;
+  justify-content: center;
 
+
+  &:hover {
+    background-color: $sixth-color;
+  }
+}
 
 //BOTÓN CREAR TABLERO
 
@@ -447,7 +457,7 @@
 
 // LISTA AL DARLE AL DOT
 
-.board-menu {
+.board-menu, .mindmap-menu {
   position: absolute;
   z-index: 1;
   top: -40px;
@@ -473,17 +483,18 @@
   }
 }
 
-.board-menu li {
+.board-menu li, .mindmap-menu li {
+  font-weight: 500;
   text-align: center;
 }
 
-.board-menu li {
+.board-menu li, .mindmap-menu li {
   padding: 8px 16px;
   cursor: pointer;
 
 }
 
-.board-menu li:hover {
+.board-menu li:hover, .mindmap-menu li:hover {
   background-color: #f0f0f0;
 }
 
