@@ -123,28 +123,91 @@ export async function MindMapPage(mapId) {
     const hrMindmap = document.createElement('hr');
     hrMindmap.id = 'hrMindmap';
 
-    // Contenedor principal para el mapa mental
+    // Crear el div requerido por GoJS
     const mindmapContainer = document.createElement('div');
     mindmapContainer.id = 'mindmap-list';
+    mindmapContainer.style.width = '100%';
+    mindmapContainer.style.height = '600px';
+    mindmapContainer.style.border = '1px solid #ccc';
+    mindmapContainer.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
 
+    // Insertarlo al DOM antes de inicializar GoJS
     container.append(divConjuntoArriba, hrMindmap, mindmapContainer);
     contentDiv.appendChild(container);
 
-    // Aquí puedes llamar a la función para renderizar los nodos del mapa
-
-    const ejemploJson = {
-        id: 'root',
-        topic: 'Mi Mapa Mental de prueba',
-        children: [
-            { id: 'node1', topic: 'Nodo 1', children: [] },
-            { id: 'node2', topic: 'Nodo 2', children: [] }
-        ]
+    const exampleData = {
+        "nodeData": {
+            "id": "root",
+            "topic": "Mapa Mental Principal",
+            "children": [
+                {
+                    "id": "n1",
+                    "topic": "Tarea 1",
+                    "direction": "right",
+                    "children": [
+                        {
+                            "id": "n1-1",
+                            "topic": "Subtarea 1.1"
+                        },
+                        {
+                            "id": "n1-2",
+                            "topic": "Subtarea 1.2"
+                        }
+                    ]
+                },
+                {
+                    "id": "n2",
+                    "topic": "Tarea 2",
+                    "direction": "left",
+                    "children": [
+                        {
+                            "id": "n2-1",
+                            "topic": "Subtarea 2.1"
+                        },
+                        {
+                            "id": "n2-2",
+                            "topic": "Subtarea 2.2",
+                            "children": [
+                                {
+                                    "id": "n2-2-1",
+                                    "topic": "Detalle 2.2.1"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "linkData": {} // Puedes omitir esto si no usas enlaces entre nodos
     };
-    let mindInstance; // variable global o accesible desde fuera
 
-    setTimeout(() => {
-        mindInstance = initMindMap(mindmapContainer, ejemploJson);
-    }, 100);
+    initMindMap(mindmapContainer,exampleData)
 
+
+    /*
+        // ✅ Inicializar GoJS DESPUÉS de haber añadido el div al DOM
+        const $ = go.GraphObject.make;
+    
+        const diagram = $(go.Diagram, 'mindmap-list', {
+            'undoManager.isEnabled': true,
+            layout: $(go.TreeLayout, { angle: 90, layerSpacing: 30 }),
+        });
+    
+        // Plantilla de nodos
+        diagram.nodeTemplate =
+            $(go.Node, 'Auto',
+                $(go.Shape, 'RoundedRectangle', { fill: 'lightblue' }),
+                $(go.TextBlock, { margin: 8 }, new go.Binding('text', 'key'))
+            );
+    
+        // Datos de ejemplo (mapa mental)
+        diagram.model = new go.TreeModel([
+            { key: 'Idea Principal' },
+            { key: 'Subidea 1', parent: 'Idea Principal' },
+            { key: 'Subidea 2', parent: 'Idea Principal' },
+            { key: 'Detalle A', parent: 'Subidea 1' },
+            { key: 'Detalle B', parent: 'Subidea 1' }
+        ]);
+    */
     return container;
 }

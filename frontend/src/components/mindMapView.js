@@ -8,7 +8,7 @@ export function initMindMap(containerElement, data) {
 
   const mind = new MindElixir({
     el: containerElement, // ¡debe ser un elemento real!
-    direction: MindElixir.LEFT,
+    direction: MindElixir.SIDE,
     draggable: true,
     editable: true,
     contextMenu: true,
