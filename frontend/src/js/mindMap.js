@@ -157,3 +157,123 @@ export async function selectMindMap(mindmapId) {
         throw new Error('Error al cargar tableros: ' + err.message);
     }
 }
+
+
+
+export async function fetchNodos(mapaId) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/getNodos.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ mapa_id: mapaId })
+
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la respuesta: ' + response.status);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error('Error del servidor:', data.message);
+            return null;
+        }
+
+        return data.nodos_mapa; // Devuelve el array para que lo uses como necesites
+
+    } catch (error) {
+        console.error('Error al obtener mapas mentales:', error);
+        return null;
+    }
+}
+export async function crearNodo(mapaId, contenidoNuevo, padreId) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const body = {
+            mapa_id: mapaId,
+            contenido: contenidoNuevo
+        };
+        if (padreId !== null) {
+            body.padre_id = padreId;
+        }
+
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/createNodo.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Error al crear el nodo');
+        }
+
+        // Retornamos el nodo creado (según la respuesta del backend)
+        return data;
+
+    } catch (error) {
+        console.error('Error al crear nodo:', error);
+        return null;
+    }
+}
+
+export async function getNodoPadre(mapaId) {
+  try {
+    const token = getToken();
+
+    if (!token) {
+      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+      page("/login");
+      return null;
+    }
+
+    const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/getNodoPadre.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify({ mapa_id: mapaId }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error en la respuesta: ' + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.error('Error del servidor:', data.message);
+      return null;
+    }
+
+    return data.nodoRaiz;
+
+  } catch (error) {
+    console.error('Error al obtener nodo padre:', error);
+    return null;
+  }
+}

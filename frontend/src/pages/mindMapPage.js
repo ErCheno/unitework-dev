@@ -10,7 +10,7 @@ import { cambiarRolUsuario, fetchBoards, getUsuariosDelTablero, getUsuariosDispo
 import { mostrarPopupConfirmacion } from '../components/workspaceCard.js';
 import { socketMoveList, socketPutList } from '../js/socketsEvents.js';
 import { socket } from '../js/socket.js';
-import { fetchMindMaps, selectMindMap } from '../js/mindMap.js';
+import { crearNodo, fetchMindMaps, fetchNodos, getNodoPadre, selectMindMap } from '../js/mindMap.js';
 import { initMindMap } from '../components/mindMapView.js';
 
 export async function MindMapPage(mapId) {
@@ -91,12 +91,10 @@ export async function MindMapPage(mapId) {
     icoCrear.id = 'icoCrear';
     const parrafoCrear = document.createElement('span');
     parrafoCrear.id = 'parrafoCrear';
-    parrafoCrear.textContent = 'Crear nodo';
+    parrafoCrear.textContent = 'Crear nodo hijo';
     botonCrear.append(icoCrear, parrafoCrear);
 
-    botonCrear.addEventListener('click', () => {
-        popupCrearNodo(botonCrear, mindmapId);
-    });
+
 
     const botonVolver = document.createElement('button');
     botonVolver.id = 'botonVolver';
@@ -123,7 +121,7 @@ export async function MindMapPage(mapId) {
     const hrMindmap = document.createElement('hr');
     hrMindmap.id = 'hrMindmap';
 
-    // Crear el div requerido por GoJS
+    // Crear el div requerido por GoJS (Mind-Elixir)
     const mindmapContainer = document.createElement('div');
     mindmapContainer.id = 'mindmap-list';
     mindmapContainer.style.width = '100%';
@@ -131,83 +129,227 @@ export async function MindMapPage(mapId) {
     mindmapContainer.style.border = '1px solid #ccc';
     mindmapContainer.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
 
-    // Insertarlo al DOM antes de inicializar GoJS
+    // Insertarlo al DOM antes de inicializar Mind-Elixir
     container.append(divConjuntoArriba, hrMindmap, mindmapContainer);
     contentDiv.appendChild(container);
 
-    const exampleData = {
-        "nodeData": {
-            "id": "root",
-            "topic": "Mapa Mental Principal",
-            "children": [
-                {
-                    "id": "n1",
-                    "topic": "Tarea 1",
-                    "direction": "right",
-                    "children": [
-                        {
-                            "id": "n1-1",
-                            "topic": "Subtarea 1.1"
-                        },
-                        {
-                            "id": "n1-2",
-                            "topic": "Subtarea 1.2"
-                        }
-                    ]
-                },
-                {
-                    "id": "n2",
-                    "topic": "Tarea 2",
-                    "direction": "left",
-                    "children": [
-                        {
-                            "id": "n2-1",
-                            "topic": "Subtarea 2.1"
-                        },
-                        {
-                            "id": "n2-2",
-                            "topic": "Subtarea 2.2",
-                            "children": [
-                                {
-                                    "id": "n2-2-1",
-                                    "topic": "Detalle 2.2.1"
-                                }
-                            ]
-                        }
-                    ]
+    // Obtener nodos reales desde el backend y convertirlos a estructura compatible
+    const nodos = await fetchNodos(mapId);
+    const treeData = buildMindElixirTree(nodos);
+
+    // Inicializar Mind-Elixir con los datos del backend y guardar instancia
+    const mindInstance = initMindMap(mindmapContainer, treeData);
+
+    botonCrear.addEventListener('click', () => {
+        // Si ya hay un popup abierto, lo cerramos
+        const existing = document.querySelector('.mindnode-popup');
+        if (existing) existing.remove();
+
+        // Obtener posición del botón para situar el popup
+        const rect = botonCrear.getBoundingClientRect();
+
+        // Crear popup, pasando mindInstance y padreId nulo para crear raíz o hijo
+        popupCrearNodo(mapId, null, mindInstance)
+            .then(nuevoNodo => {
+                if (nuevoNodo && nuevoNodo.id) {
+                    console.log("Nodo creado:", nuevoNodo);
+                    // El nodo ya se añadió al mindInstance dentro de popupCrearNodo
                 }
-            ]
-        },
-        "linkData": {} // Puedes omitir esto si no usas enlaces entre nodos
-    };
+            })
+            .then(() => {
+                // Posicionar el popup justo después de crear y agregarlo
+                const popup = document.querySelector('.mindnode-popup');
+                if (popup) {
+                    popup.style.position = 'absolute';
+                    popup.style.top = `${rect.bottom + window.scrollY}px`;
+                    popup.style.left = `${rect.left + window.scrollX}px`;
+                    popup.style.zIndex = '1000'; // Por si acaso que quede encima
+                }
+            });
+    });
+    const sibling = document.getElementById('cm-add_sibling');
+    sibling.addEventListener('click', async () => {
+        const nodoActual = mindInstance.currentNode;
+        console.log(nodoActual);
 
-    initMindMap(mindmapContainer,exampleData)
+        const padreIdReal = nodoActual.data.padre_id; // ID real en la base de datos
+        // Si es null, significa que el nodo actual es raíz (entonces el nuevo también será raíz)
+        await crearNodoFuncion(mapId, padreIdReal, mindInstance);
+    });
+
+    const child = document.getElementById('cm-add_child');
+    child.addEventListener('click', async () => {
+        const nodoActual = mindInstance.currentNode;
+        if (!nodoActual) {
+            alert("Selecciona un nodo primero.");
+            return;
+        }
+        const nodoRaiz = await getNodoPadre(mapId);
+        crearNodoFuncion(mapId, nodoRaiz.id.toString(), mindInstance);
+    });
 
 
-    /*
-        // ✅ Inicializar GoJS DESPUÉS de haber añadido el div al DOM
-        const $ = go.GraphObject.make;
-    
-        const diagram = $(go.Diagram, 'mindmap-list', {
-            'undoManager.isEnabled': true,
-            layout: $(go.TreeLayout, { angle: 90, layerSpacing: 30 }),
-        });
-    
-        // Plantilla de nodos
-        diagram.nodeTemplate =
-            $(go.Node, 'Auto',
-                $(go.Shape, 'RoundedRectangle', { fill: 'lightblue' }),
-                $(go.TextBlock, { margin: 8 }, new go.Binding('text', 'key'))
-            );
-    
-        // Datos de ejemplo (mapa mental)
-        diagram.model = new go.TreeModel([
-            { key: 'Idea Principal' },
-            { key: 'Subidea 1', parent: 'Idea Principal' },
-            { key: 'Subidea 2', parent: 'Idea Principal' },
-            { key: 'Detalle A', parent: 'Subidea 1' },
-            { key: 'Detalle B', parent: 'Subidea 1' }
-        ]);
-    */
     return container;
+
+}
+
+
+export function buildMindElixirTree(nodos) {
+    const nodeMap = {};
+    const rootNodes = [];
+
+    nodos.forEach(nodo => {
+        nodeMap[nodo.id] = {
+            id: nodo.id.toString(), // ID único para el frontend (puede mantenerse como string)
+            topic: nodo.contenido,
+            data: {
+                id_real: nodo.id,
+                padre_id: nodo.padre_id
+            },
+            children: []
+        };
+    });
+
+    nodos.forEach(nodo => {
+        if (nodo.padre_id === null) {
+            rootNodes.push(nodeMap[nodo.id]);
+        } else if (nodeMap[nodo.padre_id]) {
+            nodeMap[nodo.padre_id].children.push(nodeMap[nodo.id]);
+        }
+    });
+
+    return {
+        nodeData: rootNodes[0] || { id: 'root', topic: 'Mapa vacío' },
+        linkData: {}
+    };
+}
+
+
+
+export async function popupCrearNodo(mapaId, padreId, mindInstance) {
+    // Si padreId no está definido, lo obtenemos desde backend (el nodo raíz)
+    if (!padreId) {
+        const nodoRaiz = await getNodoPadre(mapaId);
+        if (nodoRaiz) padreId = nodoRaiz.id.toString();
+        else padreId = null; // o "" según lo que acepte tu lógica de MindElixir
+    }
+    return new Promise((resolve) => {
+        const popup = document.createElement("div");
+        popup.classList.add("mindnode-popup");
+        setTimeout(() => popup.classList.add("animate-popup-nodo"), 50);
+
+        const flecha = document.createElement("div");
+        flecha.classList.add("popup-arrow-nodo");
+        popup.appendChild(flecha);
+
+        const form = document.createElement("form");
+
+        const title = document.createElement("h3");
+        title.textContent = "Crear nodo hijo";
+        form.appendChild(title);
+
+        const inputGroup = document.createElement("div");
+        inputGroup.classList.add("input-group");
+
+        const label = document.createElement("label");
+        label.textContent = "Contenido del nodo";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Escribe el contenido...";
+        input.required = true;
+
+        inputGroup.appendChild(label);
+        inputGroup.appendChild(input);
+        form.appendChild(inputGroup);
+
+        const crearBtn = document.createElement("button");
+        crearBtn.type = "submit";
+        crearBtn.id = 'botonCrearMindmap';
+        crearBtn.textContent = "Crear";
+        form.appendChild(crearBtn);
+
+        popup.appendChild(form);
+
+        function closePopup() {
+            popup.classList.remove("animate-popup-nodo");
+            popup.classList.add("fade-out-nodo");
+            popup.addEventListener("animationend", () => popup.remove(), { once: true });
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleEscape);
+        }
+
+        function handleClickOutside(e) {
+            if (!popup.contains(e.target)) closePopup();
+        }
+
+        function handleEscape(e) {
+            if (e.key === "Escape") closePopup();
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEscape);
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const contenido = input.value.trim();
+
+            if (!contenido) {
+                alert("El contenido no puede estar vacío.");
+                return;
+            }
+
+            try {
+                // Crear el nodo en el backend
+                const nodoCreado = await crearNodo(mapaId, contenido, padreId);
+                console.log(nodoCreado);
+
+                if (nodoCreado && nodoCreado.nodo.id) {
+                    // 🔄 Volver a obtener todos los nodos actualizados
+                    const nodosActualizados = await fetchNodos(mapaId);
+                    const newTree = buildMindElixirTree(nodosActualizados);
+                    console.log(newTree);
+                    // 🔁 Actualizar el mindInstance
+                    mindInstance.refresh(newTree);
+
+                    closePopup(); // Cerrar popup
+                    resolve(nodoCreado);
+                } else {
+                    alert("No se pudo crear el nodo.");
+                }
+            } catch (error) {
+                console.error("Error al crear nodo:", error);
+                alert("Hubo un error al crear el nodo.");
+            }
+        });
+
+
+
+        resolve(popup);
+        document.body.appendChild(popup);
+    });
+}
+
+export async function crearNodoFuncion(mapaId, padreId, mindInstance) {
+
+    try {
+        // Crear el nodo en el backend
+        const nodoCreado = await crearNodo(mapaId, "Nodo nuevo", padreId);
+        console.log(nodoCreado);
+
+        if (nodoCreado && nodoCreado.nodo.id) {
+            // 🔄 Volver a obtener todos los nodos actualizados
+            const nodosActualizados = await fetchNodos(mapaId);
+            const newTree = buildMindElixirTree(nodosActualizados);
+
+            // 🔁 Actualizar el mindInstance
+            mindInstance.refresh(newTree);
+
+        } else {
+            alert("No se pudo crear el nodo.");
+        }
+    } catch (error) {
+        console.error("Error al crear nodo:", error);
+        alert("Hubo un error al crear el nodo.");
+    }
+
 }
