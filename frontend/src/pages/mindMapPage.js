@@ -167,25 +167,23 @@ export async function MindMapPage(mapId) {
                 }
             });
     });
-    const sibling = document.getElementById('cm-add_sibling');
-    sibling.addEventListener('click', async () => {
-        const nodoActual = mindInstance.currentNode;
-        console.log(nodoActual);
+    const siblingBtn = document.getElementById('cm-add_sibling');
 
-        const padreIdReal = nodoActual.data.padre_id; // ID real en la base de datos
-        // Si es null, significa que el nodo actual es raíz (entonces el nuevo también será raíz)
-        await crearNodoFuncion(mapId, padreIdReal, mindInstance);
+    siblingBtn.addEventListener('click', async () => {
+        await crearHermanoNodo(mapId, mindInstance);
     });
+
 
     const child = document.getElementById('cm-add_child');
     child.addEventListener('click', async () => {
-        const nodoActual = mindInstance.currentNode;
-        if (!nodoActual) {
-            alert("Selecciona un nodo primero.");
-            return;
+        crearHijoNodo(mapId, mindInstance);
+    });
+    child.addEventListener('keydown', async (event) => {
+        if (event.key === 'Tab') {
+            crearHijoNodo(mapId, mindInstance);
+
         }
-        const nodoRaiz = await getNodoPadre(mapId);
-        crearNodoFuncion(mapId, nodoRaiz.id.toString(), mindInstance);
+
     });
 
 
@@ -200,7 +198,7 @@ export function buildMindElixirTree(nodos) {
 
     nodos.forEach(nodo => {
         nodeMap[nodo.id] = {
-            id: nodo.id.toString(), // ID único para el frontend (puede mantenerse como string)
+            id: nodo.id.toString(),
             topic: nodo.contenido,
             data: {
                 id_real: nodo.id,
@@ -219,7 +217,11 @@ export function buildMindElixirTree(nodos) {
     });
 
     return {
-        nodeData: rootNodes[0] || { id: 'root', topic: 'Mapa vacío' },
+        nodeData: {
+            id: 'root',
+            topic: 'Mapa principal',
+            children: rootNodes
+        },
         linkData: {}
     };
 }
@@ -307,10 +309,10 @@ export async function popupCrearNodo(mapaId, padreId, mindInstance) {
                     // 🔄 Volver a obtener todos los nodos actualizados
                     const nodosActualizados = await fetchNodos(mapaId);
                     const newTree = buildMindElixirTree(nodosActualizados);
-                    console.log(newTree);
                     // 🔁 Actualizar el mindInstance
                     mindInstance.refresh(newTree);
 
+                    // Luego en consola:
                     closePopup(); // Cerrar popup
                     resolve(nodoCreado);
                 } else {
@@ -352,4 +354,61 @@ export async function crearNodoFuncion(mapaId, padreId, mindInstance) {
         alert("Hubo un error al crear el nodo.");
     }
 
+}
+
+
+export async function crearHermanoNodo(mapaId, mindInstance) {
+    const nodoActual = mindInstance.currentNode;
+
+    if (!nodoActual) {
+        alert("Selecciona un nodo primero.");
+        return;
+    }
+
+    const padreId = nodoActual.data?.padre_id ?? null;
+
+    try {
+        // Crear el nuevo nodo en el backend
+        const nuevoNodo = await crearNodo(mapaId, "Nuevo hermano", padreId);
+
+        if (nuevoNodo && nuevoNodo.nodo?.id) {
+            // Recargar nodos actualizados
+            const nodosActualizados = await fetchNodos(mapaId);
+            const newTree = buildMindElixirTree(nodosActualizados);
+            mindInstance.refresh(newTree);
+        } else {
+            alert("No se pudo crear el nodo.");
+        }
+    } catch (error) {
+        console.error("Error al crear nodo hermano:", error);
+        alert("Hubo un error al crear el nodo hermano.");
+    }
+}
+
+export async function crearHijoNodo(mapaId, mindInstance) {
+    const nodoActual = mindInstance.currentNode;
+
+    if (!nodoActual) {
+        alert("Selecciona un nodo primero.");
+        return;
+    }
+
+    const padreId = nodoActual.data?.id_real ?? null; // ID real desde la base de datos
+
+    try {
+        // Crear nuevo nodo hijo en el backend
+        const nuevoNodo = await crearNodo(mapaId, "Nuevo hijo", padreId);
+
+        if (nuevoNodo && nuevoNodo.nodo?.id) {
+            // Recargar nodos desde el backend
+            const nodosActualizados = await fetchNodos(mapaId);
+            const newTree = buildMindElixirTree(nodosActualizados);
+            mindInstance.refresh(newTree);
+        } else {
+            alert("No se pudo crear el nodo hijo.");
+        }
+    } catch (error) {
+        console.error("Error al crear nodo hijo:", error);
+        alert("Hubo un error al crear el nodo hijo.");
+    }
 }
