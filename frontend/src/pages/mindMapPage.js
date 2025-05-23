@@ -1,16 +1,11 @@
 import { cleanupView } from '../../public/js/cleanup';
 import { Navbar } from '../components/navbar';
 import { TopNavbar } from '../components/topbar';
-import { scrollHorizontal, setupSortable, setupSortableKanban, setupSortableList } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
-import { cargarTareas, TaskCard } from '../components/taskCard.js';
-import { getTareas, crearEstado, getEstado, crearTarea, moverTareas, moverLista, modificarTarea, deleteTask, modificarLista, deleteList } from '../js/task.js';
-import { cambiarRolUsuario, fetchBoards, getUsuariosDelTablero, getUsuariosDisponibles, putBoard, selectBoard } from '../js/board.js';
-import { mostrarPopupConfirmacion } from '../components/workspaceCard.js';
-import { socketMoveList, socketPutList } from '../js/socketsEvents.js';
+import { getUsuariosDelTablero} from '../js/board.js';
 import { socket } from '../js/socket.js';
-import { crearNodo, deleteNodo, fetchActualizarNodo, fetchCrearPadre, fetchMindMaps, fetchNodos, getNodoPadre, selectMindMap } from '../js/mindMap.js';
+import { actualizarPadresLote, cambiarRolUsuarioMapa, crearNodo, deleteNodo, fetchActualizarNodo, fetchCrearPadre, fetchMindMaps, fetchNodos, getNodoPadre, getUsuariosDelMapa, modificarMindMap, selectMindMap } from '../js/mindMap.js';
 import { initMindMap } from '../components/mindMapView.js';
 
 export async function MindMapPage(mapId) {
@@ -43,7 +38,6 @@ export async function MindMapPage(mapId) {
     titleContainer.id = 'tittleContainer';
 
     const title = document.createElement('h3');
-    console.log(mapa);
     title.textContent = mapa.titulo;
     title.id = 'tituloKanban';
     title.style.margin = 0;
@@ -78,7 +72,18 @@ export async function MindMapPage(mapId) {
         title.style.display = 'block';
         iconoLapiz.style.display = 'inline-block';
         inputTitle.style.display = 'none';
-        //await putMindMap(mindmap.id, nuevoTitulo);
+        if (nuevoTitulo && nuevoTitulo !== mapa.titulo) {
+            mapa.titulo = nuevoTitulo;
+            title.textContent = nuevoTitulo;
+            await modificarMindMap(mapId, nuevoTitulo, null);
+            const nodosActualizados = await fetchNodos(mapId);
+            const newTree = buildMindElixirTree(nodosActualizados, mapa);
+            mindInstance.nodeData = newTree.nodeData;
+            mindInstance.linkData = newTree.linkData;
+
+            mindInstance.refresh(newTree);
+
+        }
         title.textContent = nuevoTitulo;
     }
 
@@ -113,8 +118,8 @@ export async function MindMapPage(mapId) {
     divBotonesArriba.appendChild(botonCrear);
     divBotonesArriba.appendChild(botonVolver);
 
-    //const usuarios = await getUsuariosDelMapa(mindmapId);
-    //const avatarGroup = renderAvatarGroup(usuarios, mindmapId);
+    const usuarios = await getUsuariosDelMapa(mapId);
+    const avatarGroup = renderAvatarGroup(usuarios, mapId);
 
     divConjuntoArriba.append(titleContainer, divBotonesArriba);
 
@@ -135,11 +140,29 @@ export async function MindMapPage(mapId) {
 
     // Obtener nodos reales desde el backend y convertirlos a estructura compatible
     const nodos = await fetchNodos(mapId);
-    const treeData = buildMindElixirTree(nodos);
+    const treeData = buildMindElixirTree(nodos, mapa);
 
     const mindInstance = initMindMap(mindmapContainer, treeData);
-    console.log(Object.keys(mindInstance.bus));
+    mindInstance.bus.addListener('operation', console.log);
 
+    mindInstance.bus.addListener('operation', async (op) => {
+        if (op.name === 'moveNodeIn') {
+            const nodosAMover = op.objs.map(node => ({
+                nodo_id: node.data?.db_id || node.id?.slice(2),
+                nuevo_padre_id: op.toObj?.data?.db_id || op.toObj?.id?.slice(2) || null,
+            }));
+
+            const resultado = await actualizarPadresLote(nodosAMover);
+            console.log("Respuesta moverNodos:", resultado);
+
+            const nodosActualizados = await fetchNodos(mapId);
+            const newTree = buildMindElixirTree(nodosActualizados, mapa);
+
+            mindInstance.nodeData = newTree.nodeData;
+            mindInstance.linkData = newTree.linkData;
+            mindInstance.refresh(newTree);
+        }
+    });
 
 
 
@@ -155,7 +178,6 @@ export async function MindMapPage(mapId) {
         popupCrearNodo(mapId, null, mindInstance)
             .then(nuevoNodo => {
                 if (nuevoNodo && nuevoNodo.id) {
-                    console.log("Nodo creado:", nuevoNodo);
                     // El nodo ya se añadió al mindInstance dentro de popupCrearNodo
                 }
             })
@@ -225,7 +247,7 @@ export async function MindMapPage(mapId) {
 
             // Re-fetch y reconstrucción
             const nodosActualizados = await fetchNodos(mapId);
-            const newTree = buildMindElixirTree(nodosActualizados);
+            const newTree = buildMindElixirTree(nodosActualizados, mapa);
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
             // Actualiza el mindInstance con la nueva estructura
@@ -237,50 +259,82 @@ export async function MindMapPage(mapId) {
             showToast('Error al eliminar el nodo.', 'error');
         }
     });
-// Escuchar cuando se edita un nodo (pierde el foco)
-mindmapContainer.addEventListener('focusin', (event) => {
-    const selectedNode = document.querySelector('me-tpc.selected');
-    if (selectedNode) {
-        const textElement = selectedNode.querySelector('.text');
-        const nodeId = selectedNode.getAttribute('data-nodeid')?.slice(2);
-        const newText = textElement?.textContent.trim();
+    // Escuchar cuando se edita un nodo (pierde el foco)
+    // Actualizar al perder el foco
+    mindmapContainer.addEventListener('focusin', (event) => {
+        const selectedNode = document.querySelector('me-tpc.selected');
+        if (selectedNode) {
+            const textElement = selectedNode.querySelector('.text');
+            const nodeId = selectedNode.getAttribute('data-nodeid')?.slice(2);
+            const newText = textElement?.textContent.trim();
 
-        if (nodeId && newText !== undefined) {
-            mindInstance.bus.fire('textEdit', nodeId, newText);
+            if (nodeId && newText !== undefined) {
+                mindInstance.bus.fire('textEdit', nodeId, newText);
+            }
         }
-    }
-});
+    });
 
-// Escuchar evento 'textEdit' para actualizar el backend
-mindInstance.bus.addListener('textEdit', async (nodeId, newText) => {
-    console.log('Evento textEdit disparado:', nodeId, newText);
+    // Actualizar al presionar Enter (keydown)
+    mindmapContainer.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();  // Evitar salto de línea en el nodo editable
+            const selectedNode = document.querySelector('me-tpc.selected');
+            if (selectedNode) {
+                const textElement = selectedNode.querySelector('.text');
+                const nodeId = selectedNode.getAttribute('data-nodeid')?.slice(2);
+                const newText = textElement?.textContent.trim();
 
-    try {
-        const resultado = await fetchActualizarNodo(nodeId, newText);
-        if (!resultado && !resultado.success) {
+                if (nodeId && newText !== undefined) {
+                    mindInstance.bus.fire('textEdit', nodeId, newText);
+                }
+            }
+        }
+    });
+
+    // Escuchar evento 'textEdit' para actualizar el backend
+    mindInstance.bus.addListener('textEdit', async (nodeId, newText) => {
+
+        try {
+
+            if (nodeId == 'root') {
+                const resultado = await modificarMindMap(mapId, newText);
+                const tituloKanban = document.getElementById('tituloKanban');
+                tituloKanban.textContent = newText;
+                if (!resultado && !resultado.success) {
+                    showToast('Error al actualizar nodo', 'error');
+                }
+            } else {
+                const resultado = await fetchActualizarNodo(nodeId, newText);
+                if (!resultado && !resultado.success) {
+                    showToast('Error al actualizar nodo', 'error');
+                }
+            }
+
+
+        } catch (error) {
+            console.error('Error al actualizar nodo:', error);
             showToast('Error al actualizar nodo', 'error');
         }
-    } catch (error) {
-        console.error('Error al actualizar nodo:', error);
-        showToast('Error al actualizar nodo', 'error');
-    }
-});
+    });
+
+
+
 
 
     return container;
 
 }
-export function buildMindElixirTree(nodos) {
+export function buildMindElixirTree(nodos, mapa) {
     const nodeMap = {};
     const rootNodes = [];
 
     nodos.forEach(nodo => {
         nodeMap[nodo.id] = {
-            id: nodo.id.toString(),      // ID real convertido a string para Mind-Elixir
+            id: nodo.id.toString(),
             topic: nodo.contenido,
             data: {
-                id_real: nodo.id,       // Aquí el ID real que usarás para crear hijos
-                db_id: nodo.id,         // Opcional si quieres mantener referencia
+                id_real: nodo.id,
+                db_id: nodo.id,
                 padre_id: nodo.padre_id || null
             },
             children: []
@@ -298,7 +352,7 @@ export function buildMindElixirTree(nodos) {
     return {
         nodeData: {
             id: 'root',
-            topic: 'Mapa principal',
+            topic: mapa.titulo,
             children: rootNodes
         },
         linkData: {}
@@ -383,8 +437,8 @@ export async function popupCrearNodo(mapaId, padreId, mindInstance) {
                 if (nodoCreado && nodoCreado.nodo.id) {
                     // 🔄 Volver a obtener todos los nodos actualizados
                     const nodosActualizados = await fetchNodos(mapaId);
-                    const newTree = buildMindElixirTree(nodosActualizados);
-
+                    const mapa = await selectMindMap(mapaId);
+                    const newTree = buildMindElixirTree(nodosActualizados, mapa);
                     mindInstance.nodeData = newTree.nodeData;
                     mindInstance.linkData = newTree.linkData;
                     // 🔁 Actualizar el mindInstance
@@ -414,13 +468,12 @@ export async function crearNodoFuncion(mapaId, padreId, mindInstance) {
     try {
         // Crear el nodo en el backend
         const nodoCreado = await crearNodo(mapaId, "Nodo nuevo", padreId);
-        console.log(nodoCreado);
 
         if (nodoCreado && nodoCreado.nodo.id) {
             // 🔄 Volver a obtener todos los nodos actualizados
             const nodosActualizados = await fetchNodos(mapaId);
-            const newTree = buildMindElixirTree(nodosActualizados);
-
+            const mapa = await selectMindMap(mapaId);
+            const newTree = buildMindElixirTree(nodosActualizados, mapa);
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
 
@@ -447,13 +500,14 @@ export async function crearHermanoNodo(mapaId, mindInstance) {
 
     // Obtener el ID real del padre desde el atributo data-padreid
     const padreId = nodoActual.getAttribute('data-padreid'); // ya debería estar seteado en los atributos
-    console.log(padreId);
+
     try {
         const nuevoNodo = await crearNodo(mapaId, "Nuevo hermano", padreId);
 
         if (nuevoNodo && nuevoNodo.nodo?.id) {
             const nodosActualizados = await fetchNodos(mapaId);
-            const newTree = buildMindElixirTree(nodosActualizados);
+            const mapa = await selectMindMap(mapaId);
+            const newTree = buildMindElixirTree(nodosActualizados, mapa);
 
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
@@ -478,14 +532,6 @@ export async function crearHijoNodo(mapaId, mindInstance) {
         alert("Selecciona un nodo para crear un hijo.");
         return;
     }
-    console.log(nodoActual);
-
-
-
-    const padreId = nodoActual.data?.id_real;
-    console.log(padreId);
-
-
 
     const selectedNode = mindInstance.currentNode;
     if (!selectedNode || !selectedNode.getAttribute) {
@@ -495,11 +541,10 @@ export async function crearHijoNodo(mapaId, mindInstance) {
 
     const fullId = selectedNode.getAttribute('data-nodeid'); // ej. "me125"
     const dbId = fullId.slice(2); // ej. "125"
-    console.log(dbId);
 
 
     try {
-
+        const mapa = await selectMindMap(mapaId);
         if (dbId == 'root') {
             const nuevoNodo = await crearNodo(mapaId, "Nuevo hijo", null);
             if (nuevoNodo && nuevoNodo.nodo?.id) {
@@ -507,7 +552,7 @@ export async function crearHijoNodo(mapaId, mindInstance) {
 
 
                 const nodosActualizados = await fetchNodos(mapaId);
-                const newTree = buildMindElixirTree(nodosActualizados);
+                const newTree = buildMindElixirTree(nodosActualizados, mapa);
 
                 mindInstance.nodeData = newTree.nodeData;
                 mindInstance.linkData = newTree.linkData;
@@ -527,7 +572,7 @@ export async function crearHijoNodo(mapaId, mindInstance) {
 
 
                 const nodosActualizados = await fetchNodos(mapaId);
-                const newTree = buildMindElixirTree(nodosActualizados);
+                const newTree = buildMindElixirTree(nodosActualizados, mapa);
 
                 mindInstance.nodeData = newTree.nodeData;
                 mindInstance.linkData = newTree.linkData;
@@ -577,7 +622,8 @@ export async function crearPadreNodo(mapaId, mindInstance) {
         if (nuevoPadre && nuevoPadre.id) {
             // Actualizamos el árbol con los nodos actuales
             const nodosActualizados = await fetchNodos(mapaId);
-            const newTree = buildMindElixirTree(nodosActualizados);
+            const mapa = await selectMindMap(mapaId);
+            const newTree = buildMindElixirTree(nodosActualizados, mapa);
 
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
@@ -597,4 +643,119 @@ export async function crearPadreNodo(mapaId, mindInstance) {
         console.error("Error al crear nodo padre:", error);
         alert("Hubo un error al crear el nodo padre.");
     }
+}
+
+
+function renderAvatarGroup(usuarios, mapId) {
+    const container = document.createElement('div');
+    container.className = 'avatar-group';
+    console.log(usuarios);
+
+    usuarios.forEach(usuario => {
+        const avatar = document.createElement('img');
+        avatar.className = 'avatar-circle';
+        avatar.src = usuario.avatar_url;
+        avatar.title = usuario.email;
+        avatar.alt = usuario.email;
+        container.appendChild(avatar);
+    });
+
+    container.addEventListener('click', () => {
+        abrirPopupGestionUsuarios(mapId);
+
+    });
+
+
+    return container;
+}
+
+export async function abrirPopupGestionUsuarios(mapId) {
+    const usuarios = await getUsuariosDelTablero(mapId);
+    const emailUsuario = localStorage.getItem('email');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+
+    const content = document.createElement('div');
+    content.className = 'popup-content';
+
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'popup-close';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', () => overlay.remove());
+    content.appendChild(closeBtn);
+
+
+    usuarios.forEach(usuario => {
+        const userRow = document.createElement('div');
+        userRow.className = 'user-row';
+
+        const avatar = document.createElement('img');
+        avatar.className = 'avatar-circle';
+        avatar.src = usuario.avatar_url;
+        avatar.alt = usuario.nombre;
+
+        const info = document.createElement('div');
+        info.className = 'user-info';
+
+        const nombre = document.createElement('strong');
+        nombre.textContent = usuario.nombre;
+
+        const email = document.createElement('div');
+        email.textContent = usuario.email;
+
+        info.appendChild(nombre);
+        info.appendChild(email);
+
+        const selectContainer = document.createElement('div');
+        selectContainer.className = 'select-container';
+
+        if (usuario.email === emailUsuario) {
+            const tuLabel = document.createElement('span');
+            tuLabel.className = 'label-tu';
+            tuLabel.textContent = 'Tú';
+            selectContainer.appendChild(tuLabel);
+        } else {
+            const select = document.createElement('select');
+            select.className = 'select-rol';
+
+            const optMiembro = document.createElement('option');
+            optMiembro.value = 'miembro';
+            optMiembro.textContent = 'Miembro';
+
+            const optAdmin = document.createElement('option');
+            optAdmin.value = 'admin';
+            optAdmin.textContent = 'Administrador';
+
+            select.appendChild(optMiembro);
+            select.appendChild(optAdmin);
+
+            // Set value según el rol actual
+            select.value = usuario.rol;
+
+            select.addEventListener('change', async () => {
+                const nuevoRol = select.value;
+                const result = await cambiarRolUsuarioMapa(mapId, usuario.id, nuevoRol);
+                if (!result.success) {
+                    // Si falla, restauramos el valor anterior
+                    select.value = usuario.rol;
+                    alert("Error al actualizar el rol");
+                } else {
+                    // Si va bien, actualizamos el rol en el objeto local (opcional)
+                    usuario.rol = nuevoRol;
+                }
+            });
+
+            selectContainer.appendChild(select);
+        }
+
+        userRow.appendChild(avatar);
+        userRow.appendChild(info);
+        userRow.appendChild(selectContainer);
+
+        content.appendChild(userRow);
+    });
+
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
 }

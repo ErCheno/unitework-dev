@@ -124,6 +124,54 @@ export async function deleteMindMap(mapaMentalId) {
     }
 }
 
+export async function modificarMindMap(mapaId, titulo, descripcion) {
+    try {
+        const token = getToken(); // función que recupera el token (ajusta según tu implementación)
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const payload = {
+            mapa_id: mapaId,
+        };
+        if (titulo !== undefined) payload.titulo = titulo;
+        if (descripcion !== undefined) payload.descripcion = descripcion;
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/putMindMap.php", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Error al actualizar el nodo");
+        }
+
+        if (data.success) {
+            console.log('Mapa mental actualizado con éxito:', data.message);
+        } else {
+            console.error('Error al actualizar mapa mental:', data.message);
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error al actualizar nodo:", error);
+        showToast("Error al actualizar nodo: " + error.message, "error");
+        return null;
+    }
+}
+
+
+
+
 export async function selectMindMap(mindmapId) {
     try {
 
@@ -273,108 +321,216 @@ export async function deleteNodo(nodoId) {
 }
 
 export async function getNodoPadre(mapaId) {
-  try {
-    const token = getToken();
+    try {
+        const token = getToken();
 
-    if (!token) {
-      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-      page("/login");
-      return null;
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/getNodoPadre.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({ mapa_id: mapaId }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la respuesta: ' + response.status);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error('Error del servidor:', data.message);
+            return null;
+        }
+
+        return data.nodoRaiz;
+
+    } catch (error) {
+        console.error('Error al obtener nodo padre:', error);
+        return null;
     }
-
-    const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/getNodoPadre.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token,
-      },
-      body: JSON.stringify({ mapa_id: mapaId }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Error en la respuesta: ' + response.status);
-    }
-
-    const data = await response.json();
-
-    if (!data.success) {
-      console.error('Error del servidor:', data.message);
-      return null;
-    }
-
-    return data.nodoRaiz;
-
-  } catch (error) {
-    console.error('Error al obtener nodo padre:', error);
-    return null;
-  }
 }
 
 
 export async function fetchCrearPadre(mapaId, topic, hijoId) {
-  try {
-    const token = getToken();
+    try {
+        const token = getToken();
 
-    if (!token) {
-      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-      page("/login");
-      return null;
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/createPadre.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ mapa_id: mapaId, topic, hijo_id: hijoId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Error al crear el nodo');
+        }
+
+        // Devuelve solo el nodo creado
+        return data.nodo;
+
+    } catch (error) {
+        console.error('Error al crear nodo:', error);
+        return null;
     }
-
-    const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/createPadre.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
-      },
-      body: JSON.stringify({ mapa_id: mapaId, topic, hijo_id: hijoId })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Error al crear el nodo');
-    }
-
-    // Devuelve solo el nodo creado
-    return data.nodo;
-
-  } catch (error) {
-    console.error('Error al crear nodo:', error);
-    return null;
-  }
 }
 
 
 export async function fetchActualizarNodo(nodoId, nuevoContenido) {
-  try {
-    const token = getToken(); // función que recupera el token (ajusta según tu implementación)
+    try {
+        const token = getToken(); // función que recupera el token (ajusta según tu implementación)
 
-    if (!token) {
-      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-      page("/login");
-      return null;
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/putNodo.php", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
+            body: JSON.stringify({ nodo_id: nodoId, contenido: nuevoContenido }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || "Error al actualizar el nodo");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error al actualizar nodo:", error);
+        showToast("Error al actualizar nodo: " + error.message, "error");
+        return null;
     }
+}
 
-    const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/putNodo.php", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token,
-      },
-      body: JSON.stringify({ nodo_id: nodoId, contenido: nuevoContenido }),
-    });
 
-    const data = await response.json();
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || "Error al actualizar el nodo");
+export async function actualizarPadresLote(nodos) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const response = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/moverNodo.php`, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
+            body: JSON.stringify({ nodos })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error('Error en respuesta backend:', data);
+            showToast('Algunos nodos no se actualizaron', 'error');
+        } else {
+            showToast('Nodos actualizados correctamente', 'success');
+        }
+
+        return data;
+
+    } catch (error) {
+        console.error('Error en la petición:', error);
+        showToast('Error en la petición al servidor', 'error');
+        return null;
     }
+}
 
-    return data;
-  } catch (error) {
-    console.error("Error al actualizar nodo:", error);
-    showToast("Error al actualizar nodo: " + error.message, "error");
-    return null;
-  }
+
+export async function getUsuariosDelMapa(mapaId) {
+    try {
+
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsersMindMap.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+
+            },
+            body: JSON.stringify({ mapa_id: mapaId })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
+    }
+}
+
+
+
+export async function cambiarRolUsuarioMapa(mapaId, usuarioId, nuevoRol) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+                const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/mapas/updateUserRoleMindMap.php", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                mapa_id: mapaId,
+                usuario_id: usuarioId,
+                nuevo_rol: nuevoRol
+            })
+        });
+
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
+    }
 }
