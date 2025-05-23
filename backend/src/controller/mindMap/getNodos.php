@@ -35,7 +35,7 @@ $stmt = $conn->prepare("
     INNER JOIN miembros_espacios_trabajo me ON mm.espacio_trabajo_id = me.espacio_trabajo_id
     WHERE mm.id = ? AND me.usuario_id = ?
 ");
-$stmt->bind_param("ii", $mapaId, $usuarioId);
+$stmt->bind_param("is", $mapaId, $usuarioId);
 $stmt->execute();
 $result = $stmt->get_result();
 

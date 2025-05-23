@@ -25,7 +25,6 @@ $titulo = trim($input['titulo'] ?? '');
 $descripcion = trim($input['descripcion'] ?? '');
 $espacioTrabajoId = $input['espacio_trabajo_id'] ?? null;
 
-// Validaciones
 if (!$titulo || !$espacioTrabajoId) {
     echo json_encode([
         "success" => false,
@@ -60,9 +59,31 @@ if ($stmt->execute()) {
     $stmt->execute();
     $stmt->close();
 
+    // Crear nodo raíz
+    $stmt = $conn->prepare("INSERT INTO nodos_mapa (mapa_id, contenido, padre_id, orden) VALUES (?, 'Nodo raíz', NULL, 0)");
+    $stmt->bind_param("i", $nuevoMapaId);
+    if (!$stmt->execute()) {
+        echo json_encode(["success" => false, "message" => "Error al crear nodo raíz"]);
+        $stmt->close();
+        $conn->close();
+        exit();
+    }
+    $nodoRaizId = $stmt->insert_id;
+    $stmt->close();
+
+    // Crear 3 hijos del nodo raíz
+    $stmt = $conn->prepare("INSERT INTO nodos_mapa (mapa_id, contenido, padre_id, orden) VALUES (?, ?, ?, ?)");
+    for ($i = 1; $i <= 3; $i++) {
+        $contenido = "Hijo $i";
+        $orden = $i - 1;
+        $stmt->bind_param("isii", $nuevoMapaId, $contenido, $nodoRaizId, $orden);
+        $stmt->execute();
+    }
+    $stmt->close();
+
     echo json_encode([
         "success" => true,
-        "message" => "Mapa mental creado correctamente",
+        "message" => "Mapa mental creado correctamente con nodo raíz y 3 hijos",
         "mapa_mental_id" => $nuevoMapaId
     ]);
 } else {

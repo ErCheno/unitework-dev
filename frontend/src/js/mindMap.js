@@ -240,6 +240,38 @@ export async function crearNodo(mapaId, contenidoNuevo, padreId) {
     }
 }
 
+export async function deleteNodo(nodoId) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return null;
+        }
+
+        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/deleteNodo.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+
+            },
+            body: JSON.stringify({ nodo_id: nodoId }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Error al eliminar el mapa mental');
+        }
+
+    } catch (error) {
+        console.error('Error en createMindMap:', error);
+        throw error;
+    }
+}
+
 export async function getNodoPadre(mapaId) {
   try {
     const token = getToken();
@@ -274,6 +306,75 @@ export async function getNodoPadre(mapaId) {
 
   } catch (error) {
     console.error('Error al obtener nodo padre:', error);
+    return null;
+  }
+}
+
+
+export async function fetchCrearPadre(mapaId, topic, hijoId) {
+  try {
+    const token = getToken();
+
+    if (!token) {
+      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+      page("/login");
+      return null;
+    }
+
+    const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/createPadre.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ mapa_id: mapaId, topic, hijo_id: hijoId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Error al crear el nodo');
+    }
+
+    // Devuelve solo el nodo creado
+    return data.nodo;
+
+  } catch (error) {
+    console.error('Error al crear nodo:', error);
+    return null;
+  }
+}
+
+
+export async function fetchActualizarNodo(nodoId, nuevoContenido) {
+  try {
+    const token = getToken(); // función que recupera el token (ajusta según tu implementación)
+
+    if (!token) {
+      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+      page("/login");
+      return null;
+    }
+
+    const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/putNodo.php", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+      body: JSON.stringify({ nodo_id: nodoId, contenido: nuevoContenido }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Error al actualizar el nodo");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error al actualizar nodo:", error);
+    showToast("Error al actualizar nodo: " + error.message, "error");
     return null;
   }
 }
