@@ -157,6 +157,37 @@ export async function getUsuariosDisponibles(tableroId, filtro = "") {
     }
 }
 
+export async function salirseDelKanban(tableroId) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/salirKanban.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ tablero_id: tableroId })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+        showToast('Te saliste del kanban', 'info');
+        return data;
+    } catch (error) {
+        console.error("Error al salir del tablero Kanban:", error.message);
+        showToast(error.message || "No se pudo salir del tablero", "error");
+        return null;
+    }
+}
+
 export async function getUsuariosDelTablero(tableroId) {
     try {
 

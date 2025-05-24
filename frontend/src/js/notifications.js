@@ -3,7 +3,7 @@ import page from "page";
 import { showToast } from "../../public/js/validator/regex.js";
 import { getToken } from "./auth.js";
 import { socket } from "./socket.js";
-export async function createInvitation(gmail, workspaceId, boardId, rolTablero) {
+export async function createInvitation(gmail, workspaceId, tipo, idRelacionado, rol) {
   try {
     const token = getToken();
 
@@ -13,18 +13,30 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
       return null;
     }
 
+    const payload = {
+      email: gmail,
+      espacio_trabajo_id: workspaceId,
+      tipo: tipo, // 'kanban' o 'mapa'
+      rol: rol
+    };
+
+    // Añadir el identificador correspondiente según el tipo
+    if (tipo === "kanban") {
+      payload.tablero_id = idRelacionado;
+    } else if (tipo === "mapa_mental") {
+      payload.mapa_id = idRelacionado;
+      console.log("Mapa ID en payload:", payload.mapa_id);
+    }
+
+    console.log(payload);
+
     const res = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/invitation.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token,
       },
-      body: JSON.stringify({
-        email: gmail,
-        espacio_trabajo_id: workspaceId,
-        tablero_id: boardId,
-        rol_tablero: rolTablero
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -34,38 +46,45 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
       throw new Error(data.message || 'Error al crear la invitación');
     }
 
-    const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/getIdByEmail.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': "Bearer " + token,
-      },
-      body: JSON.stringify({ email: gmail }),
-    });
-    
-    const dataId = await response.json();
-    if (dataId.success) {
-      console.log("El ID del usuario es:", dataId.usuario_id);
-    } else {
-      console.warn(dataId.message);
+    // Intentar obtener el ID del usuario por su email
+    let usuarioId = null;
+    try {
+      const resId = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/getIdByEmail.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': "Bearer " + token,
+        },
+        body: JSON.stringify({ email: gmail }),
+      });
+
+      const dataId = await resId.json();
+      if (dataId.success) {
+        usuarioId = dataId.usuario_id;
+        console.log("El ID del usuario es:", usuarioId);
+      } else {
+        console.warn("No se encontró el ID del usuario:", dataId.message);
+      }
+    } catch (err) {
+      console.warn("Error al obtener el ID del usuario:", err);
     }
 
-    const emailDestinatario = gmail;  // El email del destinatario
-    if (socket && socket.connected) {
+    // Emitir evento por socket si el usuario está registrado
+    if (usuarioId && socket && socket.connected) {
       socket.emit("nueva-invitacion", {
-        id: dataId.usuario_id,
-        email: emailDestinatario,
+        id: usuarioId,
+        email: gmail,
         workspaceId,
-        boardId,
-        rolTablero
+        tipo,
+        idRelacionado, // tablero o mapa
+        rol
       });
     } else {
-      console.warn('⚠️ Socket no conectado, no se pudo emitir la invitación.');
+      console.warn('⚠️ Socket no conectado o usuario no registrado, no se pudo emitir la invitación.');
     }
-    
 
     showToast('Invitación enviada correctamente', 'success');
-    return data.token; // Puedes devolver el token si lo necesitas
+    return data.token;
 
   } catch (err) {
     console.error(err);
@@ -73,6 +92,7 @@ export async function createInvitation(gmail, workspaceId, boardId, rolTablero) 
     throw new Error('Error al crear la invitación: ' + err.message);
   }
 }
+
 
 
 
@@ -140,12 +160,7 @@ export async function acceptInvitation(invitacionId) {
 
     showToast(data.message, "success");
     page(page.current); // recarga la ruta actual
-    /*if (data.tablero_id) {
-      page(`/boards/${data.tablero_id}`);
-    } else {
-      showToast("No se ha recibido el ID del tablero", "error");
-    }*/
-
+   
   } catch (error) {
     console.error("Error de red o servidor:", error);
     showToast("Error de red o del servidor", "error");

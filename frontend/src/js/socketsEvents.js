@@ -9,8 +9,6 @@ import { fetchAndRenderList, fetchAndRenderTasks } from '../pages/boardPage.js';
 import { setupSortableKanban } from '../components/dragAnimation.js';
 import { setupSortableList } from '../components/dragAnimation.js';
 
-
-
 export function socketGetWorkspaces() {
     if (socket) {  // Verifica si el socket ya está conectado
         socket.on('getWorkspaces', async () => {
@@ -39,6 +37,27 @@ export function socketGetInvitations() {
         console.error('El socket aún no está conectado');
     }
 }
+export function socketGetNodos(mindInstance) {
+    if (socket && socket.connected) {
+        socket.off('mindmap-nodo-creado');
+        socket.on('mindmap-nodo-creado', async ({ mapaId }) => {
+            console.log('🧠 Nodo creado en mapa', mapaId, '- actualizando mapa...');
+            try {
+                const nodosActualizados = await fetchNodos(mapaId);
+                const mapa = await selectMindMap(mapaId);
+                const newTree = buildMindElixirTree(nodosActualizados, mapa);
+                mindInstance.nodeData = newTree.nodeData;
+                mindInstance.linkData = newTree.linkData;
+                mindInstance.refresh(newTree);
+            } catch (err) {
+                console.error('Error actualizando mapa mental por socket:', err);
+            }
+        });
+    } else {
+        console.error('El socket aún no está conectado');
+    }
+}
+
 
 /*export function socketMoveTask(estado) {
     socket.on('mover-tarea', (data) => {

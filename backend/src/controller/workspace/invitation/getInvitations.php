@@ -56,14 +56,15 @@ $stmt = $conn->prepare("
         i.email, 
         i.espacio_trabajo_id, 
         i.tablero_id, 
-        i.rol_espacio_trabajo, 
-        i.rol_tablero, 
+        i.mapa_id,
+        i.rol, 
         i.token, 
         i.fecha_envio,
         i.fecha_expiracion,
         i.remitente_id,
         et.nombre AS nombre_espacio_trabajo,
         t.nombre AS nombre_tablero,
+        m.titulo AS nombre_mapa,
         u.nombre AS nombre_remitente,
         u.avatar_url AS avatar_url_remitente
     FROM 
@@ -72,6 +73,8 @@ $stmt = $conn->prepare("
         espacios_trabajo et ON i.espacio_trabajo_id = et.id
     LEFT JOIN 
         tableros t ON i.tablero_id = t.id
+    LEFT JOIN
+        mapas_mentales m ON i.mapa_id = m.id
     LEFT JOIN 
         usuarios u ON i.remitente_id = u.id
     WHERE 
@@ -94,6 +97,21 @@ while ($row = $result->fetch_assoc()) {
     if (!$row['avatar_url_remitente']) {
         $row['avatar_url_remitente'] = null;
     }
+
+    // Añadir un campo "nombre_objeto" que sea el nombre del tablero, mapa o espacio según corresponda
+    if ($row['tablero_id']) {
+        $row['nombre_objeto'] = $row['nombre_tablero'];
+    } elseif ($row['mapa_id']) {
+        $row['nombre_objeto'] = $row['nombre_mapa'];
+    } else {
+        $row['nombre_objeto'] = $row['nombre_espacio_trabajo'];
+    }
+
+    // Añadir un campo explícito "rol_objeto" con el rol para el objeto (tablero, mapa o espacio)
+    $row['rol_objeto'] = $row['rol'];
+
+    // Limpiar campos no necesarios para no duplicar datos
+    unset($row['nombre_tablero'], $row['nombre_mapa']);
 
     $invitaciones[] = $row;
 }

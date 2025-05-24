@@ -26,24 +26,25 @@ if (empty($input['espacio_trabajo_id'])) {
     exit;
 }
 
-// Verificar que el usuario existe
+// Verificar que el usuario exista
 $stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");
 $stmt->bind_param("s", $usuarioId);
 $stmt->execute();
 $result = $stmt->get_result();
+
 if ($result->num_rows === 0) {
     echo json_encode(["success" => false, "message" => "El usuario no existe"]);
     exit;
 }
 $stmt->close();
 
-// Obtener mapas mentales del espacio de trabajo si el usuario es miembro del espacio
+// Obtener mapas mentales del espacio de trabajo donde el usuario es miembro del mapa y del espacio
 $stmt = $conn->prepare("
-    SELECT mm.*,
+    SELECT mm.*, 
            mmm.rol AS rol_mapa,
            me.rol AS rol_espacio_trabajo
     FROM mapas_mentales mm
-    LEFT JOIN miembros_mapas_mentales mmm ON mm.id = mmm.mapa_mental_id AND mmm.usuario_id = ?
+    INNER JOIN miembros_mapas_mentales mmm ON mm.id = mmm.mapa_mental_id AND mmm.usuario_id = ?
     INNER JOIN miembros_espacios_trabajo me ON mm.espacio_trabajo_id = me.espacio_trabajo_id AND me.usuario_id = ?
     WHERE mm.espacio_trabajo_id = ?
 ");
@@ -80,6 +81,7 @@ while ($row = $result->fetch_assoc()) {
     $mapas[] = $row;
 }
 
+// Función para calcular el tiempo pasado
 function tiempoPasado($tiempo)
 {
     $tiempoPasado = strtotime($tiempo);

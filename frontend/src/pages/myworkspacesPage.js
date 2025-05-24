@@ -159,5 +159,6 @@ export async function renderWorkspaces(grid) {
 
   } catch (error) {
     showToast('Error al cargar los espacios de trabajo: ' + error, 'error');
+    console.error('Error al cargar los espacios de trabajo: ' + error);
   }
 }

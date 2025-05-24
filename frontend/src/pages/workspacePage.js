@@ -96,7 +96,6 @@ export async function workspacePage(workspaceId) {
         const workspaces = await fetchWorkspaces();
 
         const workspace = workspaces.find(ws => ws.id === parseInt(workspaceId));
-        console.log('Todos los IDs disponibles:', workspaces.map(ws => ws.id));
 
         if (workspace) {
 
@@ -158,7 +157,6 @@ export async function workspacePage(workspaceId) {
             grid.appendChild(noWorkspaceMsg);
 
         }
-        console.log(workspace);
 
 
 
@@ -172,7 +170,6 @@ export async function workspacePage(workspaceId) {
     container.appendChild(grid);
 
     contentDiv.appendChild(container);
-    console.log(window.location.pathname);  // Esto te mostrará la URL completa
 
     setupSortable('board-list', '.board-draggable', (evt) => {
         console.log('Espacio de trabajo movido de', evt.oldIndex, 'a', evt.newIndex);
@@ -258,7 +255,6 @@ export async function CreateBoardPopup(workspaceId) {
         popup.classList.add('fade-out');
 
         popup.addEventListener('animationend', () => {
-            console.log("Entre")
             popup.remove();
         }, { once: true });
         document.removeEventListener('mousedown', handleClickOutside);
@@ -399,30 +395,35 @@ export async function renderMindMapView(workspaceId) {
         })();
 
         mapaContainer.textContent = ''; // Limpiar mapas mentales previos
+        const workspaces = await fetchWorkspaces();
 
-        // Botón para crear mapa mental
-        const cardCrear = document.createElement('div');
-        cardCrear.classList.add('mindmap-card', 'create-map-card');
-        cardCrear.setAttribute('aria-label', 'Crear un nuevo mapa mental');
-        cardCrear.textContent = '+ Crear un mapa mental';
+        const workspace = workspaces.find(ws => ws.id === parseInt(workspaceId));
 
-        // Listener para mostrar popup creación mapa
-        cardCrear.addEventListener('click', () => {
-            const existing = document.querySelector('.mentalmap-popup');
-            if (existing) existing.remove();
+        if (workspace.rol === 'admin') {
 
-            CreateMindmapPopup(workspaceId).then(popup => {
-                document.body.appendChild(popup);
+            // Botón para crear mapa mental
+            const cardCrear = document.createElement('div');
+            cardCrear.classList.add('mindmap-card', 'create-map-card');
+            cardCrear.setAttribute('aria-label', 'Crear un nuevo mapa mental');
+            cardCrear.textContent = '+ Crear un mapa mental';
+            // Listener para mostrar popup creación mapa
+            cardCrear.addEventListener('click', () => {
+                const existing = document.querySelector('.mentalmap-popup');
+                if (existing) existing.remove();
 
-                setTimeout(() => {
-                    const rect = cardCrear.getBoundingClientRect();
-                    popup.style.top = `${rect.bottom - 90 + window.scrollY}px`;
-                    popup.style.left = `${rect.left + 240 + window.scrollX}px`;
-                }, 50);
-            }).catch(console.error);
-        });
+                CreateMindmapPopup(workspaceId).then(popup => {
+                    document.body.appendChild(popup);
 
-        mapaContainer.appendChild(cardCrear);
+                    setTimeout(() => {
+                        const rect = cardCrear.getBoundingClientRect();
+                        popup.style.top = `${rect.bottom - 90 + window.scrollY}px`;
+                        popup.style.left = `${rect.left + 240 + window.scrollX}px`;
+                    }, 50);
+                }).catch(console.error);
+            });
+            mapaContainer.appendChild(cardCrear);
+
+        }
 
         if (mapasMentales.length === 0) {
             const noMapsMsg = document.createElement('p');

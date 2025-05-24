@@ -29,15 +29,15 @@ export async function fetchMindMaps(espacioTrabajoId) {
         const data = await response.json();
 
         if (!data.success) {
-            console.error('Error del servidor:', data.message);
-            return null;
+            throw new Error(data.message || 'Error desconocido al obtener los tableros');
         }
 
         return data.mapas_mentales || [];
 
     } catch (error) {
-        console.error('Error al obtener mapas mentales:', error);
-        return null;
+        console.error(error);
+
+        throw new Error('Error al cargar mapas mentales: ' + error.message);
     }
 }
 export async function createMindMap(titulo, descripcion, espacioTrabajoId) {
@@ -500,6 +500,69 @@ export async function getUsuariosDelMapa(mapaId) {
 }
 
 
+export async function getUsuariosDisponiblesInvitacionMapa(tableroId, filtro = "") {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsers.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+
+            },
+            body: JSON.stringify({ tablero_id: tableroId, filtro })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        return data.usuarios_disponibles;
+    } catch (error) {
+        console.error("Error al obtener usuarios disponibles:", error.message);
+        return [];
+    }
+}
+
+export async function salirseDelMindMap(mapaId) {
+    try {
+        const token = getToken();
+
+        if (!token) {
+            showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+            page("/login");
+            return;
+        }
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/salirKanban.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ mapa_id: mapaId })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+        showToast('Te saliste del kanban', 'info');
+        return data;
+    } catch (error) {
+        console.error("Error al salir del tablero Kanban:", error.message);
+        showToast(error.message || "No se pudo salir del tablero", "error");
+        return null;
+    }
+}
+
+
 
 export async function cambiarRolUsuarioMapa(mapaId, usuarioId, nuevoRol) {
     try {
@@ -510,7 +573,7 @@ export async function cambiarRolUsuarioMapa(mapaId, usuarioId, nuevoRol) {
             page("/login");
             return;
         }
-                const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/mapas/updateUserRoleMindMap.php", {
+                const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/updateUserRoleMindMap.php", {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

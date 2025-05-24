@@ -437,14 +437,18 @@ export async function cargarInvitaciones(notifList, notifBadge) {
     console.error('Error al cargar las invitaciones:', error);
   }
 }
+
 // Función para manejar la creación de notificaciones
 export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
   const {
-    id_invitacion,
+    id,
     nombre_tablero,
+    nombre_mapa,
     nombre_espacio_trabajo,
     nombre_remitente,
-    avatar_url_remitente
+    avatar_url_remitente,
+    tablero_id,
+    mapa_id,
   } = inv;
 
   const nombreRemitente = nombre_remitente || 'Usuario desconocido';
@@ -452,12 +456,25 @@ export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
     ? `http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/${avatar_url_remitente}`
     : 'http://localhost/UniteWork/unitework-dev/frontend/public/img/uploads/usuarios/default-avatar.png';
 
+  // Detectar tipo de invitación y ajustar texto
+  let textoInvitacion = '';
+  let nombreObjeto = '';
+
+  if (tablero_id) {
+    textoInvitacion = 'Te han invitado a un tablero';
+    nombreObjeto = `${nombre_tablero} en ${nombre_espacio_trabajo}`;
+  } else if (mapa_id) {
+    textoInvitacion = 'Te han invitado a un mapa mental';
+    nombreObjeto = `${nombre_mapa} en ${nombre_espacio_trabajo}`;
+  } else {
+    textoInvitacion = 'Te han invitado a un espacio de trabajo';
+    nombreObjeto = nombre_espacio_trabajo;
+  }
+
   const aceptar = async (li) => {
     try {
-      await acceptInvitation(inv.id);
-      socket?.emit('nuevoWorkspace', { nombre, descripcion }); // 🔥 Emite el evento a los demás
-      const grid = document.getElementById('workspace-list');
-      renderWorkspaces(grid);
+      await acceptInvitation(id);
+      socket?.emit('nuevoWorkspace', { nombre: nombreObjeto, descripcion: '' }); // Ajusta si quieres enviar algo
       li.remove();
       updateBadge();
     } catch (err) {
@@ -467,7 +484,7 @@ export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
 
   const rechazar = async (li) => {
     try {
-      await denyInvitation(inv.id);
+      await denyInvitation(id);
       li.remove();
       updateBadge();
     } catch (err) {
@@ -476,9 +493,9 @@ export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
   };
 
   const li = crearNotificacion(
-    'Te han invitado a un tablero',
+    textoInvitacion,
     nombreRemitente,
-    `(${nombre_tablero} en ${nombre_espacio_trabajo})`,
+    `(${nombreObjeto})`,
     'fa-solid fa-envelope-open-text',
     'invitacion',
     avatarRemitente,
@@ -495,6 +512,7 @@ export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
     notifBadge.classList.toggle('hidden', count === 0);
   }
 }
+
 //connectSocket();
 // Escuchar nuevas invitaciones (solo una vez)
 

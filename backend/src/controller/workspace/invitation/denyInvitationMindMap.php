@@ -20,6 +20,7 @@ if (!$conn) {
 
 $usuario = verificarToken($conn);
 $userId = $usuario['id'];
+$userEmail = $usuario['email'];
 
 $input = json_decode(file_get_contents('php://input'), true);
 $invitacionId = $input['invitacion_id'] ?? null;
@@ -29,7 +30,7 @@ if (!$invitacionId) {
     exit;
 }
 
-// Verifica que la invitación es válida y pertenece al usuario autenticado
+// Verifica que la invitación existe, está pendiente y corresponde al usuario
 $stmt = $conn->prepare("SELECT * FROM invitaciones WHERE id = ? AND estado = 'pendiente'");
 $stmt->bind_param("i", $invitacionId);
 $stmt->execute();
@@ -43,7 +44,12 @@ if ($result->num_rows === 0) {
 $invitacion = $result->fetch_assoc();
 $stmt->close();
 
-// Rechazar la invitación
+if (strtolower($usuario['email']) !== strtolower($invitacion['email'])) {
+    echo json_encode(["success" => false, "message" => "No autorizado para rechazar esta invitación"]);
+    exit;
+}
+
+// Rechazar la invitación (actualizar estado y fecha de acción)
 $stmt = $conn->prepare("UPDATE invitaciones SET estado = 'rechazada', fecha_aceptacion = NOW() WHERE id = ?");
 $stmt->bind_param("i", $invitacionId);
 $success = $stmt->execute();

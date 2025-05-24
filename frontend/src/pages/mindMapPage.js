@@ -3,7 +3,7 @@ import { Navbar } from '../components/navbar';
 import { TopNavbar } from '../components/topbar';
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
-import { getUsuariosDelTablero} from '../js/board.js';
+import { getUsuariosDelTablero } from '../js/board.js';
 import { socket } from '../js/socket.js';
 import { actualizarPadresLote, cambiarRolUsuarioMapa, crearNodo, deleteNodo, fetchActualizarNodo, fetchCrearPadre, fetchMindMaps, fetchNodos, getNodoPadre, getUsuariosDelMapa, modificarMindMap, selectMindMap } from '../js/mindMap.js';
 import { initMindMap } from '../components/mindMapView.js';
@@ -121,7 +121,7 @@ export async function MindMapPage(mapId) {
     const usuarios = await getUsuariosDelMapa(mapId);
     const avatarGroup = renderAvatarGroup(usuarios, mapId);
 
-    divConjuntoArriba.append(titleContainer, divBotonesArriba);
+    divConjuntoArriba.append(titleContainer, avatarGroup, divBotonesArriba);
 
     const hrMindmap = document.createElement('hr');
     hrMindmap.id = 'hrMindmap';
@@ -444,6 +444,11 @@ export async function popupCrearNodo(mapaId, padreId, mindInstance) {
                     // 🔁 Actualizar el mindInstance
                     mindInstance.refresh(newTree);
 
+                    // Emitir evento socket para avisar a otros
+                    if (socket && socket.connected) {
+                        socket.emit('mindmap-nodo-creado', { mapaId });
+                    }
+
                     // Luego en consola:
                     closePopup(); // Cerrar popup
                     resolve(nodoCreado);
@@ -670,7 +675,7 @@ function renderAvatarGroup(usuarios, mapId) {
 }
 
 export async function abrirPopupGestionUsuarios(mapId) {
-    const usuarios = await getUsuariosDelTablero(mapId);
+    const usuarios = await getUsuariosDelMapa(mapId);
     const emailUsuario = localStorage.getItem('email');
 
     const overlay = document.createElement('div');

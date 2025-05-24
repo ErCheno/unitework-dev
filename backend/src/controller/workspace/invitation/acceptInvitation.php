@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once __DIR__ . '/../../../config/db.php';
 require_once "../../auth/tokenUtils.php";
@@ -79,7 +79,8 @@ if ($usuarioInvitado['id'] !== $userId) {
     exit;
 }
 
-if (!$invitacion['espacio_trabajo_id'] || !$invitacion['tablero_id']) {
+// Validar que tenga al menos espacio_trabajo_id y (tablero_id o mapa_id)
+if (!$invitacion['espacio_trabajo_id'] || (empty($invitacion['tablero_id']) && empty($invitacion['mapa_id']))) {
     echo json_encode(["success" => false, "message" => "Invitación incompleta"]);
     exit;
 }
@@ -88,44 +89,68 @@ $conn->begin_transaction();
 
 try {
     // Insertar en miembros_espacios_trabajo
+    $rolEspacio = $invitacion['rol'] ?? 'Miembro'; // Asumiendo que en invitacion rol es genérico para el workspace
     $stmt1 = $conn->prepare("INSERT IGNORE INTO miembros_espacios_trabajo (usuario_id, espacio_trabajo_id, rol) VALUES (?, ?, ?)");
-    $stmt1->bind_param("sis", $userId, $invitacion['espacio_trabajo_id'], $invitacion['rol_espacio_trabajo']);
+    $stmt1->bind_param("sis", $userId, $invitacion['espacio_trabajo_id'], $rolEspacio);
     $stmt1->execute();
 
-    // Solo si se insertó un nuevo registro
     if ($stmt1->affected_rows > 0) {
         $stmtUpdate = $conn->prepare("UPDATE espacios_trabajo SET numero_miembros = numero_miembros + 1 WHERE id = ?");
         $stmtUpdate->bind_param("i", $invitacion['espacio_trabajo_id']);
         $stmtUpdate->execute();
         $stmtUpdate->close();
     }
-
     $stmt1->close();
 
-    // Insertar en miembros_tableros
-    $stmt2 = $conn->prepare("INSERT IGNORE INTO miembros_tableros (usuario_id, tablero_id, rol) VALUES (?, ?, ?)");
-    $stmt2->bind_param("sis", $userId, $invitacion['tablero_id'], $invitacion['rol_tablero']);
-    $stmt2->execute();
-    $stmt2->close();
+    $respuesta = [];
+
+    // Si es invitación a tablero
+    if (!empty($invitacion['tablero_id'])) {
+        $rolTablero = $invitacion['rol'] ?? 'Miembro'; // Si tienes un rol específico para tablero, usa ese campo correcto
+        $stmt2 = $conn->prepare("INSERT IGNORE INTO miembros_tableros (usuario_id, tablero_id, rol) VALUES (?, ?, ?)");
+        $stmt2->bind_param("sis", $userId, $invitacion['tablero_id'], $rolTablero);
+        $stmt2->execute();
+        $stmt2->close();
+
+        $respuesta = [
+            "tablero_id" => $invitacion['tablero_id'],
+            "tipo" => "tablero"
+        ];
+    } elseif (!empty($invitacion['mapa_id'])) {
+        // Si es invitación a mapa mental
+        $rolMapa = $invitacion['rol'] ?? 'Miembro'; // Mismo aquí, si tienes rol específico para mapa, ajusta
+        $stmt3 = $conn->prepare("INSERT IGNORE INTO miembros_mapas_mentales (usuario_id, mapa_mental_id, rol) VALUES (?, ?, ?)");
+        $stmt3->bind_param("sis", $userId, $invitacion['mapa_id'], $rolMapa);
+        $stmt3->execute();
+        $stmt3->close();
+
+        $respuesta = [
+            "mapa_id" => $invitacion['mapa_id'],
+            "tipo" => "mapa"
+        ];
+    }
 
     // Marcar invitación como aceptada
-    $stmt3 = $conn->prepare("UPDATE invitaciones SET estado = 'aceptada', fecha_aceptacion = NOW() WHERE id = ?");
-    $stmt3->bind_param("i", $invitacionId);
-    $stmt3->execute();
-    $stmt3->close();
+    $stmt4 = $conn->prepare("UPDATE invitaciones SET estado = 'aceptada', fecha_aceptacion = NOW() WHERE id = ?");
+    $stmt4->bind_param("i", $invitacionId);
+    $stmt4->execute();
+    $stmt4->close();
 
     $conn->commit();
 
     echo json_encode([
         "success" => true,
         "message" => "Invitación aceptada correctamente",
-        "tablero_id" => $invitacion['tablero_id'],
-        "remitente_id" => $remitenteId
+        "remitente_id" => $remitenteId,
+        ...$respuesta
     ]);
 } catch (Exception $e) {
     $conn->rollback();
-    echo json_encode(["success" => false, "message" => "Error al procesar la invitación"]);
+    echo json_encode([
+        "success" => false,
+        "message" => "Error al procesar la invitación: " . $e->getMessage()
+    ]);
 }
 
+
 $conn->close();
-?>

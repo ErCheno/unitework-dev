@@ -5,6 +5,7 @@ import { socketGetInvitations, socketGetWorkspaces } from "./socketsEvents.js";
 import { showToast } from "../../public/js/validator/regex.js";
 import { cargarInvitaciones } from "../components/topbar.js";
 import { fetchAndRenderList, fetchAndRenderTasks } from "../pages/boardPage.js";
+import { fetchNodos, selectMindMap } from "./mindMap.js";
 
 export let socket;
 
@@ -33,7 +34,6 @@ export function connectSocket() {
     });
 
     socket.on('nueva-invitacion', async (data) => {
-      //console.log('ENTREEEEE')
       console.log('📨 Invitación recibida:', data);
       showToast(`📨 Nueva invitación de ${data.nombre || 'alguien'}`, "info");
 
@@ -69,7 +69,7 @@ export function connectSocket() {
     socket.on('eliminar-lista', (boardId) => {
       fetchAndRenderList(boardId);
     });
-        socket.on('eliminar-tarea', (estado) => {
+    socket.on('eliminar-tarea', (estado) => {
       fetchAndRenderTasks(estado);
     });
 
@@ -85,6 +85,35 @@ export function connectSocket() {
 
       fetchAndRenderList(estadoActualizado); // Puedes adaptar esto si necesitas refrescar solo una columna
     });
+
+    async function actualizarMapaCompleto(mapaId, mindInstance) {
+      try {
+        const nodos = await fetchNodos(mapaId);
+        const mapa = await selectMindMap(mapaId);
+        const newTree = buildMindElixirTree(nodos, mapa);
+        mindInstance.nodeData = newTree.nodeData;
+        mindInstance.linkData = newTree.linkData;
+        mindInstance.refresh(newTree);
+      } catch (error) {
+        console.error("Error actualizando mapa mental por socket:", error);
+      }
+    }
+
+    socket.on('crear-nodo', ({ mapaId }) => {
+      console.log('Nodo creado en mapa', mapaId);
+      actualizarMapaCompleto(mapaId, mindInstance);
+    });
+
+    socket.on('modificar-nodo', ({ mapaId }) => {
+      console.log('Nodo modificado en mapa', mapaId);
+      actualizarMapaCompleto(mapaId, mindInstance);
+    });
+
+    socket.on('eliminar-nodo', ({ mapaId }) => {
+      console.log('Nodo eliminado en mapa', mapaId);
+      actualizarMapaCompleto(mapaId, mindInstance);
+    });
+
 
   }
 }

@@ -1,5 +1,5 @@
 import { mostrarPopupConfirmacion } from "./workspaceCard.js";
-import { deleteBoards } from "../js/board.js";
+import { deleteBoards, salirseDelKanban } from "../js/board.js";
 import { getUsuariosDisponibles } from "../js/board.js";
 import { createInvitation } from "../js/notifications.js";
 import page from "page";
@@ -15,9 +15,6 @@ export function BoardCard(board) {
   card.setAttribute('role', 'button');
   card.setAttribute('aria-label', `Abrir tablero: ${board.nombre}`);
   card.classList.add(obtenerClaseColorPersistente(board.id));
-
-  console.log(board);
-  console.log(board.rol);
 
   const boardHeader = document.createElement('div');
   boardHeader.className = 'board-header';
@@ -129,7 +126,11 @@ export function BoardCard(board) {
   invitar.addEventListener('click', (e) => {
     mostrarPopupInvitacion(board);
   });
+  salir.addEventListener('click', async (e) => {
+    await salirseDelKanban(board.id);
+    card.remove();
 
+  });
 
   return card;
 }
@@ -316,23 +317,23 @@ export function mostrarPopupInvitacion(board) {
     }
   });
 
-
   enviarBtn.addEventListener('click', async () => {
     const email = input.value.trim();
-    const selectedRole = selectBox.textContent; // Obtener el rol seleccionado
+    const selectedRole = selectBox.textContent.trim(); // el rol seleccionado (admin, miembro)
     if (email) {
       console.log('Invitación enviada a:', email);
-      await createInvitation(email, board.espacio_trabajo_id, board.id, selectedRole); // Usar el rol seleccionado
-      console.log("socket conectado:", socket); // Prueba en el archivo donde lo usas
-      
+      await createInvitation(email, board.espacio_trabajo_id, "kanban", board.id, selectedRole);
+      console.log("socket conectado:", socket);
+
       socketGetInvitations();
-      
+
       popup.remove();
     } else {
       input.classList.add('error');
       input.placeholder = 'Por favor introduce un correo válido';
     }
   });
+
 
   cancelBtn.addEventListener('click', () => {
     popup.remove();
@@ -343,25 +344,3 @@ export function mostrarPopupInvitacion(board) {
   popup.appendChild(container);
   document.body.appendChild(popup);
 }
-
-
-/*function crearAvatarDefecto(usuario) {
-  const container = document.createElement('div');
-  container.classList.add('avatar-container');
-
-  if (usuario.avatar) {
-    const img = document.createElement('img');
-    img.src = `/uploads/usuarios/${usuario.avatar}`;
-    img.alt = 'Avatar';
-    img.className = 'avatar-img';
-    container.appendChild(img);
-  } else {
-    const inicial = usuario.nombre.charAt(0).toUpperCase();
-    const fallback = document.createElement('div');
-    fallback.className = 'avatar-placeholder';
-    fallback.textContent = inicial;
-    container.appendChild(fallback);
-  }
-
-  return container;
-}*/
