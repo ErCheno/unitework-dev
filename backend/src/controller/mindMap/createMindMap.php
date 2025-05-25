@@ -46,8 +46,11 @@ if ($result->num_rows === 0) {
 $stmt->close();
 
 // Insertar el nuevo mapa mental
-$stmt = $conn->prepare("INSERT INTO mapas_mentales (titulo, descripcion, espacio_trabajo_id, creado_por, fecha_creacion) VALUES (?, ?, ?, ?, NOW())");
-$stmt->bind_param("ssis", $titulo, $descripcion, $espacioTrabajoId, $usuarioId);
+$color = $input['color'] ?? null; // Nuevo campo recibido del front
+
+
+$stmt = $conn->prepare("INSERT INTO mapas_mentales (titulo, descripcion, espacio_trabajo_id, creado_por, fecha_creacion, color) VALUES (?, ?, ?, ?, NOW(), ?)");
+$stmt->bind_param("ssiss", $titulo, $descripcion, $espacioTrabajoId, $usuarioId, $color);
 
 
 if ($stmt->execute()) {

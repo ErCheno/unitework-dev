@@ -43,6 +43,9 @@ export async function fetchBoards(workspaceId) {
 
 
 export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
+
+
+
     try {
         const token = getToken();
 
@@ -61,7 +64,8 @@ export async function createBoards(nombre, descripcion, espacio_trabajo_id) {
             body: JSON.stringify({
                 nombre,
                 descripcion,
-                espacio_trabajo_id
+                espacio_trabajo_id,
+                color: getRandomKanbanColor()
             }),
         });
 
@@ -329,4 +333,14 @@ export async function putBoard(boardId, summary) {
         console.error(err);
         throw new Error('Error al cargar tableros: ' + err.message);
     }
+}
+
+const KANBAN_COLORS = [
+    '#ABE2A5', '#E2C5A5', '#C5A5E2', '#95a9df', '#8fc7e0', '#8dd5dd',
+    '#F0E795', '#F0B795', '#E2A5A5', '#E2A5B2', '#E2A5DF'
+];
+
+// Función para obtener un color aleatorio
+export function getRandomKanbanColor() {
+    return KANBAN_COLORS[Math.floor(Math.random() * KANBAN_COLORS.length)];
 }

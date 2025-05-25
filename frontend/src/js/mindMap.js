@@ -45,6 +45,7 @@ export async function createMindMap(titulo, descripcion, espacioTrabajoId) {
     const bodyData = {
         titulo,
         espacio_trabajo_id: espacioTrabajoId,
+        color: getRandomMapColor()
     };
 
     if (descripcion && descripcion.trim() !== '') {
@@ -596,4 +597,15 @@ export async function cambiarRolUsuarioMapa(mapaId, usuarioId, nuevoRol) {
         console.error("Error al obtener usuarios disponibles:", error.message);
         return [];
     }
+}
+
+
+const MINDMAP_COLORS = [
+    '#ABE2A5', '#E2C5A5', '#C5A5E2', '#95a9df', '#8fc7e0', '#8dd5dd',
+    '#F0E795', '#F0B795', '#E2A5A5', '#E2A5B2', '#E2A5DF'
+];
+
+// Función para obtener un color aleatorio
+export function getRandomMapColor() {
+    return MINDMAP_COLORS[Math.floor(Math.random() * MINDMAP_COLORS.length)];
 }

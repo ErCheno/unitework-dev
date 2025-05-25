@@ -11,6 +11,7 @@ import { fetchWorkspaces } from './js/workspaces.js';
 import { fetchBoards } from './js/board.js';
 import { connectSocket } from './js/socket.js';
 import { MindMapPage } from './pages/mindMapPage.js';
+import { showToast } from '../public/js/validator/regex.js';
 
 window.addEventListener('load', () => {
     connectSocket();  // Llamamos a connectSocket en la carga de la página
@@ -85,5 +86,32 @@ page('/login', LoginPage);
 // Ruta de registro
 page('/registro', RegisterPage);
 
+
+// Ruta para ir al último tablero visitado
+page('/lastboard', authGuard, () => {
+  const ultimoBoardId = localStorage.getItem('ultimo_board_id');
+  if (ultimoBoardId) {
+    page.redirect(`/board/${ultimoBoardId}`);
+  } else {
+    page.redirect('/myworkspaces'); // fallback
+    showToast('Parece que no te has metido a algún tablero recientemente o ha sido borrado...');
+  }
+});
+
+// Ruta para ir al último mapa mental visitado
+page('/lastmindmap', authGuard, () => {
+  const ultimoMindmapId = localStorage.getItem('ultimo_map_id');
+  if (ultimoMindmapId) {
+    page.redirect(`/mindmap/${ultimoMindmapId}`);
+  } else {
+    page.redirect('/myworkspaces'); // fallback
+    showToast('Parece que no te has metido a algún mapa recientemente o ha sido borrado...');
+  }
+});
+
+
+
 // Iniciar el enrutador de `page.js`
 page.start();
+
+

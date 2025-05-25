@@ -102,8 +102,12 @@ export function Navbar() {
   const iDashboardKanban = document.createElement('i');
   const spanKanban = document.createElement('span');
 
+
+
+
   iDashboardKanban.className = 'fa-solid fa-columns';
-  dashboardLinkKanban.href = '/kanban';
+  dashboardLinkKanban.href = '/lastboard';
+
   spanKanban.textContent = 'Tablero Kanban';
   iDashboardKanban.title = 'Tablero Kanban';
 
@@ -111,14 +115,14 @@ export function Navbar() {
   dashboardLinkKanban.appendChild(spanKanban);
   dashboardLiKanban.appendChild(dashboardLinkKanban);
 
-
   const dashboardLiMindMap = document.createElement('li');
   const dashboardLinkMindMap = document.createElement('a');
   const iDashboardMindMap = document.createElement('i');
   const spanMindMap = document.createElement('span');
 
   iDashboardMindMap.className = 'fa-solid fa-diagram-project';
-  dashboardLinkMindMap.href = '/mindmap';
+  dashboardLinkMindMap.href = '/lastmindmap';
+
   spanMindMap.textContent = 'Mapa mental';
   iDashboardMindMap.title = 'Mapa mental';
 

@@ -14,8 +14,7 @@ export function BoardCard(board) {
   card.setAttribute('tabindex', '0'); // Permite navegar con el teclado
   card.setAttribute('role', 'button');
   card.setAttribute('aria-label', `Abrir tablero: ${board.nombre}`);
-  card.classList.add(obtenerClaseColorPersistente(board.id));
-
+  card.style.backgroundColor = board.color;
   const boardHeader = document.createElement('div');
   boardHeader.className = 'board-header';
 
@@ -69,8 +68,12 @@ export function BoardCard(board) {
 
   if (board.rol_tablero !== 'admin') {
     icoMiembros.className = 'fa-regular fa-user';
+    icoMiembros.title = 'Eres miembro';
+
   } else {
     icoMiembros.className = 'fa-solid fa-user-tie';
+    icoMiembros.title = 'Eres administrador';
+
   }
 
   const icoStar = document.createElement('i');
@@ -84,6 +87,12 @@ export function BoardCard(board) {
   card.appendChild(divIconosDebajo);
 
   card.addEventListener('click', () => {
+    localStorage.setItem('ultimo_board_id', board.id);
+
+    // Opcional: guardar también el nombre del tablero o el workspace
+    localStorage.setItem('ultimo_board_nombre', board.nombre);
+    localStorage.setItem('ultimo_workspace_id', board.espacio_trabajo_id);
+
     page(`/board/${board.id}`); // Redirige a la página del workspace con el ID del workspace
     //sessionStorage.setItem('idWorkspace', board.espacio_trabajo_id)
   });
@@ -97,6 +106,11 @@ export function BoardCard(board) {
 
     try {
       await deleteBoards(board.id);
+      localStorage.removeItem('ultimo_board_id');
+
+      // Opcional: guardar también el nombre del tablero o el workspace
+      localStorage.removeItem('ultimo_board_nombre');
+      localStorage.removeItem('ultimo_workspace_id');
       card.remove(); // Eliminar la tarjeta del DOM directamente
     } catch (error) {
       console.error("Error al eliminar el tablero:", error);
@@ -139,27 +153,6 @@ export function BoardCard(board) {
 
   return card;
 }
-
-const coloresDisponibles = [
-  'kanban-color-1', 'kanban-color-2', 'kanban-color-3', 'kanban-color-4',
-  'kanban-color-5', 'kanban-color-6', 'kanban-color-7', 'kanban-color-8',
-  'kanban-color-9', 'kanban-color-10', 'kanban-color-11'
-];
-
-// Función para obtener un color aleatorio de la lista
-function obtenerClaseColorPersistente(boardId) {
-  const clave = `kanban-color-${boardId}`;
-  let color = localStorage.getItem(clave);
-
-  if (!color) {
-    const indiceAleatorio = Math.floor(Math.random() * coloresDisponibles.length);
-    color = coloresDisponibles[indiceAleatorio];
-    localStorage.setItem(clave, color);
-  }
-
-  return color;
-}
-
 
 
 export function mostrarPopupInvitacion(board) {

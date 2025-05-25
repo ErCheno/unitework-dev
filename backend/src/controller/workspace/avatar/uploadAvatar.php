@@ -57,7 +57,7 @@ if (!$directorioDestino) {
 }
 
 // Eliminar avatar anterior si no es el predeterminado
-if ($avatarAnterior && $avatarAnterior !== 'default.jpg') {
+if ($avatarAnterior && $avatarAnterior !== 'default_avatar.png') {
     $rutaAnterior = "$directorioDestino/$avatarAnterior";
     if (file_exists($rutaAnterior)) {
         unlink($rutaAnterior);

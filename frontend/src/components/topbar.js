@@ -189,32 +189,39 @@ export function TopNavbar() {
   // Otras secciones del menú
   const dasboardLi = document.createElement('li');
   const dashboardA = document.createElement('a');
-  dashboardA.href = '#/dashboard';
-  dashboardA.textContent = 'Novedades';
+  dashboardA.href = '/dashboard';
+  dashboardA.textContent = 'Inicio';
   dasboardLi.appendChild(dashboardA);
+
+  const ultimoBoardId = localStorage.getItem('ultimo_board_id');
+
 
   const kanbanLi = document.createElement('li');
   const kanbanA = document.createElement('a');
-  kanbanA.href = '#/kanban';
+
+  kanbanA.href = '/lastboard';
+
   kanbanA.textContent = 'Tablero Kanban';
   kanbanLi.appendChild(kanbanA);
 
   const gruposLi = document.createElement('li');
   const gruposA = document.createElement('a');
-  gruposA.href = '#/groups';
-  gruposA.textContent = 'Espacios Trabajo';
+  gruposA.href = '/myworkspaces';
+  gruposA.textContent = 'Mis espacios de trabajo';
   gruposLi.appendChild(gruposA);
 
   const mapasmentalesLi = document.createElement('li');
   const mapasmentalesA = document.createElement('a');
-  mapasmentalesA.href = '#/kanban';
-  mapasmentalesA.textContent = 'Mapas mentales';
+  mapasmentalesA.href = '/lastmindmap';
+
+  mapasmentalesA.textContent = 'Mapa mental';
   mapasmentalesLi.appendChild(mapasmentalesA);
 
   // Añadir al menú principal
   menu.appendChild(dasboardLi);
-  menu.appendChild(kanbanLi);
   menu.appendChild(gruposLi);
+
+  menu.appendChild(kanbanLi);
   menu.appendChild(mapasmentalesLi);
   menu.appendChild(notifLi);
   menu.appendChild(userLi);

@@ -36,8 +36,11 @@ $espacio_trabajo_id = $input['espacio_trabajo_id'];
 $fecha_creacion = date('Y-m-d H:i:s');
 
 // Insertar el tablero
-$stmt = $conn->prepare("INSERT INTO tableros (nombre, descripcion, espacio_trabajo_id, creado_por, fecha_creacion) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("ssiss", $nombre, $descripcion, $espacio_trabajo_id, $usuarioId, $fecha_creacion);
+$color = $input['color'] ?? null; // Nuevo campo recibido del front
+
+$stmt = $conn->prepare("INSERT INTO tableros (nombre, descripcion, espacio_trabajo_id, creado_por, fecha_creacion, color) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssisss", $nombre, $descripcion, $espacio_trabajo_id, $usuarioId, $fecha_creacion, $color);
+
 
 if ($stmt->execute()) {
     $tablero_id = $conn->insert_id;

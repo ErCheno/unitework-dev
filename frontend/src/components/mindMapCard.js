@@ -11,7 +11,9 @@ export function MindMapCard(map) {
   card.setAttribute('tabindex', '0');
   card.setAttribute('role', 'button');
   card.setAttribute('aria-label', `Abrir mapa mental: ${map.titulo}`);
-  card.classList.add(obtenerClaseColorPersistente(map.id));
+  const originalColor = map.color; // Ej. '#3498db'
+  const lightColor = lightenColor(originalColor, 40); // Aclarar un 10%
+  card.style.backgroundColor = lightColor;
 
   const mapHeader = document.createElement('div');
   mapHeader.className = 'mindmap-header';
@@ -81,6 +83,12 @@ export function MindMapCard(map) {
   card.appendChild(divIconosDebajo);
 
   card.addEventListener('click', () => {
+    localStorage.setItem('ultimo_map_id', map.id);
+
+    // Opcional: guardar también el nombre del tablero o el workspace
+    localStorage.setItem('ultimo_map_nombre', map.titulo);
+    localStorage.setItem('ultimo_workspace_id', map.espacio_trabajo_id);
+
     page(`/mindmap/${map.id}`); // Ajusta la ruta según tu enrutador
   });
 
@@ -111,34 +119,14 @@ export function MindMapCard(map) {
     mostrarPopupInvitacion(map);
   });
 
-    salir.addEventListener('click', async (e) => {
-      await salirseDelKanban(board.id);
-      card.remove();
-  
-    });
+  salir.addEventListener('click', async (e) => {
+    await salirseDelKanban(board.id);
+    card.remove();
+
+  });
 
   return card;
 }
-
-const coloresDisponibles = [
-  'mindmap-color-1', 'mindmap-color-2', 'mindmap-color-3', 'mindmap-color-4',
-  'mindmap-color-5', 'mindmap-color-6', 'mindmap-color-7', 'mindmap-color-8',
-  'mindmap-color-9', 'mindmap-color-10', 'mindmap-color-11'
-];
-
-function obtenerClaseColorPersistente(id) {
-  const clave = `mindmap-color-${id}`;
-  let color = localStorage.getItem(clave);
-
-  if (!color) {
-    const indiceAleatorio = Math.floor(Math.random() * coloresDisponibles.length);
-    color = coloresDisponibles[indiceAleatorio];
-    localStorage.setItem(clave, color);
-  }
-
-  return color;
-}
-
 
 
 export function mostrarPopupInvitacion(map) {
@@ -300,4 +288,23 @@ export function mostrarPopupInvitacion(map) {
   container.append(title, inputRoleContainer, suggestionBox, buttons);
   popup.appendChild(container);
   document.body.appendChild(popup);
+}
+
+function lightenColor(hex, percent) {
+  // Elimina el "#" si está presente
+  hex = hex.replace(/^#/, '');
+
+  // Convierte a enteros R, G, B
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+
+  // Calcula el nuevo valor aclarado
+  r = Math.min(255, Math.floor(r + (255 - r) * percent / 100));
+  g = Math.min(255, Math.floor(g + (255 - g) * percent / 100));
+  b = Math.min(255, Math.floor(b + (255 - b) * percent / 100));
+
+  // Devuelve en formato hex
+  const toHex = c => c.toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }

@@ -110,6 +110,8 @@
 .mindmap-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+  /* Aclara un 10% */
+
 }
 
 // Tarjeta base
@@ -234,7 +236,8 @@
 }
 
 // Tarjeta para crear un nuevo tablero
-.create-board-card, .create-map-card {
+.create-board-card,
+.create-map-card {
   /*@extend .board-card;*/
   background-color: #e2e4e6;
   color: $primary-color;
@@ -246,6 +249,7 @@
     background-color: $sixth-color;
   }
 }
+
 .mindmap-card {
   /*@extend .board-card;*/
   color: $primary-color;
@@ -457,7 +461,8 @@
 
 // LISTA AL DARLE AL DOT
 
-.board-menu, .mindmap-menu {
+.board-menu,
+.mindmap-menu {
   position: absolute;
   z-index: 1;
   top: -40px;
@@ -483,18 +488,21 @@
   }
 }
 
-.board-menu li, .mindmap-menu li {
+.board-menu li,
+.mindmap-menu li {
   font-weight: 500;
   text-align: center;
 }
 
-.board-menu li, .mindmap-menu li {
+.board-menu li,
+.mindmap-menu li {
   padding: 8px 16px;
   cursor: pointer;
 
 }
 
-.board-menu li:hover, .mindmap-menu li:hover {
+.board-menu li:hover,
+.mindmap-menu li:hover {
   background-color: #f0f0f0;
 }
 
