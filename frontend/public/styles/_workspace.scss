@@ -42,7 +42,8 @@
 //WORKSPACE CARDS
 
 #workspace-list,
-#board-list, #mind-list {
+#board-list,
+#mind-list {
   margin: 50px;
 
   position: relative;
@@ -107,11 +108,47 @@
   margin-right: 30px; // efecto visual donde va a entrar
 }
 
+#popupFiltro {
+  position: fixed;
+  background-color: $white-button-color;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 8px 0px;
+  max-width: 200px;
+  z-index: 1000;
+
+  #opcionFiltro {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+
+    padding: 8px 16px;
+    cursor: pointer;
+
+  }
+
+  /* Flecha que apunta al botón */
+  .popup-flecha {
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    /* Puedes ajustar para centrarla según botón */
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+    /* Color igual que el fondo del popup */
+    filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.1));
+  }
+
+}
 
 .workspace-card {
   border: 1px solid lightgray;
   width: 300px;
-  height: 250px;
+  height: 240px;
   background-color: #f8f9fb;
   border-radius: 8px;
   box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.1);
@@ -418,19 +455,19 @@
 }
 
 .popup-arrow-create-workspace {
-    position: absolute;
-    top: -8px;
-    /* Sale por arriba */
-    right: 20%;
-    /* Centrada horizontalmente */
-    transform: translateX(-50%) rotate(45deg);
-    /* Centrada y rotada para formar flecha */
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    border-left: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    z-index: -1;
+  position: absolute;
+  top: -8px;
+  /* Sale por arriba */
+  right: 20%;
+  /* Centrada horizontalmente */
+  transform: translateX(-50%) rotate(45deg);
+  /* Centrada y rotada para formar flecha */
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-left: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+  z-index: -1;
 }
 
 .modal {
@@ -698,12 +735,29 @@
   flex-direction: row;
   justify-content: space-between;
 
+  #lineaVertical {
+    width: 4px;
+    border-radius: 80%;
+    /* grosor de la línea */
+    height: 50px;
+    opacity: 0.5;
+    /* altura de la línea */
+    background-color: $seventh-color;
+    align-self: center;
+    /* color de la línea */
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+
   #botonCrear,
   #botonRecarga,
-  #botonVolver {
+  #botonVolver,
+  #botonFiltro {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    text-align: center;
 
     width: 100%;
     padding: 0.75rem 1rem;
@@ -739,7 +793,8 @@
     border-radius: 15px;
 
     #icoCrear,
-    #icoRecarga {
+    #icoRecarga,
+    #icoFiltro {
       color: $primary-color;
       font-size: 30px;
       margin-right: 5px;
@@ -747,7 +802,8 @@
 
 
 
-    #parrafoCrear {
+    #parrafoCrear,
+    #parrafoVolver {
       color: $primary-color;
       font-weight: bold;
       font-size: 20px;
@@ -755,7 +811,8 @@
 
   }
 
-  #botonRecarga {
+  #botonRecarga,
+  #botonFiltro {
     width: 20% !important;
   }
 
@@ -943,31 +1000,31 @@
 // MAPAS MENTALES
 
 #mindmap-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
 }
 
 .mindmap-node {
-    background: #f5f7fa;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 10px 15px;
-    margin: 10px;
-    position: relative;
-    min-width: 120px;
-    text-align: center;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  background: #f5f7fa;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin: 10px;
+  position: relative;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.mindmap-node > .mindmap-node {
-    margin-left: 40px;
+.mindmap-node>.mindmap-node {
+  margin-left: 40px;
 }
 
 .add-subidea {
-    margin-top: 5px;
-    font-size: 14px;
+  margin-top: 5px;
+  font-size: 14px;
 }
 
 
@@ -983,6 +1040,42 @@
     transform: translateY(0);
   }
 }
+
+@keyframes popup-fade-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+
+/* Clase que maneja el fadeout */
+.fade-out {
+  opacity: 0 !important;
+  z-index: -99999;
+  transform: translateX(-10px) !important;
+  /* Desplazamiento al cerrar */
+  /* Las animaciones de desvanecimiento y desplazamiento */
+  transition: opacity 0.2s ease, transform 0.2s ease, z-index 0s 0.5s;
+}
+
+
 
 // Estilos para tablets (pantallas medianas)
 @media (max-width: 1024px) {
@@ -1020,7 +1113,7 @@
 
   .workspace-card {
     width: 250px;
-    height: 220px;
+    height: 250px;
   }
 }
 

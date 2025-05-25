@@ -42,39 +42,94 @@ $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
     echo json_encode(["success" => false, "message" => "No tienes permisos para eliminar este mapa mental o no existe"]);
+    $stmt->close();
     exit;
 }
 
 $datos = $result->fetch_assoc();
 $esAdminMapa = $datos['rol_mapa'] === 'admin';
 $esAdminEspacio = $datos['rol_espacio'] === 'admin';
+$stmt->close();
 
 if (!$esAdminMapa && !$esAdminEspacio) {
     echo json_encode(["success" => false, "message" => "No tienes permisos de administrador para eliminar este mapa mental"]);
     exit;
 }
-$stmt->close();
-/*
-// Eliminar relaciones con miembros
-$stmt = $conn->prepare("DELETE FROM miembros_mapas_mentales WHERE mapa_mental_id = ?");
+
+// Obtener espacio_trabajo_id del mapa mental antes de borrar
+$stmt = $conn->prepare("SELECT espacio_trabajo_id FROM mapas_mentales WHERE id = ?");
 $stmt->bind_param("i", $mapaId);
 $stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "Mapa mental no encontrado"]);
+    $stmt->close();
+    exit;
+}
+
+$fila = $result->fetch_assoc();
+$espacioTrabajoId = $fila['espacio_trabajo_id'];
 $stmt->close();
 
-// Eliminar nodos (si existen en tu modelo de datos)
-$stmt = $conn->prepare("DELETE FROM nodos_mentales WHERE mapa_mental_id = ?");
-$stmt->bind_param("i", $mapaId);
-$stmt->execute();
-$stmt->close();
-*/
 // Eliminar el mapa mental
 $stmt = $conn->prepare("DELETE FROM mapas_mentales WHERE id = ?");
 $stmt->bind_param("i", $mapaId);
-if ($stmt->execute()) {
+$deleteOk = $stmt->execute();
+$stmt->close();
+
+if ($deleteOk) {
+    // Restar 1 a la cantidad de mapas en el espacio de trabajo
+    $stmt = $conn->prepare("UPDATE espacios_trabajo SET numero_mapas_mentales = GREATEST(numero_mapas_mentales - 1, 0) WHERE id = ?");
+    $stmt->bind_param("i", $espacioTrabajoId);
+    $stmt->execute();
+    $stmt->close();
+
+    // Obtener la última actividad del espacio de trabajo para mostrarla formateada
+    $stmt_actividad = $conn->prepare("SELECT ultima_actividad FROM espacios_trabajo WHERE id = ?");
+    $stmt_actividad->bind_param("i", $espacioTrabajoId);
+    $stmt_actividad->execute();
+    $result_actividad = $stmt_actividad->get_result();
+    $actividadData = $result_actividad->fetch_assoc();
+    $stmt_actividad->close();
+
+    $ultimaActividad = $actividadData ? $actividadData['ultima_actividad'] : null;
+    $ultimaActividadRelativa = $ultimaActividad ? tiempoPasado($ultimaActividad) : "Sin actividad reciente";
+
     echo json_encode(["success" => true, "message" => "Mapa mental eliminado correctamente"]);
 } else {
     echo json_encode(["success" => false, "message" => "Error al eliminar el mapa mental"]);
 }
-$stmt->close();
+
 $conn->close();
-?>
+
+function tiempoPasado($tiempo)
+{
+    $tiempoPasado = strtotime($tiempo);
+    $current_time = time();
+    $time_difference = $current_time - $tiempoPasado;
+
+    $segundos = $time_difference;
+    $minutos = round($segundos / 60);
+    $horas = round($segundos / 3600);
+    $dias = round($segundos / 86400);
+    $semanas = round($segundos / 604800);
+    $meses = round($segundos / 2629440);
+    $anyos = round($segundos / 31553280);
+
+    if ($segundos <= 60) {
+        return "Hace $segundos segundos";
+    } elseif ($minutos <= 60) {
+        return ($minutos == 1) ? "Hace un minuto" : "Hace $minutos minutos";
+    } elseif ($horas <= 24) {
+        return ($horas == 1) ? "Hace una hora" : "Hace $horas horas";
+    } elseif ($dias <= 7) {
+        return ($dias == 1) ? "Ayer" : "Hace $dias días";
+    } elseif ($semanas <= 4.3) {
+        return ($semanas == 1) ? "Hace una semana" : "Hace $semanas semanas";
+    } elseif ($meses <= 12) {
+        return ($meses == 1) ? "Hace un mes" : "Hace $meses meses";
+    } else {
+        return ($anyos == 1) ? "Hace un año" : "Hace $anyos años";
+    }
+}

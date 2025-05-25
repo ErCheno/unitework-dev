@@ -49,6 +49,7 @@ $stmt->close();
 $stmt = $conn->prepare("INSERT INTO mapas_mentales (titulo, descripcion, espacio_trabajo_id, creado_por, fecha_creacion) VALUES (?, ?, ?, ?, NOW())");
 $stmt->bind_param("ssis", $titulo, $descripcion, $espacioTrabajoId, $usuarioId);
 
+
 if ($stmt->execute()) {
     $nuevoMapaId = $stmt->insert_id;
     $stmt->close();
@@ -72,6 +73,7 @@ if ($stmt->execute()) {
     $stmt->close();
 
     // Crear 3 hijos del nodo raíz
+    // Crear 3 hijos del nodo raíz
     $stmt = $conn->prepare("INSERT INTO nodos_mapa (mapa_id, contenido, padre_id, orden) VALUES (?, ?, ?, ?)");
     for ($i = 1; $i <= 3; $i++) {
         $contenido = "Hijo $i";
@@ -80,6 +82,24 @@ if ($stmt->execute()) {
         $stmt->execute();
     }
     $stmt->close();
+
+    // Incrementar contador de mapas mentales en el espacio de trabajo
+    $stmt = $conn->prepare("UPDATE espacios_trabajo SET numero_mapas_mentales = numero_mapas_mentales + 1 WHERE id = ?");
+    $stmt->bind_param("i", $espacioTrabajoId);
+    $stmt->execute();
+    $stmt->close();
+
+
+    // Obtener la última actividad del espacio de trabajo para mostrarla formateada
+    $stmt_actividad = $conn->prepare("SELECT ultima_actividad FROM espacios_trabajo WHERE id = ?");
+    $stmt_actividad->bind_param("i", $espacioTrabajoId);
+    $stmt_actividad->execute();
+    $result_actividad = $stmt_actividad->get_result();
+    $actividadData = $result_actividad->fetch_assoc();
+    $stmt_actividad->close();
+
+    $ultimaActividad = $actividadData ? $actividadData['ultima_actividad'] : null;
+    $ultimaActividadRelativa = $ultimaActividad ? tiempoPasado($ultimaActividad) : "Sin actividad reciente";
 
     echo json_encode([
         "success" => true,
@@ -95,3 +115,33 @@ if ($stmt->execute()) {
 }
 
 $conn->close();
+function tiempoPasado($tiempo)
+{
+    $tiempoPasado = strtotime($tiempo);
+    $current_time = time();
+    $time_difference = $current_time - $tiempoPasado;
+
+    $segundos = $time_difference;
+    $minutos = round($segundos / 60);
+    $horas = round($segundos / 3600);
+    $dias = round($segundos / 86400);
+    $semanas = round($segundos / 604800);
+    $meses = round($segundos / 2629440);
+    $anyos = round($segundos / 31553280);
+
+    if ($segundos <= 60) {
+        return "Hace $segundos segundos";
+    } elseif ($minutos <= 60) {
+        return ($minutos == 1) ? "Hace un minuto" : "Hace $minutos minutos";
+    } elseif ($horas <= 24) {
+        return ($horas == 1) ? "Hace una hora" : "Hace $horas horas";
+    } elseif ($dias <= 7) {
+        return ($dias == 1) ? "Ayer" : "Hace $dias días";
+    } elseif ($semanas <= 4.3) {
+        return ($semanas == 1) ? "Hace una semana" : "Hace $semanas semanas";
+    } elseif ($meses <= 12) {
+        return ($meses == 1) ? "Hace un mes" : "Hace $meses meses";
+    } else {
+        return ($anyos == 1) ? "Hace un año" : "Hace $anyos años";
+    }
+}

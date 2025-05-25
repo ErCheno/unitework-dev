@@ -17,17 +17,54 @@ if (!$conn) {
     exit();
 }
 
-// Obtener userId desde el token
 $usuario = verificarToken($conn);
+$userId = $usuario['id'];
 
-$userId = $usuario['id'];      // ID del usuario autenticado
-// Obtener workspaces donde el usuario es miembro (ya sea creador o invitado)
-$stmt = $conn->prepare("
-    SELECT DISTINCT et.*, met.rol
-    FROM espacios_trabajo et
-    INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
-    WHERE met.usuario_id = ?
-");
+// Leer parámetro 'orden'
+$orden = $_GET['orden'] ?? 'nombre_asc';
+$ordenSql = "";
+
+// Construir la parte de ordenamiento
+switch ($orden) {
+    case 'nombre_asc':
+        $ordenSql = "ORDER BY et.nombre ASC";
+        break;
+    case 'nombre_desc':
+        $ordenSql = "ORDER BY et.nombre DESC";
+        break;
+    case 'kanban':
+        $ordenSql = "ORDER BY et.numero_tableros DESC";
+        break;
+    case 'usuarios':
+        $ordenSql = "ORDER BY et.numero_mapas_mentales DESC";
+        break;
+    default:
+        $ordenSql = "ORDER BY et.nombre ASC";
+}
+
+// Consulta SQL base
+if ($orden === 'usuarios') {
+    $sql = "
+        SELECT et.*, met.rol, (
+            SELECT COUNT(*) FROM miembros_espacios_trabajo m
+            WHERE m.espacio_trabajo_id = et.id
+        ) as num_usuarios
+        FROM espacios_trabajo et
+        INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
+        WHERE met.usuario_id = ?
+        ORDER BY num_usuarios DESC
+    ";
+} else {
+    $sql = "
+        SELECT DISTINCT et.*, met.rol
+        FROM espacios_trabajo et
+        INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
+        WHERE met.usuario_id = ?
+        $ordenSql
+    ";
+}
+
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -36,7 +73,7 @@ $workspaces = [];
 while ($row = $result->fetch_assoc()) {
     $workspaceId = $row['id'];
 
-    // Obtener el número de tableros en este espacio
+    // Contar tableros
     $stmt2 = $conn->prepare("SELECT COUNT(*) as total FROM tableros WHERE espacio_trabajo_id = ?");
     $stmt2->bind_param("i", $workspaceId);
     $stmt2->execute();
@@ -45,7 +82,7 @@ while ($row = $result->fetch_assoc()) {
     $numTableros = $countData['total'];
     $stmt2->close();
 
-    // Actualizar el campo 'numeros_tableros' en la tabla 'espacios_trabajo'
+    // Actualizar en la BD
     $stmt3 = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = ? WHERE id = ?");
     $stmt3->bind_param("ii", $numTableros, $workspaceId);
     $stmt3->execute();
@@ -54,22 +91,21 @@ while ($row = $result->fetch_assoc()) {
     // Agregar el número de tableros
     $row['num_tableros'] = $numTableros;
 
-    // Actualizar la última actividad
-    $stmt5 = $conn->prepare("UPDATE espacios_trabajo SET ultima_actividad = NOW() WHERE id = ?");
-    $stmt5->bind_param("i", $workspaceId);
-    $stmt5->execute();
-    $stmt5->close();
+    // Aquí NO actualizamos la última actividad para que no cambie en cada carga
+    // $stmt5 = $conn->prepare("UPDATE espacios_trabajo SET ultima_actividad = NOW() WHERE id = ?");
+    // $stmt5->bind_param("i", $workspaceId);
+    // $stmt5->execute();
+    // $stmt5->close();
 
-    // Obtener y formatear la última actividad
+    // Formatear última actividad para mostrarla
     $ultimaActividad = $row['ultima_actividad'];
     $ultimaActividadRelativa = tiempoPasado($ultimaActividad);
     $row['ultima_actividad_relativa'] = $ultimaActividadRelativa;
 
-    // Agregar el workspace completo a la lista
     $workspaces[] = $row;
 }
 
-// Función para calcular el tiempo pasado
+// Función para formatear fechas
 function tiempoPasado($tiempo)
 {
     $tiempoPasado = strtotime($tiempo);
@@ -101,11 +137,9 @@ function tiempoPasado($tiempo)
     }
 }
 
-// Enviar respuesta
 echo json_encode([
     "success" => true,
     "workspaces" => $workspaces
 ]);
 
 $conn->close();
-?>

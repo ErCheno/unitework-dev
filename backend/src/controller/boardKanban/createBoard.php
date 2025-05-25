@@ -65,6 +65,16 @@ if ($stmt->execute()) {
 } else {
     echo json_encode(['success' => false, 'message' => 'Error al crear el tablero']);
 }
+// Obtener la última actividad del espacio de trabajo para mostrarla formateada
+$stmt_actividad = $conn->prepare("SELECT ultima_actividad FROM espacios_trabajo WHERE id = ?");
+$stmt_actividad->bind_param("i", $espacio_trabajo_id);
+$stmt_actividad->execute();
+$result_actividad = $stmt_actividad->get_result();
+$actividadData = $result_actividad->fetch_assoc();
+$stmt_actividad->close();
+
+$ultimaActividad = $actividadData ? $actividadData['ultima_actividad'] : null;
+$ultimaActividadRelativa = $ultimaActividad ? tiempoPasado($ultimaActividad) : "Sin actividad reciente";
 
 $stmt->close();
 $conn->close();
@@ -88,5 +98,36 @@ function crearListasPredeterminadas($conn, $usuarioId, $tableroId) {
             $stmt->bind_param("ssii", $nombreLista, $usuarioId, $tableroId, $orden);
             $stmt->execute();
         }
+    }
+}
+
+function tiempoPasado($tiempo)
+{
+    $tiempoPasado = strtotime($tiempo);
+    $current_time = time();
+    $time_difference = $current_time - $tiempoPasado;
+
+    $segundos = $time_difference;
+    $minutos = round($segundos / 60);
+    $horas = round($segundos / 3600);
+    $dias = round($segundos / 86400);
+    $semanas = round($segundos / 604800);
+    $meses = round($segundos / 2629440);
+    $anyos = round($segundos / 31553280);
+
+    if ($segundos <= 60) {
+        return "Hace $segundos segundos";
+    } elseif ($minutos <= 60) {
+        return ($minutos == 1) ? "Hace un minuto" : "Hace $minutos minutos";
+    } elseif ($horas <= 24) {
+        return ($horas == 1) ? "Hace una hora" : "Hace $horas horas";
+    } elseif ($dias <= 7) {
+        return ($dias == 1) ? "Ayer" : "Hace $dias días";
+    } elseif ($semanas <= 4.3) {
+        return ($semanas == 1) ? "Hace una semana" : "Hace $semanas semanas";
+    } elseif ($meses <= 12) {
+        return ($meses == 1) ? "Hace un mes" : "Hace $meses meses";
+    } else {
+        return ($anyos == 1) ? "Hace un año" : "Hace $anyos años";
     }
 }

@@ -95,7 +95,13 @@ io.on('connection', (socket) => {
     console.log('📢 Retransmitiendo modificación de lista a otros usuarios:', data);
     socket.broadcast.emit('modificar-lista', data);
   });
-
+  
+  ['crear-nodo', 'modificar-nodo', 'eliminar-nodo'].forEach(evento => {
+    socket.on(evento, (payload) => {
+      console.log(`Evento ${evento} recibido para mapa`, payload.mapaId);
+      socket.broadcast.emit(evento, payload);
+    });
+  });
 
 
   socket.on('customDisconnect', () => {

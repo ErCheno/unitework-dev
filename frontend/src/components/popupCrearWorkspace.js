@@ -21,7 +21,7 @@ export function CreateWorkspaceModal(botonCrear) {
         popup.classList.add('animate-popup');
     }, 50);
 
-    
+
     const arrow = document.createElement('div');
     arrow.className = 'popup-arrow-create-workspace';
 
@@ -79,9 +79,9 @@ export function CreateWorkspaceModal(botonCrear) {
     function cerrarPopup() {
         popup.classList.remove('animate-popup');
         popup.classList.add('fade-out');
-            // Ocultar popup con fade-out y luego remover del DOM si quieres
-    popup.classList.remove('mostrar');
-    popup.classList.add('ocultar');
+        // Ocultar popup con fade-out y luego remover del DOM si quieres
+        popup.classList.remove('mostrar');
+        popup.classList.add('ocultar');
         popup.addEventListener('animationend', () => {
             popup.remove();
         }, { once: true });

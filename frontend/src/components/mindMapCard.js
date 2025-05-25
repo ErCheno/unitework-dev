@@ -62,8 +62,15 @@ export function MindMapCard(map) {
 
   const icoMiembros = document.createElement('i');
   icoMiembros.id = 'icoMiembros';
-  icoMiembros.className = 'fa-regular fa-user';
+  if (map.rol_mapa !== 'admin') {
+    icoMiembros.className = 'fa-regular fa-user';
+    icoMiembros.title = 'Eres miembro';
+  } else {
+    icoMiembros.className = 'fa-solid fa-user-tie';
+    icoMiembros.title = 'Eres administrador';
 
+
+  }
   const icoStar = document.createElement('i');
   icoStar.id = 'icoStar';
   icoStar.className = 'fa-regular fa-star';

@@ -6,8 +6,30 @@ import { showToast } from "../../public/js/validator/regex.js";
 import { cargarInvitaciones } from "../components/topbar.js";
 import { fetchAndRenderList, fetchAndRenderTasks } from "../pages/boardPage.js";
 import { fetchNodos, selectMindMap } from "./mindMap.js";
+import { buildMindElixirTree } from "../pages/mindMapPage.js";
 
 export let socket;
+
+export let instanciaMapaMental = null;
+
+export function inicializarSocketListeners(mindInstance) {
+    instanciaMapaMental = mindInstance;
+
+    socket.on('crear-nodo', ({ mapaId }) => {
+        console.log('Nodo creado en mapa', mapaId);
+        refrescarMapaMental(mapaId);
+    });
+
+    socket.on('modificar-nodo', ({ mapaId }) => {
+        console.log('Nodo modificado en mapa', mapaId);
+        refrescarMapaMental(mapaId);
+    });
+
+    socket.on('eliminar-nodo', ({ mapaId }) => {
+        console.log('Nodo eliminado en mapa', mapaId);
+        refrescarMapaMental(mapaId);
+    });
+}
 
 export function connectSocket() {
   const token = getToken();
@@ -99,22 +121,6 @@ export function connectSocket() {
       }
     }
 
-    socket.on('crear-nodo', ({ mapaId }) => {
-      console.log('Nodo creado en mapa', mapaId);
-      actualizarMapaCompleto(mapaId, mindInstance);
-    });
-
-    socket.on('modificar-nodo', ({ mapaId }) => {
-      console.log('Nodo modificado en mapa', mapaId);
-      actualizarMapaCompleto(mapaId, mindInstance);
-    });
-
-    socket.on('eliminar-nodo', ({ mapaId }) => {
-      console.log('Nodo eliminado en mapa', mapaId);
-      actualizarMapaCompleto(mapaId, mindInstance);
-    });
-
-
   }
 }
 
@@ -123,4 +129,28 @@ export function disconnectSocket() {
     socket.emit('customDisconnect');
     socket.disconnect();
   }
+}
+
+
+export async function refrescarMapaMental(mapaId) {
+    if (!instanciaMapaMental) {
+        console.error('⚠️ mindInstance aún no está definida');
+        return;
+    }
+    if (!mapaId) {
+        console.error('⚠️ No se recibió mapaId válido para refrescar');
+        return;
+    }
+    try {
+        console.log('Refrescando mapa mental con mapaId:', mapaId);
+        const nodosActualizados = await fetchNodos(mapaId);
+        const mapa = await selectMindMap(mapaId);
+        const newTree = buildMindElixirTree(nodosActualizados, mapa);
+
+        instanciaMapaMental.nodeData = newTree.nodeData;
+        instanciaMapaMental.linkData = newTree.linkData;
+        instanciaMapaMental.refresh(newTree);
+    } catch (error) {
+        console.error('Error actualizando mapa mental:', error);
+    }
 }

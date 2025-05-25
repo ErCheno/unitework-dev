@@ -3,7 +3,7 @@ import { myWorkspacesPage } from "../pages/myworkspacesPage.js";
 import { getToken } from "./auth.js";
 import page from 'page';
 
-export async function fetchWorkspaces() {
+export async function fetchWorkspaces(orden = 'nombre_asc') {
     const token = getToken();
     if (!token) {
         showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -11,7 +11,7 @@ export async function fetchWorkspaces() {
         return null;
     }
     try {
-        const response = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/getWorkspaces.php', {
+        const response = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/getWorkspaces.php?orden=${orden}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

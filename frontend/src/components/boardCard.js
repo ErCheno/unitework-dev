@@ -66,7 +66,12 @@ export function BoardCard(board) {
 
   const icoMiembros = document.createElement('i');
   icoMiembros.id = 'icoMiembros';
-  icoMiembros.className = 'fa-regular fa-user';
+
+  if (board.rol_tablero !== 'admin') {
+    icoMiembros.className = 'fa-regular fa-user';
+  } else {
+    icoMiembros.className = 'fa-solid fa-user-tie';
+  }
 
   const icoStar = document.createElement('i');
   icoStar.id = 'icoStar';

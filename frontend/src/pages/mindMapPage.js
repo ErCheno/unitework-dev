@@ -4,7 +4,7 @@ import { TopNavbar } from '../components/topbar';
 import { showToast } from '../../public/js/validator/regex.js';
 import page from 'page';
 import { getUsuariosDelTablero } from '../js/board.js';
-import { socket } from '../js/socket.js';
+import { inicializarSocketListeners, refrescarMapaMental, socket } from '../js/socket.js';
 import { actualizarPadresLote, cambiarRolUsuarioMapa, crearNodo, deleteNodo, fetchActualizarNodo, fetchCrearPadre, fetchMindMaps, fetchNodos, getNodoPadre, getUsuariosDelMapa, modificarMindMap, selectMindMap } from '../js/mindMap.js';
 import { initMindMap } from '../components/mindMapView.js';
 
@@ -80,6 +80,7 @@ export async function MindMapPage(mapId) {
             const newTree = buildMindElixirTree(nodosActualizados, mapa);
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
+            socket.emit('modificar-nodo', { mapaId: mapId });
 
             mindInstance.refresh(newTree);
 
@@ -113,8 +114,30 @@ export async function MindMapPage(mapId) {
 
     botonVolver.addEventListener('click', () => page('/workspace/' + mapa.espacio_trabajo_id));
 
+    const botonRecarga = document.createElement('button');
+    botonRecarga.id = 'botonRecarga';
+    botonRecarga.title = 'Recargar Espacios de trabajo'
+    const icoRecarga = document.createElement('i');
+    icoRecarga.className = 'fa-solid fa-rotate-right';
+    icoRecarga.id = 'icoRecarga';
+
+    botonRecarga.append(icoRecarga);
+
+    const botonFiltro = document.createElement('button');
+    botonFiltro.id = 'botonFiltro';
+    botonFiltro.title = 'Filtra Espacios de trabajo'
+    const icoFiltro = document.createElement('i');
+    icoFiltro.className = 'fa-solid fa-filter';
+    icoFiltro.id = 'icoFiltro';
+
+    botonFiltro.append(icoFiltro);
+
+
+
     const divBotonesArriba = document.createElement('div');
     divBotonesArriba.id = 'divBotonesArriba';
+    divBotonesArriba.appendChild(botonFiltro);
+    divBotonesArriba.appendChild(botonRecarga);
     divBotonesArriba.appendChild(botonCrear);
     divBotonesArriba.appendChild(botonVolver);
 
@@ -144,6 +167,7 @@ export async function MindMapPage(mapId) {
 
     const mindInstance = initMindMap(mindmapContainer, treeData);
     mindInstance.bus.addListener('operation', console.log);
+    inicializarSocketListeners(mindInstance);
 
     mindInstance.bus.addListener('operation', async (op) => {
         if (op.name === 'moveNodeIn') {
@@ -160,10 +184,12 @@ export async function MindMapPage(mapId) {
 
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
+            socket.emit('modificar-nodo', { mapaId: mapId });
+
+
             mindInstance.refresh(newTree);
         }
     });
-
 
 
     botonCrear.addEventListener('click', () => {
@@ -209,18 +235,11 @@ export async function MindMapPage(mapId) {
         removeChild.onclick = null;
     }
 
-    function enableActions() {
-        siblingBtn.onclick = async () => { /* tu código para añadir hermano */ };
-        child.onclick = async () => { /* tu código para añadir hijo */ };
-        child.onkeydown = async () => { /* tu código para añadir hijo */ };
-        removeChild.onclick = async () => { /* tu código para eliminar */ };
-    }
-
     disableActions();
 
 
     siblingBtn.addEventListener('click', async () => {
-        await crearHermanoNodo(mapId, mindInstance);
+        crearHermanoNodo(mapId, mindInstance);
     });
 
 
@@ -250,6 +269,9 @@ export async function MindMapPage(mapId) {
             const newTree = buildMindElixirTree(nodosActualizados, mapa);
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
+            socket.emit('crear-nodo', { mapaId: mapId });
+
+
             // Actualiza el mindInstance con la nueva estructura
             mindInstance.refresh(newTree);
 
@@ -298,6 +320,8 @@ export async function MindMapPage(mapId) {
 
             if (nodeId == 'root') {
                 const resultado = await modificarMindMap(mapId, newText);
+                socket.emit('crear-nodo', { mapaId: mapId });
+
                 const tituloKanban = document.getElementById('tituloKanban');
                 tituloKanban.textContent = newText;
                 if (!resultado && !resultado.success) {
@@ -318,7 +342,9 @@ export async function MindMapPage(mapId) {
     });
 
 
-
+    botonRecarga.addEventListener('click', () => {
+        refrescarMapaMental(mapId);
+    });
 
 
     return container;
@@ -441,13 +467,12 @@ export async function popupCrearNodo(mapaId, padreId, mindInstance) {
                     const newTree = buildMindElixirTree(nodosActualizados, mapa);
                     mindInstance.nodeData = newTree.nodeData;
                     mindInstance.linkData = newTree.linkData;
+                    socket.emit('crear-nodo', { mapaId: mapaId });
+
                     // 🔁 Actualizar el mindInstance
                     mindInstance.refresh(newTree);
-
                     // Emitir evento socket para avisar a otros
-                    if (socket && socket.connected) {
-                        socket.emit('mindmap-nodo-creado', { mapaId });
-                    }
+
 
                     // Luego en consola:
                     closePopup(); // Cerrar popup
@@ -481,6 +506,7 @@ export async function crearNodoFuncion(mapaId, padreId, mindInstance) {
             const newTree = buildMindElixirTree(nodosActualizados, mapa);
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
+            socket.emit('crear-nodo', { mapaId: mapaId });
 
             // 🔁 Actualizar el mindInstance
             mindInstance.refresh(newTree);
@@ -516,9 +542,10 @@ export async function crearHermanoNodo(mapaId, mindInstance) {
 
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
-
+            socket.emit('crear-nodo', { mapaId: mapaId });
 
             mindInstance.refresh(newTree);
+
         } else {
             alert("No se pudo crear el nodo hermano.");
         }
@@ -561,6 +588,7 @@ export async function crearHijoNodo(mapaId, mindInstance) {
 
                 mindInstance.nodeData = newTree.nodeData;
                 mindInstance.linkData = newTree.linkData;
+                socket.emit('crear-nodo', { mapaId: mapaId });
 
                 mindInstance.refresh(newTree);
 
@@ -581,6 +609,7 @@ export async function crearHijoNodo(mapaId, mindInstance) {
 
                 mindInstance.nodeData = newTree.nodeData;
                 mindInstance.linkData = newTree.linkData;
+                socket.emit('crear-nodo', { mapaId: mapaId });
 
                 mindInstance.refresh(newTree);
 
@@ -632,6 +661,7 @@ export async function crearPadreNodo(mapaId, mindInstance) {
 
             mindInstance.nodeData = newTree.nodeData;
             mindInstance.linkData = newTree.linkData;
+            socket.emit('crear-nodo', { mapaId: mapaId });
 
             mindInstance.refresh(newTree);
 
@@ -640,6 +670,7 @@ export async function crearPadreNodo(mapaId, mindInstance) {
 
             // Seleccionar el nuevo nodo padre creado
             mindInstance.selectNode(nuevoPadre.id.toString());
+
         } else {
             alert("No se pudo crear el nodo padre.");
         }
@@ -741,6 +772,7 @@ export async function abrirPopupGestionUsuarios(mapId) {
             select.addEventListener('change', async () => {
                 const nuevoRol = select.value;
                 const result = await cambiarRolUsuarioMapa(mapId, usuario.id, nuevoRol);
+
                 if (!result.success) {
                     // Si falla, restauramos el valor anterior
                     select.value = usuario.rol;
@@ -764,3 +796,7 @@ export async function abrirPopupGestionUsuarios(mapId) {
     overlay.appendChild(content);
     document.body.appendChild(overlay);
 }
+
+
+// Función común para refrescar todo el árbol
+

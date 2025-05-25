@@ -58,6 +58,18 @@ $stmt = $conn->prepare("DELETE FROM tableros WHERE id = ?");
 $stmt->bind_param("i", $tableroId);
 $success = $stmt->execute();
 
+
+// Obtener la última actividad del espacio de trabajo para mostrarla formateada
+$stmt_actividad = $conn->prepare("SELECT ultima_actividad FROM espacios_trabajo WHERE id = ?");
+$stmt_actividad->bind_param("i", $espacio_trabajo_id);
+$stmt_actividad->execute();
+$result_actividad = $stmt_actividad->get_result();
+$actividadData = $result_actividad->fetch_assoc();
+$stmt_actividad->close();
+
+$ultimaActividad = $actividadData ? $actividadData['ultima_actividad'] : null;
+$ultimaActividadRelativa = $ultimaActividad ? tiempoPasado($ultimaActividad) : "Sin actividad reciente";
+
 if ($success) {
     $stmt_update = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = GREATEST(numero_tableros - 1, 0), ultima_actividad = NOW() WHERE id = ?");
     $stmt_update->bind_param("i", $espacioTrabajoId);
