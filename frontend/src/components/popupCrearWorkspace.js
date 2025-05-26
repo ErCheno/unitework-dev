@@ -51,9 +51,8 @@ export function CreateWorkspaceModal(botonCrear) {
     const btnCancelar = document.createElement('button');
     btnCancelar.textContent = 'Cancelar';
     btnCancelar.className = 'crear-lista-cancelar';
-
-    acciones.appendChild(btnCrear);
     acciones.appendChild(btnCancelar);
+    acciones.appendChild(btnCrear);
 
     popup.append(arrow, title, labelTitulo, inputTitulo, labelDescripcion, inputDescripcion, acciones);
     document.body.appendChild(popup);

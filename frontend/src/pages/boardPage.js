@@ -10,6 +10,7 @@ import { cambiarRolUsuario, fetchBoards, getUsuariosDelTablero, getUsuariosDispo
 import { mostrarPopupConfirmacion } from '../components/workspaceCard.js';
 import { socketMoveList, socketPutList } from '../js/socketsEvents.js';
 import { socket } from '../js/socket.js';
+import { mostrarPopupInvitacion } from '../components/boardCard.js';
 
 export async function BoardPage(boardId) {
     cleanupView();
@@ -83,16 +84,18 @@ export async function BoardPage(boardId) {
         title.style.display = 'block';
         iconoLapiz.style.display = 'inline-block';
         inputTitle.style.display = 'none';
-        console.log(board);
-        console.log(board.id);
         await putBoard(board.id, nuevoTitulo);
         title.textContent = nuevoTitulo;
     }
 
 
 
-    titleContainer.append(title, inputTitle, iconoLapiz);
+    if (board.rol_tablero !== 'admin') {
+        titleContainer.append(title, inputTitle);
+    } else {
+        titleContainer.append(title, inputTitle, iconoLapiz);
 
+    }
 
     const botonCrear = document.createElement('button');
     botonCrear.id = 'crearLista';
@@ -119,21 +122,41 @@ export async function BoardPage(boardId) {
     parrafoVolver.textContent = 'Volver';
     botonVolver.append(icoVolver, parrafoVolver);
 
-    botonVolver.addEventListener('click', () => page('/workspace/'+board.espacio_trabajo_id));
+    botonVolver.addEventListener('click', () => page('/workspace/' + board.espacio_trabajo_id));
     //botonVolver.addEventListener('click', () => page(`/workspace/${workspace.id}`));
+
+    const botonInvitar = document.createElement('button');
+    botonInvitar.id = 'botonInvitar';
+    const icoInvitar = document.createElement('i');
+    icoInvitar.className = 'fa-solid fa-user-plus';
+    icoInvitar.id = 'icoVolver';
+    botonInvitar.append(icoInvitar);
 
     const divBotonesArriba = document.createElement('div');
     divBotonesArriba.id = 'divBotonesArriba';
 
 
+    if (board.rol_tablero === 'admin') {
+        divBotonesArriba.appendChild(botonInvitar);
+        botonInvitar.addEventListener('click', () => {
+            mostrarPopupInvitacion(board);
 
+        });
+        
+
+    }
+    
+    const lineaVertical = document.createElement('div');
+    lineaVertical.id = 'lineaVertical';
+
+    divBotonesArriba.appendChild(lineaVertical);
     divBotonesArriba.appendChild(botonCrear);
     divBotonesArriba.appendChild(botonVolver);
 
 
     // Obtener y mostrar los miembros
     const usuarios = await getUsuariosDelTablero(boardId);
-    const avatarGroup = renderAvatarGroup(usuarios, boardId);
+    const avatarGroup = renderAvatarGroup(usuarios, board);
 
     divConjuntoArriba.append(titleContainer, avatarGroup, divBotonesArriba);
     const hrWorkspaces = document.createElement('hr');
@@ -236,7 +259,7 @@ export async function BoardPage(boardId) {
     return container;
 }
 
-function renderAvatarGroup(usuarios, boardId) {
+function renderAvatarGroup(usuarios, board) {
     const container = document.createElement('div');
     container.className = 'avatar-group';
     console.log(usuarios);
@@ -250,11 +273,12 @@ function renderAvatarGroup(usuarios, boardId) {
         container.appendChild(avatar);
     });
 
-    container.addEventListener('click', () => {
-        abrirPopupGestionUsuarios(boardId);
+    if (board.rol_tablero === 'admin') {
+        container.addEventListener('click', () => {
+            abrirPopupGestionUsuarios(board.id);
 
-    });
-
+        });
+    }
 
     return container;
 }
@@ -368,11 +392,22 @@ export async function fetchAndRenderList(boardId) {
                 // Insertar en el contenedor principal
 
                 // Mostrar formulario
-                createBtn.addEventListener('click', () => {
+                // Mostrar formulario con click o Enter
+                createBtn.addEventListener('click', mostrarFormulario);
+                textarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault(); // Previene salto de línea
+                        addBtn.click();     // Simula clic en el botón "Crear"
+                    }
+                });
+
+
+                function mostrarFormulario() {
                     createBtn.classList.add('hidden');
                     floatingForm.classList.remove('hidden');
                     textarea.focus();
-                });
+                }
+
 
                 // Cancelar creación
                 cancelBtn.addEventListener('click', () => {
@@ -849,7 +884,7 @@ export function popupEditarTarea(tarea, estado) {
     cancelar.textContent = 'Cancelar';
     cancelar.className = 'taskEdit-cancelar';
 
-    acciones.append(guardar, cancelar);
+    acciones.append(cancelar, guardar);
     content.append(divTop, listaSituada, hr, divDescrip, inputDescrip, divColor, inputColor, acciones);
     popup.append(overlay, content);
     document.body.appendChild(popup);
@@ -1050,7 +1085,7 @@ export function popupEditarLista(estado) {
     cancelar.textContent = 'Cancelar';
     cancelar.className = 'taskEdit-cancelar';
 
-    acciones.append(guardar, cancelar);
+    acciones.append(cancelar, guardar);
     content.append(divTop, hr, divColor, contenedorColores, acciones);
     popup.append(overlay, content);
     document.body.appendChild(popup);

@@ -232,8 +232,9 @@
 }
 
 .menu-container {
-  width: 10%;
+  width: 15%;
   position: relative;
+  text-align: center;
   cursor: pointer;
 }
 
@@ -636,67 +637,98 @@
 }
 
 //VER DETALLES
-
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(30, 30, 30, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
 }
 
-
-.detalles-popup p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-}
-
-.detalles-popup strong {
-  font-weight: 600;
-}
-
-.btn-cerrar,
-.btn-editar {
-  margin-top: 1rem;
-  margin: 5px;
-  padding: 0.5rem 1rem;
-  background: $secondary-color;
-  color: $white-button-color;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-}
-
-.btn-editar {
-  background-color: $third-color;
-  color: $white-button-color;
-}
-
-.detalles-popup input,
-.detalles-popup textarea {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-}
-
-.detalles-popup input:focus,
-.detalles-popup textarea:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+.detalles-popup {
   background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  animation: fadeInPopup 0.3s ease-out;
+
+  p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #333;
+  }
+
+  strong {
+    font-weight: 600;
+    color: #111;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+
+    &:focus {
+      border-color: #3b82f6; // Azul bonito
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      background-color: #fff;
+    }
+  }
+
+  .btn-cerrar,
+  .btn-editar {
+    margin-top: 1rem;
+    margin-right: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background-color 0.2s, transform 0.15s;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  .btn-cerrar {
+    background: $secondary-color;
+    color: $white-button-color;
+  }
+
+  .btn-editar {
+    background: $third-color;
+    color: $white-button-color;
+  }
+}
+
+// Animación suave de aparición
+@keyframes fadeInPopup {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -736,7 +768,7 @@
   justify-content: space-between;
 
   #lineaVertical {
-    width: 4px;
+    width: 2px;
     border-radius: 80%;
     /* grosor de la línea */
     height: 50px;
@@ -753,7 +785,8 @@
   #botonCrear,
   #botonRecarga,
   #botonVolver,
-  #botonFiltro {
+  #botonFiltro,
+  #botonInvitar {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -811,9 +844,17 @@
 
   }
 
+  #botonVolver {
+    width: 50%;
+  }
+
+  #botonInvitar {
+    width: 15%;
+  }
+
   #botonRecarga,
   #botonFiltro {
-    width: 20% !important;
+    width: 25% !important;
   }
 
   button {

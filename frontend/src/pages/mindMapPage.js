@@ -7,6 +7,8 @@ import { getUsuariosDelTablero } from '../js/board.js';
 import { inicializarSocketListeners, refrescarMapaMental, socket } from '../js/socket.js';
 import { actualizarPadresLote, cambiarRolUsuarioMapa, crearNodo, deleteNodo, fetchActualizarNodo, fetchCrearPadre, fetchMindMaps, fetchNodos, getNodoPadre, getUsuariosDelMapa, modificarMindMap, selectMindMap } from '../js/mindMap.js';
 import { initMindMap } from '../components/mindMapView.js';
+import { mostrarPopupInvitacion } from '../components/boardCard.js';
+import { mostrarPopupInvitacionMindmap } from '../components/mindMapCard.js';
 
 export async function MindMapPage(mapId) {
     cleanupView();
@@ -27,7 +29,6 @@ export async function MindMapPage(mapId) {
     container.append(navbar, topbar);
 
     const mapa = await selectMindMap(mapId);
-
     const divConjuntoArriba = document.createElement('div');
     divConjuntoArriba.id = 'divConjuntoArriba';
 
@@ -87,8 +88,11 @@ export async function MindMapPage(mapId) {
         }
         title.textContent = nuevoTitulo;
     }
-
-    titleContainer.append(title, inputTitle, iconoLapiz);
+    if (mapa.rol_mapa === 'admin') {
+        titleContainer.append(title, inputTitle, iconoLapiz);
+    } else {
+        titleContainer.append(title, inputTitle);
+    }
 
     const botonCrear = document.createElement('button');
     botonCrear.id = 'crearNodo';
@@ -123,26 +127,38 @@ export async function MindMapPage(mapId) {
 
     botonRecarga.append(icoRecarga);
 
-    const botonFiltro = document.createElement('button');
-    botonFiltro.id = 'botonFiltro';
-    botonFiltro.title = 'Filtra Espacios de trabajo'
-    const icoFiltro = document.createElement('i');
-    icoFiltro.className = 'fa-solid fa-filter';
-    icoFiltro.id = 'icoFiltro';
-
-    botonFiltro.append(icoFiltro);
 
 
 
     const divBotonesArriba = document.createElement('div');
     divBotonesArriba.id = 'divBotonesArriba';
-    divBotonesArriba.appendChild(botonFiltro);
-    divBotonesArriba.appendChild(botonRecarga);
+
+    const botonInvitar = document.createElement('button');
+    botonInvitar.id = 'botonInvitar';
+    const icoInvitar = document.createElement('i');
+    icoInvitar.className = 'fa-solid fa-user-plus';
+    icoInvitar.id = 'icoVolver';
+    botonInvitar.append(icoInvitar);
+
+
+    if (mapa.rol_mapa === 'admin') {
+        divBotonesArriba.appendChild(botonInvitar);
+        botonInvitar.addEventListener('click', () => {
+            mostrarPopupInvitacionMindmap(mapa);
+
+        });
+
+
+    }
+    const lineaVertical = document.createElement('div');
+    lineaVertical.id = 'lineaVertical';
+
+    divBotonesArriba.appendChild(lineaVertical);
     divBotonesArriba.appendChild(botonCrear);
     divBotonesArriba.appendChild(botonVolver);
 
     const usuarios = await getUsuariosDelMapa(mapId);
-    const avatarGroup = renderAvatarGroup(usuarios, mapId);
+    const avatarGroup = renderAvatarGroup(usuarios, mapa);
 
     divConjuntoArriba.append(titleContainer, avatarGroup, divBotonesArriba);
 
@@ -682,7 +698,7 @@ export async function crearPadreNodo(mapaId, mindInstance) {
 }
 
 
-function renderAvatarGroup(usuarios, mapId) {
+function renderAvatarGroup(usuarios, mapa) {
     const container = document.createElement('div');
     container.className = 'avatar-group';
     console.log(usuarios);
@@ -695,11 +711,15 @@ function renderAvatarGroup(usuarios, mapId) {
         avatar.alt = usuario.email;
         container.appendChild(avatar);
     });
+    if (mapa.rol_mapa === 'admin') {
+        container.addEventListener('click', () => {
+            abrirPopupGestionUsuarios(mapa.id);
 
-    container.addEventListener('click', () => {
-        abrirPopupGestionUsuarios(mapId);
+        });
 
-    });
+    }
+
+
 
 
     return container;

@@ -1,6 +1,6 @@
 import { showToast } from "../../public/js/validator/regex.js";
 import { myWorkspacesPage } from "../pages/myworkspacesPage.js";
-import { getToken } from "./auth.js";
+import { getToken, logoutUser } from "./auth.js";
 import page from 'page';
 
 export async function fetchWorkspaces(orden = 'nombre_asc') {
@@ -37,7 +37,6 @@ export async function fetchWorkspaces(orden = 'nombre_asc') {
 export async function createWorkspaces(nombre, descripcion, modal) {
     try {
         const token = getToken(); // Asegúrate de que el token esté guardado al iniciar sesión
-        console.log(token);
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
             page("/login");
@@ -121,6 +120,41 @@ export async function deleteWorkspaces(espacioTrabajoId) {
     }
 }
 
+export async function salirseDelWorkspace(espacioTrabajoId) {
+    const token = getToken();
+
+    if (!token) {
+        showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+        logoutUser();
+        return;
+    }
+
+    try {
+
+
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/salirWorkspace.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ espacio_trabajo_id: espacioTrabajoId })
+        });
+
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+
+        showToast("Saliste del espacio de trabajo correctamente", "info");
+        return data;
+    } catch (error) {
+        console.error("Error al salir del espacio de trabajo:", error.message);
+        showToast(error.message || "No se pudo salir del espacio de trabajo", "error");
+        return null;
+    }
+}
+
+
 
 export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
     try {
@@ -132,17 +166,23 @@ export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
             return null;
         }
 
+        // Construir el cuerpo dinámicamente
+        const payload = {
+            id: espacioTrabajoId,
+            nombre
+        };
+
+        if (descripcion && descripcion.trim() !== "") {
+            payload.descripcion = descripcion.trim();
+        }
+
         const response = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/putWorkspaces.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                id: espacioTrabajoId,
-                nombre,
-                descripcion
-            })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -158,6 +198,7 @@ export async function updateWorkspace(nombre, descripcion, espacioTrabajoId) {
         console.error('Error en updateWorkspace:', error);
     }
 }
+
 
 
 export async function getUsuariosDisponiblesWorkspace(workspaceId, filtro = "") {

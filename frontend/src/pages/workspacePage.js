@@ -8,9 +8,7 @@ import { WorkspaceCard } from '../components/workspaceCard.js';
 //import { workspaceDrag } from '../components/dragAnimation.js';
 //import { setupHorizontalScroll } from '../components/dragAnimation.js';
 import { showToast } from '../../public/js/validator/regex.js';
-import { CreateWorkspaceModal } from '../components/popupCrearWorkspace.js';
 import { fetchWorkspaces } from '../js/workspaces.js';
-import { mostrarDetallesWorkspace } from '../components/popupUpdateWorkspace.js';
 import { fetchBoards } from '../js/board.js';
 import { createBoards } from '../js/board.js';
 import { BoardCard } from '../components/boardCard.js';
@@ -73,6 +71,7 @@ export async function workspacePage(workspaceId) {
     botonRecarga.append(icoRecarga);
     botonRecarga.addEventListener('click', () => {
         fetchAndRenderBoards(workspaceId);
+        renderMindMapView(workspaceId);
     });
 
     botonVolver.addEventListener('click', () => {
@@ -435,6 +434,7 @@ export async function renderMindMapView(workspaceId) {
                 const card = MindMapCard(mapa);
                 card.setAttribute('draggable', true);
                 card.classList.add('mindmap-draggable');
+                card.id = `mindmap-${mapa.id}`;
                 mapaContainer.appendChild(card);
             });
         }
@@ -592,3 +592,4 @@ export async function CreateMindmapPopup(workspaceId) {
 
     return popup;
 }
+

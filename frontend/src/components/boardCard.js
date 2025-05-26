@@ -1,5 +1,5 @@
 import { mostrarPopupConfirmacion } from "./workspaceCard.js";
-import { deleteBoards, salirseDelKanban } from "../js/board.js";
+import { deleteBoards, putBoard, salirseDelKanban } from "../js/board.js";
 import { getUsuariosDisponibles } from "../js/board.js";
 import { createInvitation } from "../js/notifications.js";
 import page from "page";
@@ -150,6 +150,18 @@ export function BoardCard(board) {
     card.remove();
 
   });
+
+  detalle.addEventListener('click', async (e) => {
+    popupEditarBoard(board);
+
+  });
+
+  board.__domRef = {
+    nameElement: title,
+    cardElement: card
+  };
+
+
 
   return card;
 }
@@ -341,4 +353,214 @@ export function mostrarPopupInvitacion(board) {
   container.append(title, inputRoleContainer, suggestionBox, buttons);
   popup.appendChild(container);
   document.body.appendChild(popup);
+}
+
+
+export function popupEditarBoard(board) {
+  // Eliminar cualquier popup anterior
+  const existingPopup = document.getElementById('popupEditarBoard');
+  if (existingPopup) existingPopup.remove();
+
+  const popup = document.createElement('div');
+  popup.id = 'popupEditarBoard';
+  popup.className = 'popup-editar-tarea';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'popup-overlay';
+
+  const content = document.createElement('div');
+  content.className = 'taskEdit-content';
+
+  // Contenedor del título
+  const tituloContainer = document.createElement('div');
+  tituloContainer.id = 'tituloContainer';
+
+  const titulo = document.createElement('h3');
+  titulo.textContent = board.nombre;
+  titulo.style.margin = 0;
+
+  const inputTitulo = document.createElement('input');
+  inputTitulo.type = 'text';
+  inputTitulo.style.display = 'none';
+  inputTitulo.value = board.nombre;
+  inputTitulo.className = 'input-editar-titulo';
+
+  const iconoLapiz = document.createElement('i');
+  iconoLapiz.className = 'fa-solid fa-pen';
+  iconoLapiz.style.cursor = 'pointer';
+
+  iconoLapiz.addEventListener('click', () => {
+    titulo.style.display = 'none';
+    iconoLapiz.style.display = 'none';
+    inputTitulo.style.display = 'inline-block';
+    inputTitulo.focus();
+  });
+
+  inputTitulo.addEventListener('blur', () => finalizarEdicion());
+  inputTitulo.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      finalizarEdicion();
+    }
+  });
+  async function finalizarEdicion() {
+    const nuevoTitulo = inputTitulo.value.trim();
+    if (nuevoTitulo && nuevoTitulo !== board.nombre) {
+      board.nombre = nuevoTitulo;
+      titulo.textContent = nuevoTitulo;
+      await putBoard(board.id, board.nombre);
+
+      if (board.__domRef && board.__domRef.nameElement) {
+        board.__domRef.nameElement.textContent = nuevoTitulo;
+
+      }
+
+    }
+
+    titulo.style.display = 'block';
+    iconoLapiz.style.display = 'inline-block';
+    inputTitulo.style.display = 'none';
+  }
+
+  const divTop = document.createElement('div');
+  divTop.id = 'divTop';
+
+  const borrarButton = document.createElement('div');
+  borrarButton.id = 'borrarButton';
+  borrarButton.title = 'Haz clic para eliminar el espacio de trabajo';
+
+  const spanBorrar = document.createElement('span');
+  spanBorrar.id = 'spanBorrar';
+  spanBorrar.className = 'fa-solid fa-trash';
+
+  borrarButton.appendChild(spanBorrar);
+
+  tituloContainer.append(titulo, inputTitulo, iconoLapiz);
+
+  if (board.rol_tablero === 'admin') {
+    divTop.append(tituloContainer, borrarButton);
+
+  } else {
+    divTop.append(tituloContainer);
+
+  }
+
+  divTop.append(tituloContainer, borrarButton);
+
+  const hr = document.createElement('hr');
+  hr.id = 'hrEditarTarea';
+
+
+  const rolWorkspace = document.createElement('span');
+  rolWorkspace.id = 'rolWorkspace';
+  // Limpia el contenido previo
+  rolWorkspace.textContent = 'En este espacio de trabajo eres ';
+
+  // Crea un span para la parte en negrita
+  const estadoSpan = document.createElement('span');
+  const rol = board.rol_tablero === 'admin' ? 'Administrador' : 'Miembro';
+  estadoSpan.textContent = rol;
+  estadoSpan.style.fontWeight = 'bolder';
+
+  // Añade el span al nodo principal
+  rolWorkspace.appendChild(estadoSpan);
+
+  // Descripción
+  const divDescrip = document.createElement('div');
+  divDescrip.id = 'divDescrip';
+
+  const icoDescrip = document.createElement('i');
+  icoDescrip.className = 'fa-regular fa-file-alt';
+  icoDescrip.id = 'icoDescrip';
+
+  const inputLabelDescrip = document.createElement('label');
+  inputLabelDescrip.id = 'inputLabel';
+  inputLabelDescrip.textContent = 'Descripción';
+
+  divDescrip.append(icoDescrip, inputLabelDescrip);
+
+  const inputDescrip = document.createElement('textarea');
+  inputDescrip.value = board.descripcion || '';
+  inputDescrip.placeholder = 'Descripción del espacio de trabajo';
+
+
+  // Actividad
+  const divActividad = document.createElement('div');
+  divActividad.id = 'divDescrip';
+
+  const icoActividad = document.createElement('i');
+  icoActividad.className = 'fa-regular fa-clock';
+  icoActividad.id = 'icoDescrip';
+
+  const inputLabelActividad = document.createElement('label');
+  inputLabelActividad.id = 'inputLabel';
+  inputLabelActividad.textContent = 'Actividad reciente: ';
+
+  // Crea un span para la parte en negrita
+  const actividadSpan = document.createElement('span');
+  actividadSpan.textContent = board.ultima_actividad;
+  actividadSpan.id = 'inputLabelActividad';
+
+  // Añade el span al label
+  inputLabelActividad.appendChild(actividadSpan);
+
+  // Añade los iconos y label al div
+  divActividad.append(icoActividad, inputLabelActividad);
+
+  // Fecha creación
+  const divCreacion = document.createElement('div');
+  divCreacion.id = 'divDescrip';
+
+  const icoCreacion = document.createElement('i');
+  icoCreacion.className = 'fa-regular fa-calendar';
+  icoCreacion.id = 'icoDescrip';
+
+  const inputLabelCreacion = document.createElement('label');
+  inputLabelCreacion.id = 'inputLabel';
+  inputLabelCreacion.textContent = 'Creación del tablero: ';
+
+  // Crea un span para la parte en negrita
+  const creacionSpan = document.createElement('span');
+  creacionSpan.textContent = board.fecha_creacion_relativa;
+  creacionSpan.id = 'inputLabelActividad';
+
+  // Añade el span al label
+  inputLabelCreacion.appendChild(creacionSpan);
+
+  // Añade los iconos y label al div
+  divCreacion.append(icoCreacion, inputLabelCreacion);
+
+  // Acciones
+  const acciones = document.createElement('div');
+  acciones.className = 'taskEdit-actions';
+
+  const guardar = document.createElement('button');
+  guardar.textContent = 'Guardar';
+  guardar.className = 'taskEdit-confirmar';
+
+  guardar.addEventListener('click', async () => {
+    board.descripcion = inputDescrip.value.trim();
+    await putBoard(board.id, board.nombre, board.descripcion);
+    //fetchAndRenderWorkspaces(); // si lo tienes definido
+    popup.remove();
+  });
+
+  const cancelar = document.createElement('button');
+  cancelar.textContent = 'Cancelar';
+  cancelar.className = 'taskEdit-cancelar';
+
+  cancelar.addEventListener('click', () => popup.remove());
+
+  borrarButton.addEventListener('click', async () => {
+    await deleteBoards(board.id);
+    //fetchAndRenderWorkspaces(); // si lo tienes definido
+    popup.remove();
+  });
+
+  acciones.append(cancelar, guardar);
+  content.append(divTop, rolWorkspace, hr, divDescrip, inputDescrip, divActividad, divCreacion, acciones);
+  popup.append(overlay, content);
+  document.body.appendChild(popup);
+
+  overlay.addEventListener('click', () => popup.remove());
 }

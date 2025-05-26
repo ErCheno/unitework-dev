@@ -22,22 +22,21 @@ connectSocket();
 // Función de guardia para rutas protegidas
 function authGuard(ctx, next) {
     if (!isAuthenticated()) {
-        page('/login');
-    } else {
-        next();
+        page.redirect('/login'); // usar redirect para claridad
+        return; // ← MUY IMPORTANTE
     }
+    next(); // solo se ejecuta si hay token
 }
 
 // Definir las rutas con `page.js`
 page('/', () => {
     if (isAuthenticated()) {
-        page('/dashboard');
+        page.redirect('/dashboard');
         document.body.className = 'dashboard-bg';
     } else {
-        page('/login');
+        page.redirect('/login');
     }
 });
-
 // Ruta para el dashboard (activar polling)
 page('/dashboard', authGuard, () => {
     DashboardPage();

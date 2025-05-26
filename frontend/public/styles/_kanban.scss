@@ -166,7 +166,8 @@
     min-height: 5px;
 }
 
-#crearLista, #crearNodo {
+#crearLista,
+#crearNodo {
     display: flex;
     height: 50px;
     align-items: center;
@@ -183,7 +184,7 @@
     }
 }
 
-#crearNodo{
+#crearNodo {
     background-color: $third-color !important;
 }
 
@@ -248,7 +249,8 @@
     z-index: -1;
 }
 
-#crearLista:hover, #crearNodo:hover {
+#crearLista:hover,
+#crearNodo:hover {
     background-color: lighten($primary-color, 10%);
 }
 
@@ -517,7 +519,7 @@
     }
 }
 
-#hrBoard {
+#hrBoard, #hrMindmap {
     width: 35%;
     margin: 0px;
 
@@ -530,7 +532,10 @@
 
 // POPUP EDITAR TAREA
 #popupEditarTarea,
-#popupEditarLista {
+#popupEditarLista,
+#popupEditarWorkspace,
+#popupEditarBoard,
+#popupEditarMindMap {
     position: fixed;
     top: 0;
     left: 0;
@@ -616,9 +621,24 @@
             margin: 0px;
         }
 
+        #inputLabelActividad {
+            color: $secondary-color;
+            font-weight: 500;
+            margin: 0px;
+        }
+
         #listaSituada {
             color: $secondary-color;
             font-size: 12px;
+        }
+
+        #rolWorkspace {
+            color: $secondary-color;
+            font-size: 12px;
+
+            margin: 0px;
+
+            margin-top: -10px;
         }
 
         #hrEditarTarea {
@@ -756,7 +776,11 @@
 
 }
 
-
+#popupEditarWorkspace, #popupEditarBoard, #popupEditarMindMap {
+    .taskEdit-content {
+        height: 400px;
+    }
+}
 
 
 /* Estilos adicionales para el grid de tareas */
@@ -852,7 +876,8 @@
 
 .popup-close {
     position: absolute;
-    top: 10px; right: 15px;
+    top: 10px;
+    right: 15px;
     font-size: 24px;
     cursor: pointer;
 }

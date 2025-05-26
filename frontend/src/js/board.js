@@ -296,10 +296,8 @@ export async function selectBoard(boardId) {
     }
 }
 
-
-export async function putBoard(boardId, summary) {
+export async function putBoard(boardId, summary = null, description = null) {
     try {
-
         const token = getToken();
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
@@ -307,33 +305,35 @@ export async function putBoard(boardId, summary) {
             return;
         }
 
+        const body = {
+            tablero_id: boardId
+        };
+
+        if (summary !== null) body.nombre = summary;
+        if (description !== null) body.descripcion = description;
+
         const res = await fetch(`http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/putBoard.php`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
+                'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                tablero_id: boardId,
-                nombre: summary
-            })
+            body: JSON.stringify(body)
         });
 
         const data = await res.json();
 
         if (!data.success) {
-            throw new Error(data.message || 'Error desconocido al obtener los tableros');
+            throw new Error(data.message || 'Error desconocido al modificar el tablero');
         }
 
-        //showToast('Tablero Modificado', 'success');
-
         return data;
-
     } catch (err) {
         console.error(err);
-        throw new Error('Error al cargar tableros: ' + err.message);
+        throw new Error('Error al actualizar tablero: ' + err.message);
     }
 }
+
 
 const KANBAN_COLORS = [
     '#ABE2A5', '#E2C5A5', '#C5A5E2', '#95a9df', '#8fc7e0', '#8dd5dd',

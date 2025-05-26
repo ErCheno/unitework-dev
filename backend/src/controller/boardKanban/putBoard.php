@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-    http_response_code(405); // Método no permitido
+    http_response_code(405);
     echo json_encode(['success' => false, 'message' => 'Método no permitido']);
     exit();
 }
@@ -27,16 +27,22 @@ $usuario = verificarToken($conn);
 $usuarioId = $usuario['id'];
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Validaciones mínimas
-if (empty($input['tablero_id']) || empty($input['nombre'])) {
-    echo json_encode(['success' => false, 'message' => 'Faltan campos obligatorios']);
+// Validar campos mínimos
+if (empty($input['tablero_id'])) {
+    echo json_encode(['success' => false, 'message' => 'ID del tablero no proporcionado']);
     exit();
 }
 
 $tableroId = $input['tablero_id'];
-$nuevoNombre = trim($input['nombre']);
+$nuevoNombre = isset($input['nombre']) ? trim($input['nombre']) : null;
+$nuevaDescripcion = isset($input['descripcion']) ? trim($input['descripcion']) : null;
 
-// Verificar si el usuario es administrador del tablero
+if ($nuevoNombre === null && $nuevaDescripcion === null) {
+    echo json_encode(['success' => false, 'message' => 'No se proporcionó ningún campo a actualizar']);
+    exit();
+}
+
+// Verificar si el usuario es admin del tablero
 $stmt = $conn->prepare("
     SELECT rol 
     FROM miembros_tableros 
@@ -58,9 +64,31 @@ if ($fila['rol'] !== 'admin') {
 }
 $stmt->close();
 
-// Actualizar el nombre del tablero
-$stmt = $conn->prepare("UPDATE tableros SET nombre = ? WHERE id = ?");
-$stmt->bind_param("si", $nuevoNombre, $tableroId);
+// Construir la consulta UPDATE dinámicamente
+$campos = [];
+$valores = [];
+$tipos = '';
+
+if ($nuevoNombre !== null) {
+    $campos[] = 'nombre = ?';
+    $valores[] = $nuevoNombre;
+    $tipos .= 's';
+}
+if ($nuevaDescripcion !== null) {
+    $campos[] = 'descripcion = ?';
+    $valores[] = $nuevaDescripcion;
+    $tipos .= 's';
+}
+
+// Agregar actualización de la fecha de última actividad
+$campos[] = 'ultima_actividad = NOW()';
+
+$valores[] = $tableroId;
+$tipos .= 'i';
+
+$sql = "UPDATE tableros SET " . implode(", ", $campos) . " WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param($tipos, ...$valores);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Tablero actualizado correctamente']);

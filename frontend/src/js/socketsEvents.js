@@ -15,7 +15,7 @@ export function socketGetWorkspaces() {
             await fetchWorkspaces();
         });
     } else {
-        console.error('El socket aún no está conectado');
+        console.warn('El socket aún no está conectado');
     }
 }
 
@@ -34,7 +34,7 @@ export function socketGetInvitations() {
             }
         });
     } else {
-        console.error('El socket aún no está conectado');
+        console.warn('El socket aún no está conectado');
     }
 }
 // Función socket actualizada

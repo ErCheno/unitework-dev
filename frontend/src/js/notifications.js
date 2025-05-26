@@ -1,8 +1,9 @@
 // Función para obtener las notificaciones
 import page from "page";
 import { showToast } from "../../public/js/validator/regex.js";
-import { getToken } from "./auth.js";
+import { eliminarToken, getToken } from "./auth.js";
 import { socket } from "./socket.js";
+import { logoutUser } from "../pages/loginPage.js";
 export async function createInvitation(gmail, workspaceId, tipo, idRelacionado, rol) {
   try {
     const token = getToken();
@@ -93,19 +94,17 @@ export async function createInvitation(gmail, workspaceId, tipo, idRelacionado, 
   }
 }
 
-
-
-
 export async function getInvitations() {
+  const token = getToken();
+
+  if (!token) {
+    showToast("Token no disponible. Inicia sesión nuevamente.", "error");
+    logoutUser();
+
+    return null;
+  }
+
   try {
-    const token = getToken();
-
-    if (!token) {
-      showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-      page("/login");
-      return null;
-    }
-
     const res = await fetch('http://localhost/UniteWork/unitework-dev/backend/src/controller/workspace/invitation/getInvitations.php', {
       method: 'GET',
       headers: {
@@ -114,19 +113,27 @@ export async function getInvitations() {
       },
     });
 
+    if (!res.ok) {
+      // Error HTTP (por ejemplo, 401, 500)
+      throw new Error(`Error del servidor: ${res.status}`);
+    }
+
     const data = await res.json();
 
     if (!data.success) {
+      // Error lógico del backend
       showToast(data.message || 'Error al obtener las invitaciones', 'error');
-      throw new Error(data.message || 'Error al obtener las invitaciones');
+      return null;
     }
 
-    return data.invitaciones; // Devuelve el array de invitaciones
+    return data.invitaciones;
 
   } catch (err) {
-    console.error(err);
+    console.error("Error al obtener las invitaciones:", err);
     showToast('Error al obtener las invitaciones: ' + err.message, 'error');
-    throw new Error('Error al obtener las invitaciones: ' + err.message);
+
+
+    return null;
   }
 }
 
@@ -160,7 +167,7 @@ export async function acceptInvitation(invitacionId) {
 
     showToast(data.message, "success");
     page(page.current); // recarga la ruta actual
-   
+
   } catch (error) {
     console.error("Error de red o servidor:", error);
     showToast("Error de red o del servidor", "error");

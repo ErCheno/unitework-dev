@@ -434,6 +434,7 @@ export async function cargarInvitaciones(notifList, notifBadge) {
 
     for (const inv of invitations) {
       crearNotificacionDeInvitacion(inv, notifList, notifBadge);
+      console.log(inv);
     }
 
     // Actualizar contador
@@ -449,8 +450,7 @@ export async function cargarInvitaciones(notifList, notifBadge) {
 export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
   const {
     id,
-    nombre_tablero,
-    nombre_mapa,
+    nombre_objeto,
     nombre_espacio_trabajo,
     nombre_remitente,
     avatar_url_remitente,
@@ -469,10 +469,10 @@ export function crearNotificacionDeInvitacion(inv, notifList, notifBadge) {
 
   if (tablero_id) {
     textoInvitacion = 'Te han invitado a un tablero';
-    nombreObjeto = `${nombre_tablero} en ${nombre_espacio_trabajo}`;
+    nombreObjeto = `${nombre_objeto} en ${nombre_espacio_trabajo}`;
   } else if (mapa_id) {
     textoInvitacion = 'Te han invitado a un mapa mental';
-    nombreObjeto = `${nombre_mapa} en ${nombre_espacio_trabajo}`;
+    nombreObjeto = `${nombre_objeto} en ${nombre_espacio_trabajo}`;
   } else {
     textoInvitacion = 'Te han invitado a un espacio de trabajo';
     nombreObjeto = nombre_espacio_trabajo;

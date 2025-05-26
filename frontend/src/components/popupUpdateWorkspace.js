@@ -2,7 +2,7 @@ import { showToast } from "../../public/js/validator/regex.js";
 import { updateWorkspace } from "../js/workspaces.js";
 
 
-
+/*
 export function mostrarDetallesWorkspace(ws) {
     const overlay = document.createElement('div');
     overlay.className = 'popup-overlay';
@@ -70,79 +70,6 @@ export function mostrarDetallesWorkspace(ws) {
 
     overlay.appendChild(popup);
     document.getElementById('content').appendChild(overlay);
-}
-export function mostrarFormularioEdicion(ws) {
-    console.log(ws);
+}*/
 
-    const overlay = document.createElement('div');
-    overlay.className = 'popup-overlay';
 
-    const popup = document.createElement('div');
-    popup.className = 'popup detalles-popup';
-
-    const titulo = document.createElement('h2');
-    titulo.textContent = 'Editar espacio de trabajo';
-
-    const form = document.createElement('form');
-
-    // Función para crear campos editables con etiqueta
-    const crearCampoEditable = (labelText, inputElement) => {
-        const contenedor = document.createElement('div');
-        const label = document.createElement('label');
-        label.textContent = labelText;
-        contenedor.appendChild(label);
-        contenedor.appendChild(inputElement);
-        return contenedor;
-    };
-
-    // Input nombre
-    const inputNombre = document.createElement('input');
-    inputNombre.type = 'text';
-    inputNombre.value = ws.nombre;
-    inputNombre.required = true;
-
-    // Textarea descripción
-    const inputDescripcion = document.createElement('textarea');
-    inputDescripcion.value = ws.descripcion || '';
-
-    // Botones
-    const btnGuardar = document.createElement('button');
-    btnGuardar.type = 'submit';
-    btnGuardar.className = 'btn-confirmar';
-    btnGuardar.textContent = 'Guardar cambios';
-
-    const btnCancelar = document.createElement('button');
-    btnCancelar.type = 'button';
-    btnCancelar.className = 'btn-cancelar';
-    btnCancelar.textContent = 'Cancelar';
-
-    btnCancelar.addEventListener('click', () => {
-        overlay.remove();
-    });
-
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-    
-        const nombreActualizado = inputNombre.value.trim();
-        const descripcionActualizada = inputDescripcion.value.trim();
-    
-        if (!nombreActualizado) {
-            showToast('El nombre no puede estar vacío', 'error');
-            return;
-        }
-    
-        // Aquí ya no se pasa el usuario_id, ya que se obtiene del token en el backend
-        updateWorkspace(nombreActualizado, descripcionActualizada, ws.id);
-    });
-    
-
-    form.appendChild(crearCampoEditable('Nombre', inputNombre));
-    form.appendChild(crearCampoEditable('Descripción', inputDescripcion));
-    form.appendChild(btnCancelar);
-    form.appendChild(btnGuardar);
-
-    popup.appendChild(titulo);
-    popup.appendChild(form);
-    overlay.appendChild(popup);
-    document.getElementById('content').appendChild(overlay);
-}
