@@ -36,9 +36,10 @@ try {
     $fechaCreacion = date("Y-m-d H:i:s");
 
     // Insertar el nuevo espacio de trabajo en la base de datos
-    $stmt = $conn->prepare("INSERT INTO espacios_trabajo (nombre, descripcion, creado_por, numero_tableros, numero_mapas_mentales, numero_miembros, fecha_creacion, ultima_actividad) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("sssiiss", $nombre, $descripcion, $usuarioId, $numeroTableros, $numeroMapasMentales, $numeroMiembros, $fechaCreacion);
+    $stmt = $conn->prepare("INSERT INTO espacios_trabajo (nombre, descripcion, creado_por, fecha_creacion, ultima_actividad) 
+    VALUES (?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssss", $nombre, $descripcion, $usuarioId, $fechaCreacion);
+
     $stmt->execute();
 
     $workspaceId = $stmt->insert_id;
@@ -48,12 +49,6 @@ try {
     $stmt2 = $conn->prepare("INSERT INTO miembros_espacios_trabajo (espacio_trabajo_id, usuario_id, rol) VALUES (?, ?, ?)");
     $stmt2->bind_param("iss", $workspaceId, $usuarioId, $rol);
     $stmt2->execute();
-
-    // Actualizar la cantidad de miembros en el espacio
-    $stmt3 = $conn->prepare("UPDATE espacios_trabajo SET numero_miembros = numero_miembros + 1 WHERE id = ?");
-    $stmt3->bind_param("i", $workspaceId);
-    $stmt3->execute();
-
     echo json_encode([
         "status" => true,
         "message" => "Espacio de trabajo creado y usuario asignado como admin",
@@ -63,9 +58,7 @@ try {
     // Cerrar conexiones
     $stmt->close();
     $stmt2->close();
-    $stmt3->close();
     $conn->close();
-
 } catch (mysqli_sql_exception $e) {
     http_response_code(500);
     echo json_encode([
@@ -80,7 +73,8 @@ try {
     ]);
 }
 
-function verificarToken($conn) {
+function verificarToken($conn)
+{
     // Obtener el encabezado Authorization
     $headers = getallheaders();
     if (!isset($headers['Authorization'])) {

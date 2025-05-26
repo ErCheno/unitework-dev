@@ -612,15 +612,7 @@ export function crearNotificacion(
     li.appendChild(acciones);
   }
 
-  // Popup de detalle al hacer clic
-  li.addEventListener('click', () => {
-    const mensaje = (negrita ? negrita + ' ' : '') + texto + (cursiva ? ' ' + cursiva : '');
-    mostrarPopupDetallesInvitacion({
-      titulo: 'Detalles de la invitación',
-      mensaje,
-      tipo,
-    });
-  });
+ 
 
   return li;
 }

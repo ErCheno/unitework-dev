@@ -27,42 +27,39 @@ $ordenSql = "";
 // Construir la parte de ordenamiento
 switch ($orden) {
     case 'nombre_asc':
+        $selectExtra = "";
         $ordenSql = "ORDER BY et.nombre ASC";
         break;
     case 'nombre_desc':
+        $selectExtra = "";
         $ordenSql = "ORDER BY et.nombre DESC";
         break;
     case 'kanban':
-        $ordenSql = "ORDER BY et.numero_tableros DESC";
+        $selectExtra = ", (SELECT COUNT(*) FROM tableros t WHERE t.espacio_trabajo_id = et.id) AS num_tableros";
+        $ordenSql = "ORDER BY num_tableros DESC";
+        break;
+    case 'mapas':
+        $selectExtra = ", (SELECT COUNT(*) FROM mapas_mentales m WHERE m.espacio_trabajo_id = et.id) AS num_mapas_mentales";
+        $ordenSql = "ORDER BY num_mapas_mentales DESC";
         break;
     case 'usuarios':
-        $ordenSql = "ORDER BY et.numero_mapas_mentales DESC";
+        $selectExtra = ", (SELECT COUNT(*) FROM miembros_espacios_trabajo me WHERE me.espacio_trabajo_id = et.id) AS num_usuarios";
+        $ordenSql = "ORDER BY num_usuarios DESC";
         break;
     default:
+        $selectExtra = "";
         $ordenSql = "ORDER BY et.nombre ASC";
 }
 
-// Consulta SQL base
-if ($orden === 'usuarios') {
-    $sql = "
-        SELECT et.*, met.rol, (
-            SELECT COUNT(*) FROM miembros_espacios_trabajo m
-            WHERE m.espacio_trabajo_id = et.id
-        ) as num_usuarios
-        FROM espacios_trabajo et
-        INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
-        WHERE met.usuario_id = ?
-        ORDER BY num_usuarios DESC
-    ";
-} else {
-    $sql = "
-        SELECT DISTINCT et.*, met.rol
-        FROM espacios_trabajo et
-        INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
-        WHERE met.usuario_id = ?
-        $ordenSql
-    ";
-}
+// Consulta SQL base unificada
+$sql = "
+    SELECT DISTINCT et.*, met.rol $selectExtra
+    FROM espacios_trabajo et
+    INNER JOIN miembros_espacios_trabajo met ON et.id = met.espacio_trabajo_id
+    WHERE met.usuario_id = ?
+    $ordenSql
+";
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $userId);
@@ -82,28 +79,37 @@ while ($row = $result->fetch_assoc()) {
     $numTableros = $countData['total'];
     $stmt2->close();
 
-    // Actualizar en la BD
-    $stmt3 = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = ? WHERE id = ?");
-    $stmt3->bind_param("ii", $numTableros, $workspaceId);
-    $stmt3->execute();
-    $stmt3->close();
+    // Contar miembros reales
+    $stmt4 = $conn->prepare("SELECT COUNT(*) as total FROM miembros_espacios_trabajo WHERE espacio_trabajo_id = ?");
+    $stmt4->bind_param("i", $workspaceId);
+    $stmt4->execute();
+    $res4 = $stmt4->get_result();
+    $countUsuarios = $res4->fetch_assoc();
+    $numUsuarios = $countUsuarios['total'];
+    $stmt4->close();
 
-    // Agregar el número de tableros
+    // Contar mapas mentales
+    $stmt5 = $conn->prepare("SELECT COUNT(*) as total FROM mapas_mentales WHERE espacio_trabajo_id = ?");
+    $stmt5->bind_param("i", $workspaceId);
+    $stmt5->execute();
+    $res5 = $stmt5->get_result();
+    $countMapas = $res5->fetch_assoc();
+    $numMapas = $countMapas['total'];
+    $stmt5->close();
+
+    // Agregar datos al workspace
     $row['num_tableros'] = $numTableros;
+    $row['num_usuarios'] = $numUsuarios;
+    $row['num_mapas_mentales'] = $numMapas;
 
-    // Aquí NO actualizamos la última actividad para que no cambie en cada carga
-    // $stmt5 = $conn->prepare("UPDATE espacios_trabajo SET ultima_actividad = NOW() WHERE id = ?");
-    // $stmt5->bind_param("i", $workspaceId);
-    // $stmt5->execute();
-    // $stmt5->close();
-
-    // Formatear última actividad para mostrarla
+    // Formatear última actividad
     $ultimaActividad = $row['ultima_actividad'];
     $ultimaActividadRelativa = tiempoPasado($ultimaActividad);
     $row['ultima_actividad_relativa'] = $ultimaActividadRelativa;
 
     $workspaces[] = $row;
 }
+
 
 // Función para formatear fechas
 function tiempoPasado($tiempo)

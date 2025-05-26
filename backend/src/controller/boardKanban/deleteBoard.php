@@ -71,11 +71,6 @@ $ultimaActividad = $actividadData ? $actividadData['ultima_actividad'] : null;
 $ultimaActividadRelativa = $ultimaActividad ? tiempoPasado($ultimaActividad) : "Sin actividad reciente";
 
 if ($success) {
-    $stmt_update = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = GREATEST(numero_tableros - 1, 0), ultima_actividad = NOW() WHERE id = ?");
-    $stmt_update->bind_param("i", $espacioTrabajoId);
-    $stmt_update->execute();
-    $stmt_update->close();
-
     echo json_encode(["success" => true, "message" => "Tablero eliminado correctamente"]);
 } else {
     echo json_encode(["success" => false, "message" => "Error al eliminar el tablero"]);

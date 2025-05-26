@@ -51,11 +51,6 @@ if ($stmt->execute()) {
     $stmt_miembro->bind_param("sis", $usuarioId, $tablero_id, $rol);
 
     if ($stmt_miembro->execute()) {
-        $stmt_update = $conn->prepare("UPDATE espacios_trabajo SET numero_tableros = numero_tableros + 1, ultima_actividad = NOW() WHERE id = ?");
-        $stmt_update->bind_param("i", $espacio_trabajo_id);
-        $stmt_update->execute();
-        $stmt_update->close();
-
         // Llamada a la función para crear las listas predeterminadas
         crearListasPredeterminadas($conn, $usuarioId, $tablero_id);
 

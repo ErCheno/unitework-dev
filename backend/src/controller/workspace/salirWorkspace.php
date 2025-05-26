@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $usuario = verificarToken($conn);
 if (!$usuario) {
+    http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
     exit();
 }
@@ -30,11 +31,11 @@ if (empty($input['espacio_trabajo_id'])) {
     exit();
 }
 
-$espacioId = (int) $input['espacio_trabajo_id'];
+$espacioId = $input['espacio_trabajo_id'];
 $usuarioId = $usuario['id'];
 
 // Verificar si el usuario es miembro del espacio de trabajo
-$stmt = $conn->prepare("SELECT * FROM miembros_espacios_trabajo WHERE espacio_trabajo_id = ? AND usuario_id = ?");
+$stmt = $conn->prepare("SELECT 1 FROM miembros_espacios_trabajo WHERE espacio_trabajo_id = ? AND usuario_id = ?");
 $stmt->bind_param("is", $espacioId, $usuarioId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -66,6 +67,13 @@ $stmt = $conn->prepare("
 $stmt->bind_param("si", $usuarioId, $espacioId);
 $stmt->execute();
 $stmt->close();
+
+// Eliminar invitaciones dirigidas a este usuario dentro del espacio de trabajo (por email)
+$stmt = $conn->prepare("DELETE FROM invitaciones WHERE email = ? AND espacio_trabajo_id = ?");
+$stmt->bind_param("si", $usuario['email'], $espacioId);
+$stmt->execute();
+$stmt->close();
+
 
 // Finalmente, eliminar usuario del espacio de trabajo
 $stmt = $conn->prepare("DELETE FROM miembros_espacios_trabajo WHERE espacio_trabajo_id = ? AND usuario_id = ?");

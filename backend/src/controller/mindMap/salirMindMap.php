@@ -36,7 +36,7 @@ $mapa_id = $conn->real_escape_string($input['mapa_id']);
 $usuario_id = $usuario['id'];
 
 // Verificar si el usuario pertenece al mapa mental
-$stmt = $conn->prepare("SELECT * FROM miembros_mapas_mentales WHERE mapa_id = ? AND usuario_id = ?");
+$stmt = $conn->prepare("SELECT * FROM miembros_mapas_mentales WHERE mapa_mental_id = ? AND usuario_id = ?");
 $stmt->bind_param("is", $mapa_id, $usuario_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -47,16 +47,30 @@ if ($result->num_rows === 0) {
 }
 $stmt->close();
 
-// Eliminar al usuario del mapa mental
-$stmt = $conn->prepare("DELETE FROM miembros_mapas_mentales WHERE mapa_id = ? AND usuario_id = ?");
-$stmt->bind_param("is", $mapa_id, $usuario_id);
+// Iniciar transacción
+$conn->begin_transaction();
 
-if ($stmt->execute()) {
-    echo json_encode(['success' => true, 'message' => 'Saliste del mapa mental exitosamente']);
-} else {
+try {
+    // Eliminar al usuario del mapa mental
+    $stmt = $conn->prepare("DELETE FROM miembros_mapas_mentales WHERE mapa_mental_id = ? AND usuario_id = ?");
+    $stmt->bind_param("is", $mapa_id, $usuario_id);
+    $stmt->execute();
+    $stmt->close();
+
+    // Eliminar invitación si existe
+$stmt = $conn->prepare("DELETE FROM invitaciones WHERE email = ? AND mapa_id = ?");
+$stmt->bind_param("si", $usuario['email'], $mapa_id);
+$stmt->execute();
+$stmt->close();
+    // Confirmar transacción
+    $conn->commit();
+
+    echo json_encode(['success' => true, 'message' => 'Saliste del mapa mental exitosamente y se eliminó la invitación asociada']);
+
+} catch (Exception $e) {
+    $conn->rollback();
     echo json_encode(['success' => false, 'message' => 'Error al salir del mapa mental']);
 }
 
-$stmt->close();
 $conn->close();
 ?>

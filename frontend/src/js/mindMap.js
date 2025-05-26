@@ -501,7 +501,7 @@ export async function getUsuariosDelMapa(mapaId) {
 }
 
 
-export async function getUsuariosDisponiblesInvitacionMapa(tableroId, filtro = "") {
+export async function getUsuariosDisponiblesInvitacionMapa(mapaId, filtro = "") {
     try {
         const token = getToken();
 
@@ -511,14 +511,14 @@ export async function getUsuariosDisponiblesInvitacionMapa(tableroId, filtro = "
             return;
         }
 
-        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsers.php", {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/selectUsersDisponiblesMap.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
 
             },
-            body: JSON.stringify({ tablero_id: tableroId, filtro })
+            body: JSON.stringify({ mapa_id: mapaId, filtro })
         });
 
         if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
@@ -542,7 +542,7 @@ export async function salirseDelMindMap(mapaId) {
             return;
         }
 
-        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/salirKanban.php", {
+        const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/mindMap/salirMindmap.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -7,7 +7,7 @@ export async function fetchWorkspaces(orden = 'nombre_asc') {
     const token = getToken();
     if (!token) {
         showToast("Token no disponible. Inicia sesión nuevamente.", "error");
-        page("/login");
+        logoutUser();
         return null;
     }
     try {

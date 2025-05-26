@@ -95,7 +95,7 @@ export function WorkspaceCard(ws) {
     const icoMentalMap = document.createElement('i');
     icoMentalMap.id = 'icoMentalMap';
     const pMentalMap = document.createElement('p');
-    pMentalMap.textContent = ws.numero_mapas_mentales + " mapas mentales activos";
+    pMentalMap.textContent = ws.num_mapas_mentales + " mapas mentales activos";
     divMentalMapInfo.id = 'divMentalMapInfo';
     icoMentalMap.className = 'fa-regular fa-sticky-note';
 
@@ -118,7 +118,7 @@ export function WorkspaceCard(ws) {
     icoInfo.className = 'fa-solid fa-user-group';
     const info = document.createElement('p');
     info.id = 'pInfo';
-    info.textContent = `${ws.numero_miembros}`;
+    info.textContent = `${ws.num_usuarios}`;
 
     divInfo.appendChild(icoInfo);
     divInfo.appendChild(info);
@@ -169,6 +169,8 @@ export function WorkspaceCard(ws) {
 
     salir.addEventListener('click', () => {
         salirseDelWorkspace(ws.id);
+        card.remove();
+
     });
 
 

@@ -86,12 +86,6 @@ if ($stmt->execute()) {
     }
     $stmt->close();
 
-    // Incrementar contador de mapas mentales en el espacio de trabajo
-    $stmt = $conn->prepare("UPDATE espacios_trabajo SET numero_mapas_mentales = numero_mapas_mentales + 1 WHERE id = ?");
-    $stmt->bind_param("i", $espacioTrabajoId);
-    $stmt->execute();
-    $stmt->close();
-
 
     // Obtener la última actividad del espacio de trabajo para mostrarla formateada
     $stmt_actividad = $conn->prepare("SELECT ultima_actividad FROM espacios_trabajo WHERE id = ?");
