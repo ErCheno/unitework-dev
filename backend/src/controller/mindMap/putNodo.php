@@ -70,6 +70,15 @@ $stmt->close();
 // Actualizar contenido del nodo
 $stmt = $conn->prepare("UPDATE nodos_mapa SET contenido = ? WHERE id = ?");
 $stmt->bind_param("si", $nuevoContenido, $nodoId);
+
+// Actualizar fecha_modificacion del mapa
+$stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+if ($stmtFecha) {
+    $stmtFecha->bind_param("i", $mapaId);
+    $stmtFecha->execute();
+    $stmtFecha->close();
+}
+
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Nodo actualizado correctamente"]);
 } else {

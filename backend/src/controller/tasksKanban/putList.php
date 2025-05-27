@@ -77,6 +77,16 @@ $tipos = str_repeat("s", count($valores) - 1) . "i"; // los últimos siempre es 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($tipos, ...$valores);
 
+$sqlUpdateActividad = "UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?";
+$stmtUpdate = $conn->prepare($sqlUpdateActividad);
+if ($stmtUpdate) {
+    $stmtUpdate->bind_param("i", $tableroId);
+    $stmtUpdate->execute();
+    $stmtUpdate->close();
+    // No hace falta manejar errores aquí a menos que quieras mostrar un warning
+}
+
+
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Lista actualizada correctamente"]);
 } else {

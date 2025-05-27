@@ -86,6 +86,17 @@ if ($stmt->execute()) {
     $stmtEstado->execute();
     $resultado = $stmtEstado->get_result();
     $estado = $resultado->fetch_assoc();
+    $stmtEstado->close();
+
+    // Paso 4: Actualizar ultima_actividad del tablero
+    $sqlUpdateActividad = "UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?";
+    $stmtUpdate = $conn->prepare($sqlUpdateActividad);
+    if ($stmtUpdate) {
+        $stmtUpdate->bind_param("i", $tableroId);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+        // No hace falta manejar errores aquí a menos que quieras mostrar un warning
+    }
 
     echo json_encode([
         "success" => true,
@@ -93,7 +104,7 @@ if ($stmt->execute()) {
         "estado" => $estado
     ]);
 
-    $stmtEstado->close();
+
 } else {
     http_response_code(500);
     echo json_encode(["success" => false, "message" => "Error al crear la lista", "error" => $stmt->error]);
@@ -101,4 +112,3 @@ if ($stmt->execute()) {
 }
 
 $conn->close();
-?>

@@ -90,6 +90,14 @@ $tipos .= 'i';
 $stmt = $conn->prepare($sql);
 $stmt->bind_param($tipos, ...$parametros);
 
+// Actualizar fecha_modificacion del mapa
+$stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+if ($stmtFecha) {
+    $stmtFecha->bind_param("i", $mapaId);
+    $stmtFecha->execute();
+    $stmtFecha->close();
+}
+
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Mapa mental actualizado correctamente"]);
 } else {

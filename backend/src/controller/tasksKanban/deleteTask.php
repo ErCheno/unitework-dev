@@ -54,6 +54,15 @@ $stmt->close();
 $deleteStmt = $conn->prepare("DELETE FROM tareas WHERE id = ?");
 $deleteStmt->bind_param("i", $tareaId);
 
+$sqlUpdateActividad = "UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?";
+$stmtUpdate = $conn->prepare($sqlUpdateActividad);
+if ($stmtUpdate) {
+    $stmtUpdate->bind_param("i", $tableroId);
+    $stmtUpdate->execute();
+    $stmtUpdate->close();
+    // No hace falta manejar errores aquí a menos que quieras mostrar un warning
+}
+
 if ($deleteStmt->execute()) {
     echo json_encode(["success" => true, "message" => "Tarea eliminada correctamente"]);
 } else {
@@ -62,4 +71,3 @@ if ($deleteStmt->execute()) {
 
 $deleteStmt->close();
 $conn->close();
-?>

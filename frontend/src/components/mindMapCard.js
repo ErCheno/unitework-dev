@@ -300,7 +300,7 @@ export function mostrarPopupInvitacionMindmap(map) {
   document.body.appendChild(popup);
 }
 
-function lightenColor(hex, percent) {
+export function lightenColor(hex, percent) {
   // Elimina el "#" si está presente
   hex = hex.replace(/^#/, '');
 

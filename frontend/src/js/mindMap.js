@@ -588,11 +588,15 @@ export async function cambiarRolUsuarioMapa(mapaId, usuarioId, nuevoRol) {
         });
 
 
-        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
-        const data = await response.json();
-        if (!data.success) throw new Error(data.message || "Error desconocido");
 
-        return data.usuarios_disponibles;
+        if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
+
+        const data = await response.json();
+
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+        showToast('Permisos de usuario cambiados', 'info');
+
+        return data;
     } catch (error) {
         console.error("Error al obtener usuarios disponibles:", error.message);
         return [];

@@ -101,6 +101,16 @@ try {
 
     // Confirmar la transacción
     $conn->commit();
+
+    $sqlUpdateActividad = "UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?";
+    $stmtUpdateKanban = $conn->prepare($sqlUpdateActividad);
+    if ($stmtUpdateKanban) {
+        $stmtUpdateKanban->bind_param("i", $tableroId);
+        $stmtUpdateKanban->execute();
+        $stmtUpdateKanban->close();
+        // No hace falta manejar errores aquí a menos que quieras mostrar un warning
+    }
+
     echo json_encode(["success" => true, "message" => "Orden de listas actualizado correctamente"]);
 } catch (Exception $e) {
     // Revertir la transacción en caso de error

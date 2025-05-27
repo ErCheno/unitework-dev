@@ -63,14 +63,22 @@ if ($padreId !== null) {
 }
 
 // Insertar nodo
-$stmt = $conn->prepare("
+$stmtInsert = $conn->prepare("
     INSERT INTO nodos_mapa (mapa_id, contenido, padre_id, orden)
     VALUES (?, ?, ?, ?)
 ");
-$stmt->bind_param("isii", $mapaId, $contenido, $padreId, $orden);
+$stmtInsert->bind_param("isii", $mapaId, $contenido, $padreId, $orden);
 
-if ($stmt->execute()) {
-    $nuevoId = $stmt->insert_id;
+if ($stmtInsert->execute()) {
+    $nuevoId = $stmtInsert->insert_id;
+
+    // Actualizar fecha_modificacion del mapa
+    $stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+    if ($stmtFecha) {
+        $stmtFecha->bind_param("i", $mapaId);
+        $stmtFecha->execute();
+        $stmtFecha->close();
+    }
 
     echo json_encode([
         "success" => true,
@@ -87,6 +95,6 @@ if ($stmt->execute()) {
     echo json_encode(["success" => false, "message" => "Error al crear el nodo"]);
 }
 
-$stmt->close();
+$stmtInsert->close();
 $conn->close();
 ?>

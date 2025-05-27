@@ -58,19 +58,25 @@ try {
     $stmt->close();
 
     // Eliminar invitación si existe
-$stmt = $conn->prepare("DELETE FROM invitaciones WHERE email = ? AND mapa_id = ?");
-$stmt->bind_param("si", $usuario['email'], $mapa_id);
-$stmt->execute();
-$stmt->close();
+    $stmt = $conn->prepare("DELETE FROM invitaciones WHERE email = ? AND mapa_id = ?");
+    $stmt->bind_param("si", $usuario['email'], $mapa_id);
+    $stmt->execute();
+    $stmt->close();
     // Confirmar transacción
     $conn->commit();
 
-    echo json_encode(['success' => true, 'message' => 'Saliste del mapa mental exitosamente y se eliminó la invitación asociada']);
+        // Actualizar fecha_modificacion del mapa
+    $stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+    if ($stmtFecha) {
+        $stmtFecha->bind_param("i", $mapa_id);
+        $stmtFecha->execute();
+        $stmtFecha->close();
+    }
 
+    echo json_encode(['success' => true, 'message' => 'Saliste del mapa mental exitosamente y se eliminó la invitación asociada']);
 } catch (Exception $e) {
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => 'Error al salir del mapa mental']);
 }
 
 $conn->close();
-?>

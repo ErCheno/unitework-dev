@@ -78,6 +78,18 @@ foreach ($input['nodos'] as $nodo) {
     $stmt->close();
 }
 
+if (!isset($mapaId)) {
+    echo json_encode(["success" => false, "message" => "No se pudo determinar el mapa para actualizar"]);
+    exit();
+}
+
+// Actualizar fecha_modificacion del mapa
+$stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+if ($stmtFecha) {
+    $stmtFecha->bind_param("i", $mapaId);
+    $stmtFecha->execute();
+    $stmtFecha->close();
+}
 $conn->close();
 
 if (count($errores) > 0) {

@@ -58,16 +58,24 @@ if ($resPermiso->num_rows === 0) {
     echo json_encode(["success" => false, "message" => "No tienes permisos para editar esta tarea"]);
     exit();
 }
-
-// Preparar la actualización
-$stmtUpdate = $conn->prepare("
+// Preparar la actualización de la tarea
+$stmtUpdateTarea = $conn->prepare("
     UPDATE tareas
     SET titulo = ?, descripcion = ?, color = ?
     WHERE id = ?
 ");
-$stmtUpdate->bind_param("sssi", $titulo, $descripcion, $color, $tareaId);
+$stmtUpdateTarea->bind_param("sssi", $titulo, $descripcion, $color, $tareaId);
 
-if ($stmtUpdate->execute()) {
+if ($stmtUpdateTarea->execute()) {
+    // Actualizar última actividad solo si se actualizó la tarea correctamente
+    $sqlUpdateActividad = "UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?";
+    $stmtUpdateActividad = $conn->prepare($sqlUpdateActividad);
+    if ($stmtUpdateActividad) {
+        $stmtUpdateActividad->bind_param("i", $tableroId);
+        $stmtUpdateActividad->execute();
+        $stmtUpdateActividad->close();
+    }
+
     echo json_encode(["success" => true, "message" => "Tarea actualizada correctamente"]);
 } else {
     echo json_encode(["success" => false, "message" => "Error al actualizar la tarea"]);
@@ -76,6 +84,5 @@ if ($stmtUpdate->execute()) {
 // Cierre de conexiones
 $stmt->close();
 $stmtPermiso->close();
-$stmtUpdate->close();
+$stmtUpdateTarea->close();
 $conn->close();
-?>

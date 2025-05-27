@@ -48,15 +48,29 @@ if ($result->num_rows === 0) {
 $stmt->close();
 
 // Eliminar al usuario del tablero
-$stmt = $conn->prepare("DELETE FROM miembros_tableros WHERE tablero_id = ? AND usuario_id = ?");
-$stmt->bind_param("is", $tablero_id, $usuario_id);
+$stmtDelete = $conn->prepare("DELETE FROM miembros_tableros WHERE tablero_id = ? AND usuario_id = ?");
+$stmtDelete->bind_param("is", $tablero_id, $usuario_id);
 
-if ($stmt->execute()) {
+// Eliminar invitación si existe
+$stmt = $conn->prepare("DELETE FROM invitaciones WHERE email = ? AND tablero_id = ?");
+$stmt->bind_param("si", $usuario['email'], $tablero_id);
+
+$stmt->execute();
+$stmt->close();
+
+if ($stmtDelete->execute()) {
+    // Actualizar la última actividad del tablero
+    $stmtUpdate = $conn->prepare("UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?");
+    if ($stmtUpdate) {
+        $stmtUpdate->bind_param("i", $tablero_id);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+    }
+
     echo json_encode(['success' => true, 'message' => 'Saliste del tablero exitosamente']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Error al salir del tablero']);
 }
 
-$stmt->close();
+$stmtDelete->close();
 $conn->close();
-?>

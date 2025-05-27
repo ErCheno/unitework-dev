@@ -1,7 +1,6 @@
 @use 'variables' as *;
 
-* {
-}
+* {}
 
 body {
     overflow-x: hidden !important;
@@ -13,6 +12,8 @@ body {
     gap: 40px;
     padding: 30px;
     flex-wrap: wrap;
+    max-width: 1400px;
+    margin-top: 50px;
 }
 
 .dashboard-left,
@@ -149,10 +150,18 @@ body {
 }
 
 .main-content {
-    width: 100%;
-    padding: 20px;
-    background-color: #f4f4f4;
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    margin-left: 125px;
+
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+
+
+    background-color: rgba(#f4f4f4, 0.55);
     z-index: 0;
 
     h1 {
@@ -205,6 +214,164 @@ h1 {
     height: 100%;
     object-fit: cover;
 }
+
+
+#inicioContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    height: 800px;
+
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    /* blanco con 60% opacidad */
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    max-width: 1400px;
+    margin: 0 auto;
+
+    #recentWorkspaces,
+    #recentKanbans,
+    #recentMindMaps {
+
+        i {
+            border-left: 4px solid $fourth-color;
+            font-size: 26px;
+            height: 30px;
+            padding-left: 10px;
+        }
+
+        #divSection {
+            display: flex;
+            flex-direction: row;
+        }
+
+        overflow-x: auto;
+    }
+
+    .hrInicio {
+        height: 1px;
+        background-color: rgba($third-color, 0.10);
+        width: 80%;
+        border-radius: 50%;
+
+    }
+
+    .recent-section {
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+
+    #divTituloInicio {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        justify-content: center;
+        width: 100%;
+
+        img {
+            width: 50px;
+            height: 50px;
+        }
+
+        h1 {
+            width: 500px;
+        }
+
+        margin-bottom: 20px;
+    }
+
+
+    .recent-section h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #333;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: left;
+        padding-left: 0.5rem;
+        /* bonito color azul índigo */
+    }
+
+    .recent-cards-container {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 0.7rem;
+        scroll-behavior: smooth;
+        margin-top: 20px;
+        padding: 10px;
+    }
+
+    .recent-cards-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .recent-cards-container::-webkit-scrollbar-thumb {
+        background-color: $fourth-color;
+        /* mismo azul pero con opacidad */
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    .recent-cards-container::-webkit-scrollbar-thumb:hover {
+        background-color: $fourth-color;
+    }
+
+    .recent-card {
+        min-width: 160px;
+        background: linear-gradient(145deg, #f0f4ff, #d9e2ff);
+        border-radius: 14px;
+        padding: 1.2rem 1.5rem;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+        cursor: pointer;
+        user-select: none;
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        color: #1e293b;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .recent-card-kanban,
+    .recent-card-mindmap {
+        min-width: 160px;
+        border-radius: 14px;
+        padding: 1.2rem 1.5rem;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+        cursor: pointer;
+        user-select: none;
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        color: #1e293b;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .recent-card-mindmap {
+        border-radius: 50px;
+    }
+
+    .recent-card:hover,
+    .recent-card-kanban:hover,
+    .recent-card-mindmap:hover {
+        box-shadow: 0 8px 24px rgba($primary-color, 0.25);
+        transform: translateY(-4px);
+    }
+}
+
+
 
 /* ---------- MEDIA QUERIES ---------- */
 

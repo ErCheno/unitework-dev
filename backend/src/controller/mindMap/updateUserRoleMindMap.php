@@ -23,7 +23,6 @@ if (!$conn) {
     exit();
 }
 
-// Verificar token y usuario autenticado
 $usuario = verificarToken($conn);
 if (!$usuario) {
     echo json_encode(["success" => false, "message" => "Usuario no autenticado"]);
@@ -37,9 +36,9 @@ if (empty($input['mapa_id']) || empty($input['usuario_id']) || empty($input['nue
     exit();
 }
 
-$mapa_id = $conn->real_escape_string($input['mapa_id']);
-$usuario_id = $conn->real_escape_string($input['usuario_id']);
-$nuevo_rol = $conn->real_escape_string($input['nuevo_rol']);
+$mapa_id = (int)$input['mapa_id'];
+$usuario_id = (int)$input['usuario_id'];
+$nuevo_rol = $input['nuevo_rol'];
 
 if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
     echo json_encode(['success' => false, 'message' => 'El rol proporcionado no es válido']);
@@ -47,8 +46,8 @@ if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
 }
 
 // Verificar que el usuario autenticado sea admin del mapa mental
-$stmt = $conn->prepare("SELECT rol FROM miembros_mapas_mentales WHERE mapa_id = ? AND usuario_id = ?");
-$stmt->bind_param("ss", $mapa_id, $usuario['id']);
+$stmt = $conn->prepare("SELECT rol FROM miembros_mapas_mentales WHERE mapa_mental_id = ? AND usuario_id = ?");
+$stmt->bind_param("ii", $mapa_id, $usuario['id']);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -66,14 +65,24 @@ if ($rolActual !== 'admin') {
 }
 
 // Actualizar el rol del usuario en el mapa
-$stmt = $conn->prepare("UPDATE miembros_mapas_mentales SET rol = ? WHERE mapa_id = ? AND usuario_id = ?");
-$stmt->bind_param("sss", $nuevo_rol, $mapa_id, $usuario_id);
+$stmt = $conn->prepare("UPDATE miembros_mapas_mentales SET rol = ? WHERE mapa_mental_id = ? AND usuario_id = ?");
+$stmt->bind_param("sii", $nuevo_rol, $mapa_id, $usuario_id);
 
 if ($stmt->execute()) {
+    $stmt->close();
+
+    // Actualizar fecha_modificacion del mapa solo si update del rol fue exitoso
+    $stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+    if ($stmtFecha) {
+        $stmtFecha->bind_param("i", $mapa_id);
+        $stmtFecha->execute();
+        $stmtFecha->close();
+    }
+
     echo json_encode(['success' => true, 'message' => 'Rol actualizado correctamente']);
 } else {
+    $stmt->close();
     echo json_encode(['success' => false, 'message' => 'Error al actualizar el rol']);
 }
 
-$stmt->close();
 $conn->close();

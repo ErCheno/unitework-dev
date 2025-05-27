@@ -223,7 +223,6 @@ export async function getUsuariosDelTablero(tableroId) {
         return [];
     }
 }
-
 export async function cambiarRolUsuario(tableroId, usuarioId, nuevoRol) {
     try {
         const token = getToken();
@@ -234,14 +233,14 @@ export async function cambiarRolUsuario(tableroId, usuarioId, nuevoRol) {
         if (!token) {
             showToast("Token no disponible. Inicia sesión nuevamente.", "error");
             page("/login");
-            return;
+            return { success: false, message: "Token no disponible" };
         }
+
         const response = await fetch("http://localhost/UniteWork/unitework-dev/backend/src/controller/boardKanban/updateUserRoleBoard.php", {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${token}` // Incluir el token en la cabecera
-
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 tablero_id: tableroId,
@@ -251,15 +250,19 @@ export async function cambiarRolUsuario(tableroId, usuarioId, nuevoRol) {
         });
 
         if (!response.ok) throw new Error(`Error del servidor: ${response.status}`);
-        const data = await response.json();
-        if (!data.success) throw new Error(data.message || "Error desconocido");
 
-        return data.usuarios_disponibles;
+        const data = await response.json();
+
+        if (!data.success) throw new Error(data.message || "Error desconocido");
+        showToast('Permisos de usuario cambiados', 'info');
+
+        return data;
     } catch (error) {
-        console.error("Error al obtener usuarios disponibles:", error.message);
-        return [];
+        console.error("Error al cambiar el rol:", error.message);
+        return { success: false, message: error.message };
     }
 }
+
 
 export async function selectBoard(boardId) {
     try {

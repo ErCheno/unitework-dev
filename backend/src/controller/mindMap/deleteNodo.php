@@ -83,6 +83,14 @@ function eliminarNodoYSubnodos($conn, $nodoId) {
 // Ejecutar la eliminación
 eliminarNodoYSubnodos($conn, $nodoId);
 
+    // Actualizar fecha_modificacion del mapa
+    $stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+    if ($stmtFecha) {
+        $stmtFecha->bind_param("i", $mapaId);
+        $stmtFecha->execute();
+        $stmtFecha->close();
+    }
+
 echo json_encode(["success" => true, "message" => "Nodo y subnodos eliminados correctamente"]);
 
 $conn->close();

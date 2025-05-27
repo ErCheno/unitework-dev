@@ -79,6 +79,14 @@ $result = $stmt->get_result();
 $nodoPadre = $result->fetch_assoc();
 $stmt->close();
 
+// Actualizar fecha_modificacion del mapa
+$stmtFecha = $conn->prepare("UPDATE mapas_mentales SET fecha_modificacion = NOW() WHERE id = ?");
+if ($stmtFecha) {
+    $stmtFecha->bind_param("i", $mapaId);
+    $stmtFecha->execute();
+    $stmtFecha->close();
+}
+
 $conn->close();
 
 echo json_encode([

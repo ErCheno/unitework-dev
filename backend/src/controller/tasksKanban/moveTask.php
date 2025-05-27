@@ -62,6 +62,10 @@ try {
                 throw new Exception("Sin permiso para tarea ID $tareaId");
             }
 
+            $row = $result->fetch_assoc();
+            $tableroId = $row['tablero_id']; // Captura el tablero_id
+
+
             // Actualizar tarea
             $stmtUpdate->bind_param("iii", $estadoId, $orden, $tareaId);
             if (!$stmtUpdate->execute()) {
@@ -71,6 +75,16 @@ try {
     }
 
     $conn->commit();
+
+    $sqlUpdateActividad = "UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?";
+    $stmtUpdateKanban = $conn->prepare($sqlUpdateActividad);
+    if ($stmtUpdateKanban) {
+        $stmtUpdateKanban->bind_param("i", $tableroId);
+        $stmtUpdateKanban->execute();
+        $stmtUpdateKanban->close();
+        // No hace falta manejar errores aquí a menos que quieras mostrar un warning
+    }
+
     echo json_encode(["success" => true]);
 } catch (Exception $e) {
     $conn->rollback();

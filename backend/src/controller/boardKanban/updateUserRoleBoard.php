@@ -69,6 +69,13 @@ if ($rolActual !== 'admin') {
 $stmt = $conn->prepare("UPDATE miembros_tableros SET rol = ? WHERE tablero_id = ? AND usuario_id = ?");
 $stmt->bind_param("sss", $nuevo_rol, $tablero_id, $usuario_id);
 
+$stmtUpdate = $conn->prepare("UPDATE tableros SET ultima_actividad = NOW() WHERE id = ?");
+if ($stmtUpdate) {
+    $stmtUpdate->bind_param("i", $tablero_id);
+    $stmtUpdate->execute();
+    $stmtUpdate->close();
+}
+
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Rol actualizado correctamente']);
 } else {
@@ -77,4 +84,3 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
-?>

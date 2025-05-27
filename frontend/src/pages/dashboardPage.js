@@ -3,9 +3,13 @@ import { TopNavbar } from '../components/topbar.js';
 import { getToken } from '../js/auth.js';
 import page from 'page';
 import { socketGetWorkspaces } from '../js/socketsEvents.js';
+import { fetchWorkspaces } from '../js/workspaces.js';
+import { fetchBoards } from '../js/board.js';
+import { fetchMindMaps } from '../js/mindMap.js';
+import { lightenColor } from '../components/mindMapCard.js';
 
 
-export function DashboardPage() {
+export async function DashboardPage() {
     const token = getToken();
     if (!token) {
         page('/login');
@@ -35,12 +39,179 @@ export function DashboardPage() {
 
     const topbar = TopNavbar();
     contentDiv.appendChild(topbar);
-
     // Establecer el contenido principal a la derecha del sidebar
     const mainContent = document.createElement('div');
     mainContent.className = 'main-content';
 
     // Título del Dashboard
+    const inicioContainer = document.createElement('div');
+    inicioContainer.id = 'inicioContainer';
+
+
+    const divTituloInicio = document.createElement('div');
+    divTituloInicio.id = 'divTituloInicio';
+    const icoLogo = document.createElement('img');
+    icoLogo.src = './public/img/logoOriginal.png';
+    const h1Inicio = document.createElement('h1');
+    h1Inicio.textContent = '¡Bienvenid@ ' + localStorage.getItem('username') + '!';
+
+    divTituloInicio.appendChild(icoLogo);
+    divTituloInicio.appendChild(h1Inicio);
+
+    inicioContainer.appendChild(divTituloInicio);
+
+    // Función para crear una sección
+    function createRecentSection(id, title) {
+        const section = document.createElement('section');
+        section.id = id;
+        section.className = 'recent-section';
+
+        let icono;
+
+        switch (id) {
+            case 'recentWorkspaces':
+                icono = document.createElement('i');
+                icono.className = 'fa-solid fa-toolbox';
+                break;
+
+            case 'recentKanbans':
+                icono = document.createElement('i');
+                icono.className = 'fa-solid fa-columns';
+                break;
+
+            case 'recentMindMaps':
+                icono = document.createElement('i');
+                icono.className = 'fa-solid fa-diagram-project';
+                break;
+
+            default:
+                icono = document.createElement('i');
+                icono.className = 'fa-solid fa-question-circle';
+        }
+
+        const h2 = document.createElement('h2');
+        h2.textContent = title;
+        const divSection = document.createElement('div');
+        divSection.id = 'divSection';
+        divSection.appendChild(icono);
+        divSection.appendChild(h2);
+        section.appendChild(divSection);
+        
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'recent-cards-container';
+        section.appendChild(cardsContainer);
+
+        return { section, cardsContainer };
+    }
+
+    const workspacesSection = createRecentSection('recentWorkspaces', 'Espacios de trabajo recientes');
+    const kanbansSection = createRecentSection('recentKanbans', 'Tableros Kanban recientes');
+    const mindmapsSection = createRecentSection('recentMindMaps', 'Mapas mentales recientes');
+
+    const hrInicio1 = document.createElement('hr');
+    const hrInicio2 = document.createElement('hr');
+
+    hrInicio1.className = 'hrInicio';
+    hrInicio2.className = 'hrInicio';
+
+    inicioContainer.appendChild(workspacesSection.section);
+    inicioContainer.appendChild(hrInicio1);
+    inicioContainer.appendChild(kanbansSection.section);
+    inicioContainer.appendChild(hrInicio2);
+    inicioContainer.appendChild(mindmapsSection.section);
+
+
+    function createCard(title, id = null) {
+        const card = document.createElement('div');
+        card.className = 'recent-card';
+        card.title = title;
+
+        if (id !== null) {
+            card.setAttribute('data-id', id);
+
+            card.addEventListener('click', () => {
+                // Navegación SPA con page.js u otra lib,
+                page(`/workspace/${id}`);
+            });
+        }
+
+        card.textContent = title;
+        return card;
+    }
+
+    function createKanbanCard(nombre, id, color) {
+        const card = document.createElement('div');
+        card.className = 'recent-card-kanban';
+        card.title = nombre;
+
+        if (id !== null) {
+            card.setAttribute('data-id', id);
+            card.style.backgroundColor = color;
+
+            card.addEventListener('click', () => {
+                page(`/board/${id}`);
+            });
+        }
+
+        card.textContent = nombre;
+        return card;
+    }
+
+    function createCardMindmaps(nombre, id, color) {
+        const card = document.createElement('div');
+        card.classList.add('recent-card-mindmap'); // Añade clases para estilos específicos si quieres
+        card.title = nombre;
+
+        if (id !== null) {
+            card.setAttribute('data-id', id);
+            const lightColor = lightenColor(color, 40); // Aclarar un 10%
+            card.style.backgroundColor = lightColor;
+            // Añadir redirección al hacer clic
+            card.addEventListener('click', () => {
+                // Asumiendo que usas navegación SPA con page.js u otra lib,
+                // o simplemente redirección por URL
+                page(`/mindmap/${id}`);
+            });
+        }
+        card.textContent = nombre;
+        return card;
+    }
+
+
+
+    // --- Obtener workspaces reales ---
+    try {
+        const workspaces = await fetchWorkspaces('actividad_desc');
+
+        workspaces.slice(0, 5).forEach(ws => {
+            const card = createCard(ws.nombre, ws.id);
+            workspacesSection.cardsContainer.appendChild(card);
+        });
+
+        // Traer tableros de esos workspaces
+        for (const ws of workspaces.slice(0, 5)) {
+            const boards = await fetchBoards(ws.id); // ← le pasas el ID de cada workspace
+
+            boards.forEach(board => {
+                const card = createKanbanCard(board.nombre, board.id, board.color);
+                kanbansSection.cardsContainer.appendChild(card);
+            });
+        }
+
+        // Traer mindmaps de esos workspaces
+        for (const ws of workspaces.slice(0, 5)) {
+            const mindmaps = await fetchMindMaps(ws.id); // ← le pasas el ID de cada workspace
+
+            mindmaps.forEach(mindmap => {
+                const card = createCardMindmaps(mindmap.titulo, mindmap.id, mindmap.color);
+                mindmapsSection.cardsContainer.appendChild(card);
+            });
+        }
+
+
+    } catch (error) {
+        console.error('Error al obtener espacios de trabajo recientes:', error);
+    }
 
     // Contenedor general tipo grid o flex
     const dashboardContainer = document.createElement('div');
@@ -53,7 +224,7 @@ export function DashboardPage() {
     // h1 y párrafo
     const h1 = document.createElement('h1');
     const usuarioId = localStorage.getItem('username');
-    h1.textContent = '¡Bienvenid@ '+usuarioId+'!';
+    h1.textContent = '¡Bienvenid@ ' + usuarioId + '!';
     leftColumn.appendChild(h1);
 
     const p = document.createElement('p');
@@ -121,25 +292,25 @@ export function DashboardPage() {
     carouselImages.forEach((src, index) => {
         const item = document.createElement('div');
         item.className = index === 0 ? 'carousel-item active' : 'carousel-item';
-    
+
         const img = document.createElement('img');
         img.src = src;
         img.alt = `Slide ${index + 1}`;
-        img.className = 'd-block w-100'; 
+        img.className = 'd-block w-100';
         img.style.height = '100%';
         img.style.objectFit = 'cover';
-    
+
         img.onload = () => {
             imagesLoaded++;
             if (imagesLoaded === carouselImages.length) {
                 document.getElementById('dashboardCarousel').classList.add('show-carousel');
             }
         };
-    
+
         item.appendChild(img);
         carouselInner.appendChild(item);
     });
-    
+
 
     carouselWrapper.appendChild(carouselInner);
 
@@ -217,7 +388,10 @@ export function DashboardPage() {
     dashboardContainer.appendChild(leftColumn);
     dashboardContainer.appendChild(rightColumn);
 
+
+
     // Añadir al mainContent
+    mainContent.appendChild(inicioContainer);
     mainContent.appendChild(dashboardContainer);
     contentDiv.appendChild(mainContent);
 

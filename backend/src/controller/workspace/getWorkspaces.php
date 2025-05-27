@@ -21,17 +21,17 @@ $usuario = verificarToken($conn);
 $userId = $usuario['id'];
 
 // Leer parámetro 'orden'
+// Leer parámetro 'orden'
 $orden = $_GET['orden'] ?? 'nombre_asc';
 $ordenSql = "";
+$selectExtra = "";
 
 // Construir la parte de ordenamiento
 switch ($orden) {
     case 'nombre_asc':
-        $selectExtra = "";
         $ordenSql = "ORDER BY et.nombre ASC";
         break;
     case 'nombre_desc':
-        $selectExtra = "";
         $ordenSql = "ORDER BY et.nombre DESC";
         break;
     case 'kanban':
@@ -46,10 +46,13 @@ switch ($orden) {
         $selectExtra = ", (SELECT COUNT(*) FROM miembros_espacios_trabajo me WHERE me.espacio_trabajo_id = et.id) AS num_usuarios";
         $ordenSql = "ORDER BY num_usuarios DESC";
         break;
+    case 'actividad_desc':
+        $ordenSql = "ORDER BY et.ultima_actividad DESC";
+        break;
     default:
-        $selectExtra = "";
         $ordenSql = "ORDER BY et.nombre ASC";
 }
+
 
 // Consulta SQL base unificada
 $sql = "
