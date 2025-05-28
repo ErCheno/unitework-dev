@@ -26,7 +26,7 @@ export async function MindMapPage(mapId) {
 
     const navbar = Navbar();
     const topbar = TopNavbar();
-    container.append(navbar, topbar);
+    contentDiv.append(navbar, topbar);
 
     const mapa = await selectMindMap(mapId);
     const divConjuntoArriba = document.createElement('div');

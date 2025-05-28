@@ -380,6 +380,9 @@ h1 {
     }
 
     .recent-card {
+        height: 75px;
+
+
         min-width: 160px;
         background: linear-gradient(145deg, #f0f4ff, #d9e2ff);
         border-radius: 14px;
@@ -397,6 +400,7 @@ h1 {
 
     .recent-card-kanban,
     .recent-card-mindmap {
+        height: 75px;
         min-width: 160px;
         border-radius: 14px;
         padding: 1.5rem 1.5rem;

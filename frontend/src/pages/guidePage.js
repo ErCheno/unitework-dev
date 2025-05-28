@@ -17,7 +17,7 @@ export function GuidePage() {
     container.classList.add('page');
 
     // Navbar y topbar
-    container.append(Navbar(), TopNavbar());
+    contentDiv.append(Navbar(), TopNavbar());
 
     const main = document.createElement('main');
     main.classList.add('main-container');

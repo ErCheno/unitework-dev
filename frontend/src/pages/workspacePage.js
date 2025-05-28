@@ -37,8 +37,8 @@ export async function workspacePage(workspaceId) {
     const navbar = Navbar();
     const topbar = TopNavbar();
 
-    container.appendChild(navbar);
-    container.appendChild(topbar);
+    contentDiv.appendChild(navbar);
+    contentDiv.appendChild(topbar);
 
     const divConjuntoArriba = document.createElement('div');
     divConjuntoArriba.id = 'divConjuntoArriba';

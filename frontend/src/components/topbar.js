@@ -6,6 +6,7 @@ import { getUsuariosDisponibles } from '../js/board.js';
 import { connectSocket, socket } from '../js/socket.js';
 import { socketGetInvitations, socketGetWorkspaces } from '../js/socketsEvents.js';
 import { renderWorkspaces } from '../pages/myworkspacesPage.js';
+import { fetchWorkspaces } from '../js/workspaces.js';
 let userIcon;
 
 export function TopNavbar() {
@@ -206,9 +207,68 @@ export function TopNavbar() {
 
   const gruposLi = document.createElement('li');
   const gruposA = document.createElement('a');
-  gruposA.href = '/myworkspaces';
+  gruposA.href = '#';
   gruposA.textContent = 'Mis espacios de trabajo';
+
+  const workspaceDropdown = document.createElement('div');
+  workspaceDropdown.className = 'submenu-dropdown hidden';
+
+
+
+  gruposA.addEventListener('click', async (e) => {
+    e.preventDefault();
+    console.log('Click detectado en Mis espacios de trabajo');
+
+    try {
+      const workspaces = await fetchWorkspaces();
+      console.log(workspaces);
+
+      workspaceDropdown.innerHTML = ''; // limpiar cualquier contenido previo
+
+      if (workspaces.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.textContent = 'No tienes espacios de trabajo.';
+        emptyMsg.classList.add('empty-msg');
+        workspaceDropdown.appendChild(emptyMsg);
+      } else {
+        workspaces.forEach(ws => {
+          const wsLink = document.createElement('a');
+          wsLink.className = 'wsLink';
+          wsLink.href = `/workspace/${ws.id}`;
+          wsLink.textContent = ws.nombre;
+          workspaceDropdown.appendChild(wsLink);
+        });
+      }
+
+    } catch (error) {
+      workspaceDropdown.innerHTML = ''; // Limpia por si hay contenido antes
+      const errorMsg = document.createElement('p');
+      errorMsg.textContent = 'Error al cargar los espacios.';
+      console.error(error);
+      errorMsg.classList.add('error-msg');
+      workspaceDropdown.appendChild(errorMsg);
+    }
+  });
+
+  gruposA.addEventListener('dblclick', (e) => {
+    e.preventDefault(); // Opcional, para prevenir comportamiento por defecto
+    page('/myworkspaces'); // redirige a la página deseada
+  });
+
+  gruposA.addEventListener('click', (e) => {
+    e.preventDefault();
+    workspaceDropdown.classList.toggle('hidden');
+  });
+  // Cerrar menú si se hace clic fuera
+  document.addEventListener('click', (e) => {
+    if (!gruposLi.contains(e.target)) {
+      workspaceDropdown.classList.add('hidden');
+    }
+  });
+
   gruposLi.appendChild(gruposA);
+  gruposLi.appendChild(workspaceDropdown);
+
 
   const mapasmentalesLi = document.createElement('li');
   const mapasmentalesA = document.createElement('a');
@@ -612,7 +672,7 @@ export function crearNotificacion(
     li.appendChild(acciones);
   }
 
- 
+
 
   return li;
 }

@@ -29,8 +29,8 @@ export async function BoardPage(boardId) {
     const navbar = Navbar();
     const topbar = TopNavbar();
 
-    container.appendChild(navbar);
-    container.appendChild(topbar);
+    contentDiv.appendChild(navbar);
+    contentDiv.appendChild(topbar);
 
     const board = await selectBoard(boardId);
 
