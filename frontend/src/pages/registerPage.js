@@ -7,7 +7,7 @@ import { cleanupView } from '../../public/js/cleanup.js';
 export function RegisterPage() {
     cleanupView();
 
-    
+
     // Eliminar contenedores previos si existen
     const oldAuthContent = document.getElementById('auth-content');
     if (oldAuthContent) oldAuthContent.remove();
@@ -22,12 +22,13 @@ export function RegisterPage() {
     document.body.appendChild(authContent);
 
 
-    
+
     const main = document.createElement('main');
     authContent.appendChild(main);
 
     const form = RegisterForm();
     main.appendChild(form);
+
 
     // Crear aside derecho
     const divDerecho = document.createElement('aside');
@@ -36,7 +37,7 @@ export function RegisterPage() {
     const h2 = document.createElement('h2');
     h2.textContent = "¡Nos encanta ver caras nuevas!";
     const p = document.createElement('p');
-    p.textContent = "En nuestra corporación nos esmeramos en satisfacer las necesidades de nuestros usuarios. Estamos entusiasmados por tu nueva llegada 🚀🔥";
+    p.textContent = "UniteWork es tu espacio de colaboración para trabajar en equipo. Gestiona espacios de trabajo, organiza tareas en tableros Kanban y desarrolla ideas con mapas mentales. Todo en un sólo lugar, simple y visual. 🚀🔥";
 
     const imagenDivDerecho = document.createElement('img');
     imagenDivDerecho.className = "background-img";
@@ -94,13 +95,13 @@ export function RegisterPage() {
                 },
                 body: JSON.stringify(userData),
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const result = await response.json();
-            
+
 
             if (result.status === "success") {
                 localStorage.setItem('usuarioId', result.id);

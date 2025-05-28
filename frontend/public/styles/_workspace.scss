@@ -254,6 +254,7 @@
 }
 
 #divActividad,
+#divSubInformacion,
 #divTableroInfo,
 #divMentalMapInfo {
   display: flex;
@@ -288,6 +289,7 @@
 
 
 .actividad {
+  text-align: left;
   font-size: 12px;
   width: 80%;
   color: $secondary-color;

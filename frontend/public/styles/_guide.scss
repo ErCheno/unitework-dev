@@ -1,0 +1,132 @@
+@use 'variables' as *;
+
+
+.page {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    min-height: 2000px;
+    min-width: 100vh;
+    box-shadow: 0 2px 10px rgba($secondary-color, 0.4);
+    border-radius: 20px;
+    padding: 50px;
+}
+
+
+#divTop {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+
+}
+
+.main-container {
+    display: grid;
+    align-items: center;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    padding: 2rem 1.5rem;
+    max-width: 1200px;
+    margin: auto;
+}
+.tutorial-section {
+  grid-column: 1 / -1; /* Ocupa todo el ancho en grid */
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.page h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #0f172a;
+}
+
+.section-card {
+    max-width: 100%;
+    min-width: 300px;
+
+    border-radius: 1.25rem;
+    height: 500px;
+    padding: 1.5rem;
+    background-color: white;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.15);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 1rem;
+}
+
+.section-icon {
+    font-size: 1.8rem;
+}
+
+.section-title {
+    font-size: 1.4rem;
+}
+
+.section-list {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    color: #475569;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        padding: 1rem;
+    }
+
+    .page h1 {
+        font-size: 2rem;
+    }
+
+    .section-card {
+        padding: 1rem;
+    }
+
+    .section-header {
+        font-size: 1.2rem;
+    }
+}
+
+/* Colores de fondo */
+.bg-blue-50 {
+    background-color: #eff6ff;
+}
+
+.bg-green-50 {
+    background-color: #ecfdf5;
+}
+
+.bg-yellow-50 {
+    background-color: #fefce8;
+}
+
+.bg-purple-50 {
+    background-color: #f5f3ff;
+}
+
+.bg-pink-50 {
+    background-color: #fdf2f8;
+}
+
+.bg-orange-50 {
+    background-color: #fff7ed;
+}

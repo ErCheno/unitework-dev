@@ -12,6 +12,7 @@ import { fetchBoards } from './js/board.js';
 import { connectSocket } from './js/socket.js';
 import { MindMapPage } from './pages/mindMapPage.js';
 import { showToast } from '../public/js/validator/regex.js';
+import { GuidePage } from './pages/guidePage.js';
 
 window.addEventListener('load', () => {
     connectSocket();  // Llamamos a connectSocket en la carga de la página
@@ -85,6 +86,7 @@ page('/login', LoginPage);
 // Ruta de registro
 page('/registro', RegisterPage);
 
+page('/guia', GuidePage);
 
 // Ruta para ir al último tablero visitado
 page('/lastboard', authGuard, () => {

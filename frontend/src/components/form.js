@@ -24,7 +24,7 @@ export function LoginForm() {
 
     // PASSWORD
     const passwordContainer = document.createElement('div');
-    passwordContainer.className = 'password-container'; 
+    passwordContainer.className = 'password-container';
 
     const passwordInput = document.createElement('input');
     passwordInput.type = 'password';
@@ -33,14 +33,14 @@ export function LoginForm() {
     passwordInput.required = true;
 
     const togglePassword = document.createElement('i');
-    togglePassword.className = 'fa-solid fa-eye toggle-password'; 
+    togglePassword.className = 'fa-solid fa-eye toggle-password';
 
     togglePassword.addEventListener('click', () => {
         const isPassword = passwordInput.type === 'password';
         passwordInput.type = isPassword ? 'text' : 'password';
-        togglePassword.className = isPassword 
+        togglePassword.className = isPassword
             ? 'fa-solid fa-eye-slash toggle-password'
-            : 'fa-solid fa-eye toggle-password'; 
+            : 'fa-solid fa-eye toggle-password';
     });
 
     passwordContainer.appendChild(passwordInput);
@@ -50,18 +50,19 @@ export function LoginForm() {
     // CHECKBOX
     const rememberContainer = document.createElement('div');
     rememberContainer.className = 'remember-container';
-    
+
     const rememberInput = document.createElement('input');
     rememberInput.type = 'checkbox';
     rememberInput.id = 'rememberMe';
-    
+
     const rememberLabel = document.createElement('label');
     rememberLabel.htmlFor = 'rememberMe';
     rememberLabel.textContent = 'Mantener sesión iniciada';
-    
+
     rememberContainer.appendChild(rememberInput);
     rememberContainer.appendChild(rememberLabel);
     form.appendChild(rememberContainer);
+
 
     // SUBMIT
     const submitButton = document.createElement('button');
@@ -166,7 +167,28 @@ export function RegisterForm() {
 
     confirmContainer.appendChild(confirmPasswordInput);
     confirmContainer.appendChild(toggleConfirmPassword);
+
+
     form.appendChild(confirmContainer);
+
+
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.className = 'form-check';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'terms';
+    checkbox.name = 'terms';
+    checkbox.required = true;
+    checkbox.id = 'rememberMe';
+    const label = document.createElement('label');
+    label.textContent = 'Acepto las politicas de privacidad';
+    label.htmlFor = 'terms';
+    label.className = 'form-check-label';
+
+    checkboxContainer.appendChild(checkbox);
+    checkboxContainer.appendChild(label);
+    form.appendChild(checkboxContainer);
 
     // SUBMIT
     const submitButton = document.createElement('button');

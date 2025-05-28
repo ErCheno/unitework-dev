@@ -1,13 +1,12 @@
 @use 'variables' as *;
 
-*{
-}
+* {}
 
 #auth-content {
   display: flex;
   width: 100%;
   height: 900px;
-  margin:40px 0px 40px 40px;
+  margin: 40px 0px 40px 40px;
   box-shadow: 1px 1px 10px $button-bg;
 
 
@@ -74,8 +73,7 @@ main {
       }
     }
 
-    .remember-container {
-
+    .form-check {
       display: flex;
       align-items: center;
       margin-bottom: 20px;
@@ -99,104 +97,129 @@ main {
     }
 
 
-    form {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+  .remember-container {
 
-      width: 100%;
-      margin: 15px 0;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    margin-left: 30px;
+    font-size: 14px;
 
-      input {
-        margin: 20px;
-        width: 80%;
-        height: 60%;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-        box-shadow: 2px 2px 5px $button-bg;
+    align-self: flex-start;
 
-        &:focus {
-          outline: none;
-          border-color: $primary-color;
-        }
-      }
-    }
-
-    .confirmPassword-container {
-      margin: 0px;
-    }
-
-    .password-container,
-    .confirmPassword-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 88%;
-      margin: 20px;
-
-      input {
-        width: 100%;
-        height: 40px;
-
-        padding-right: 40px;
-      }
-
-      .toggle-password,
-      .toggle-confirmPassword {
-        position: absolute;
-        right: 50px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        font-size: 18px;
-        user-select: none;
-      }
-
-
-    }
-
-    .confirmPassword-container {
-      margin-bottom: 20px !important;
-    }
-
-    .error-message {
-      position: absolute;
-      top: 100px;
-      margin: 5px 0 0;
-      padding: 0;
-      font-size: 0.85em;
-      color: rgb(255, 0, 0);
-      align-self: flex-start;
-      user-select: none;
-    }
-
-    button {
-      width: 50%;
-      height: 60px;
-      padding: 12px;
-      background-image: linear-gradient(#22577A, #2C3E50);
-      color: white;
-      font-size: 20px;
-      font-weight: bolder;
-      border: none;
-      border-radius: 5px;
-      box-shadow: 2px 2px 5px 2px $button-bg;
-
+    input[type="checkbox"] {
       cursor: pointer;
-      margin-top: 10px;
+      width: 30px;
+    }
 
-      &:hover {
-        background: $button-hover;
+    label {
+      user-select: none;
+      cursor: pointer;
+      font-family: $font-stack;
+      font-weight: bold;
+      color: $secondary-color;
+    }
+  }
+
+
+  form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    margin: 15px 0;
+
+    input {
+      margin: 20px;
+      width: 80%;
+      height: 60%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-shadow: 2px 2px 5px $button-bg;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
       }
     }
   }
+
+  .confirmPassword-container {
+    margin: 0px;
+  }
+
+  .password-container,
+  .confirmPassword-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 88%;
+    margin: 20px;
+
+    input {
+      width: 100%;
+      height: 40px;
+
+      padding-right: 40px;
+    }
+
+    .toggle-password,
+    .toggle-confirmPassword {
+      position: absolute;
+      right: 50px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 18px;
+      user-select: none;
+    }
+
+
+  }
+
+  .confirmPassword-container {
+    margin-bottom: 20px !important;
+  }
+
+  .error-message {
+    position: absolute;
+    top: 100px;
+    margin: 5px 0 0;
+    padding: 0;
+    font-size: 0.85em;
+    color: rgb(255, 0, 0);
+    align-self: flex-start;
+    user-select: none;
+  }
+
+  button {
+    width: 50%;
+    height: 60px;
+    padding: 12px;
+    background-image: linear-gradient(#22577A, #2C3E50);
+    color: white;
+    font-size: 20px;
+    font-weight: bolder;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px 2px $button-bg;
+
+    cursor: pointer;
+    margin-top: 10px;
+
+    &:hover {
+      background: $button-hover;
+    }
+  }
+}
 }
 
 .divDerecho {
-  margin:40px 40px 40px 0px;
+  margin: 40px 40px 40px 0px;
   width: 80%;
 
   position: relative;
