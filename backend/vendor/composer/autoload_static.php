@@ -16,10 +16,6 @@ class ComposerStaticInitd742765f2f043d15809f42cf201ab088
             'Ramsey\\Uuid\\' => 12,
             'Ramsey\\Collection\\' => 18,
         ),
-        'P' => 
-        array (
-            'PHPMailer\\PHPMailer\\' => 20,
-        ),
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
@@ -42,10 +38,6 @@ class ComposerStaticInitd742765f2f043d15809f42cf201ab088
         'Ramsey\\Collection\\' => 
         array (
             0 => __DIR__ . '/..' . '/ramsey/collection/src',
-        ),
-        'PHPMailer\\PHPMailer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Firebase\\JWT\\' => 
         array (

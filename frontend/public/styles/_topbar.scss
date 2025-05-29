@@ -950,8 +950,15 @@
 }
 
 .wsLink{
+  border-left: 4px solid $third-color;
+  margin: 5px 2px 15px;
+  font-weight: bold;
+}
+
+.boardLink{
   border-left: 4px solid $fourth-color;
   margin: 5px 2px 15px;
+  font-weight: bold;
 }
 
 .submenu-dropdown a {

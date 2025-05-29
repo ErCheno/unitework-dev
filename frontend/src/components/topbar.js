@@ -2,11 +2,12 @@ import page from 'page';
 import { logoutUser } from '../js/auth.js';
 import { showToast } from "../../public/js/validator/regex.js";
 import { acceptInvitation, denyInvitation, getInvitations } from '../js/notifications.js';
-import { getUsuariosDisponibles } from '../js/board.js';
+import { fetchBoards, getUsuariosDisponibles } from '../js/board.js';
 import { connectSocket, socket } from '../js/socket.js';
 import { socketGetInvitations, socketGetWorkspaces } from '../js/socketsEvents.js';
 import { renderWorkspaces } from '../pages/myworkspacesPage.js';
 import { fetchWorkspaces } from '../js/workspaces.js';
+import { fetchMindMaps } from '../js/mindMap.js';
 let userIcon;
 
 export function TopNavbar() {
@@ -194,16 +195,79 @@ export function TopNavbar() {
   dashboardA.textContent = 'Inicio';
   dasboardLi.appendChild(dashboardA);
 
-  const ultimoBoardId = localStorage.getItem('ultimo_board_id');
 
 
   const kanbanLi = document.createElement('li');
   const kanbanA = document.createElement('a');
+  kanbanA.href = '#';
+  kanbanA.textContent = 'Tableros Kanban';
 
-  kanbanA.href = '/lastboard';
+  const kanbanDropdown = document.createElement('div');
+  kanbanDropdown.className = 'submenu-dropdown hidden';
 
-  kanbanA.textContent = 'Tablero Kanban';
+  kanbanA.addEventListener('click', async (e) => {
+    e.preventDefault();
+    console.log('Click detectado en Tableros Kanban');
+
+    try {
+      const workspaces = await fetchWorkspaces();
+      const allBoards = [];
+
+      for (const ws of workspaces) {
+        try {
+          const boards = await fetchBoards(ws.id);
+          allBoards.push(...boards);
+        } catch (error) {
+          console.error(`Error al cargar tableros del workspace ${ws.id}:`, error);
+        }
+      }
+
+      kanbanDropdown.innerHTML = ''; // limpiar contenido previo
+
+      if (allBoards.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.textContent = 'No tienes tableros Kanban.';
+        emptyMsg.classList.add('empty-msg');
+        kanbanDropdown.appendChild(emptyMsg);
+      } else {
+        allBoards.forEach(board => {
+          const boardLink = document.createElement('a');
+          boardLink.className = 'boardLink';
+          boardLink.href = `/board/${board.id}`;
+          boardLink.textContent = board.nombre;
+          kanbanDropdown.appendChild(boardLink);
+        });
+      }
+
+    } catch (error) {
+      kanbanDropdown.innerHTML = '';
+      const errorMsg = document.createElement('p');
+      errorMsg.textContent = 'Error al cargar los tableros.';
+      errorMsg.classList.add('error-msg');
+      kanbanDropdown.appendChild(errorMsg);
+      console.error(error);
+    }
+  });
+
+  // Para alternar visibilidad al hacer clic
+  kanbanA.addEventListener('click', (e) => {
+    e.preventDefault();
+    kanbanDropdown.classList.toggle('hidden');
+  });
+
+  // Cerrar menú si clic fuera
+  document.addEventListener('click', (e) => {
+    if (!kanbanLi.contains(e.target)) {
+      kanbanDropdown.classList.add('hidden');
+    }
+  });
+
   kanbanLi.appendChild(kanbanA);
+  kanbanLi.appendChild(kanbanDropdown);
+
+  // Ahora añade kanbanLi al UL del topbar (ejemplo)
+  // topbarUl.appendChild(kanbanLi);
+
 
   const gruposLi = document.createElement('li');
   const gruposA = document.createElement('a');
@@ -269,13 +333,77 @@ export function TopNavbar() {
   gruposLi.appendChild(gruposA);
   gruposLi.appendChild(workspaceDropdown);
 
-
   const mapasmentalesLi = document.createElement('li');
   const mapasmentalesA = document.createElement('a');
-  mapasmentalesA.href = '/lastmindmap';
+  mapasmentalesA.href = '#';
+  mapasmentalesA.textContent = 'Mapas Mentales';
 
-  mapasmentalesA.textContent = 'Mapa mental';
+  const mapasmentalesDropdown = document.createElement('div');
+  mapasmentalesDropdown.className = 'submenu-dropdown hidden';
+
+  mapasmentalesA.addEventListener('click', async (e) => {
+    e.preventDefault();
+    console.log('Click detectado en Mapas Mentales');
+
+    try {
+      const workspaces = await fetchWorkspaces();
+      const allMindMaps = [];
+
+      for (const ws of workspaces) {
+        try {
+          const mindmaps = await fetchMindMaps(ws.id);
+          allMindMaps.push(...mindmaps);
+        } catch (error) {
+          console.error(`Error al cargar mapas mentales del workspace ${ws.id}:`, error);
+        }
+      }
+
+      mapasmentalesDropdown.innerHTML = ''; // limpiar contenido previo
+
+      if (allMindMaps.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.textContent = 'No tienes mapas mentales.';
+        emptyMsg.classList.add('empty-msg');
+        mapasmentalesDropdown.appendChild(emptyMsg);
+      } else {
+        allMindMaps.forEach(mindmap => {
+          const mindmapLink = document.createElement('a');
+          mindmapLink.className = 'mindmapLink';
+          mindmapLink.href = `/mindmap/${mindmap.id}`;
+          mindmapLink.textContent = mindmap.titulo;
+          mapasmentalesDropdown.appendChild(mindmapLink);
+        });
+      }
+
+    } catch (error) {
+      mapasmentalesDropdown.innerHTML = '';
+      const errorMsg = document.createElement('p');
+      errorMsg.textContent = 'Error al cargar los mapas mentales.';
+      errorMsg.classList.add('error-msg');
+      mapasmentalesDropdown.appendChild(errorMsg);
+      console.error(error);
+    }
+  });
+
+  // Alternar visibilidad al hacer clic
+  mapasmentalesA.addEventListener('click', (e) => {
+    e.preventDefault();
+    mapasmentalesDropdown.classList.toggle('hidden');
+  });
+
+  // Cerrar menú si clic fuera
+  document.addEventListener('click', (e) => {
+    if (!mapasmentalesLi.contains(e.target)) {
+      mapasmentalesDropdown.classList.add('hidden');
+    }
+  });
+
   mapasmentalesLi.appendChild(mapasmentalesA);
+  mapasmentalesLi.appendChild(mapasmentalesDropdown);
+
+  // Añade mapasmentalesLi al UL del topbar, por ejemplo:
+  // topbarUl.appendChild(mapasmentalesLi);
+
 
   // Añadir al menú principal
   menu.appendChild(dasboardLi);
