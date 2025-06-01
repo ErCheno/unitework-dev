@@ -87,12 +87,6 @@ export function BoardCard(board) {
   card.appendChild(divIconosDebajo);
 
   card.addEventListener('click', () => {
-    localStorage.setItem('ultimo_board_id', board.id);
-
-    // Opcional: guardar también el nombre del tablero o el workspace
-    localStorage.setItem('ultimo_board_nombre', board.nombre);
-    localStorage.setItem('ultimo_workspace_id', board.espacio_trabajo_id);
-
     page(`/board/${board.id}`); // Redirige a la página del workspace con el ID del workspace
     //sessionStorage.setItem('idWorkspace', board.espacio_trabajo_id)
   });
@@ -106,11 +100,6 @@ export function BoardCard(board) {
 
     try {
       await deleteBoards(board.id);
-      localStorage.removeItem('ultimo_board_id');
-
-      // Opcional: guardar también el nombre del tablero o el workspace
-      localStorage.removeItem('ultimo_board_nombre');
-      localStorage.removeItem('ultimo_workspace_id');
       card.remove(); // Eliminar la tarjeta del DOM directamente
     } catch (error) {
       console.error("Error al eliminar el tablero:", error);
