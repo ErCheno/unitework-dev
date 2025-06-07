@@ -104,7 +104,20 @@ $stmt = $conn->prepare("INSERT INTO miembros_tableros (usuario_id, tablero_id, r
 $stmt->bind_param("sis", $usuario_id, $tablero_id, $rol_admin);
 $stmt->execute();
 $stmt->close();
+// Crear estados por defecto para el tablero Kanban
+$estados_default = [
+    ["nombre" => "Por hacer", "posicionamiento" => 1],
+    ["nombre" => "En progreso", "posicionamiento" => 2],
+    ["nombre" => "Completado", "posicionamiento" => 3],
+];
 
+$stmt = $conn->prepare("INSERT INTO estados_tareas (tablero_id, nombre, posicionamiento) VALUES (?, ?, ?)");
+
+foreach ($estados_default as $estado) {
+    $stmt->bind_param("isi", $tablero_id, $estado["nombre"], $estado["posicionamiento"]);
+    $stmt->execute();
+}
+$stmt->close();
 // Crear mapa mental
 $titulo_mapa = "Mapa mental de $name";
 $descripcion_mapa = "Mapa mental inicial creado automáticamente";
