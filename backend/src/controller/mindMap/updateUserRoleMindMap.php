@@ -37,7 +37,7 @@ if (empty($input['mapa_id']) || empty($input['usuario_id']) || empty($input['nue
 }
 
 $mapa_id = (int)$input['mapa_id'];
-$usuario_id = (int)$input['usuario_id'];
+$usuario_id = $input['usuario_id'];
 $nuevo_rol = $input['nuevo_rol'];
 
 if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
@@ -47,7 +47,7 @@ if (!in_array($nuevo_rol, ['admin', 'miembro'])) {
 
 // Verificar que el usuario autenticado sea admin del mapa mental
 $stmt = $conn->prepare("SELECT rol FROM miembros_mapas_mentales WHERE mapa_mental_id = ? AND usuario_id = ?");
-$stmt->bind_param("ii", $mapa_id, $usuario['id']);
+$stmt->bind_param("is", $mapa_id, $usuario['id']);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -66,7 +66,7 @@ if ($rolActual !== 'admin') {
 
 // Actualizar el rol del usuario en el mapa
 $stmt = $conn->prepare("UPDATE miembros_mapas_mentales SET rol = ? WHERE mapa_mental_id = ? AND usuario_id = ?");
-$stmt->bind_param("sii", $nuevo_rol, $mapa_id, $usuario_id);
+$stmt->bind_param("sis", $nuevo_rol, $mapa_id, $usuario_id);
 
 if ($stmt->execute()) {
     $stmt->close();
